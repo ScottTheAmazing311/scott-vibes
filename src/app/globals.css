@@ -29,3 +29,18 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+@media (hover: hover) {
+  .cursor-area {
+    cursor: none;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
