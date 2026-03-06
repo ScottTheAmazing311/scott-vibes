@@ -1,50 +1,37 @@
 "use client";
 
 import HubLayout from "@/components/HubLayout";
-import { motion } from "framer-motion";
 
-const PLACEHOLDER_PIECES = [
-  {
-    title: "Untitled Screenplay",
-    type: "Screenplay",
-    excerpt: "A story waiting to be told...",
-  },
-  {
-    title: "Future Fiction",
-    type: "Novel",
-    excerpt: "Worlds yet to be built...",
-  },
+const PIECES = [
+  { title: "Untitled Screenplay", type: "SCREENPLAY", excerpt: "A story waiting to be told..." },
+  { title: "Future Fiction", type: "NOVEL", excerpt: "Worlds yet to be built..." },
 ];
 
 export default function WritingPage() {
   return (
     <HubLayout hubId="writing">
-      <div className="max-w-3xl">
-        {PLACEHOLDER_PIECES.map((piece, i) => (
-          <motion.article
+      <div className="space-y-0">
+        {PIECES.map((piece, i) => (
+          <article
             key={i}
-            className="py-10 border-b border-white/5 group cursor-pointer"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 * i }}
+            className="border-[3px] border-[#111] p-6 sm:p-8 cursor-pointer hover:bg-[#9B5DE5] hover:text-white transition-colors duration-150 group -mt-[3px] first:mt-0"
           >
-            <span
-              className="text-[10px] uppercase tracking-[0.25em] font-[family-name:var(--font-space-grotesk)]"
-              style={{ color: "#A78BFA" }}
-            >
-              {piece.type}
-            </span>
-            <h2 className="font-[family-name:var(--font-syne)] text-2xl md:text-3xl font-semibold text-white/80 mt-2 group-hover:text-white transition-colors">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="font-mono text-[10px] border-[2px] border-[#111] group-hover:border-white px-2 py-0.5 uppercase tracking-widest">
+                {piece.type}
+              </span>
+            </div>
+            <h2 className="font-[family-name:var(--font-playfair)] text-2xl sm:text-3xl font-black uppercase">
               {piece.title}
             </h2>
-            <p className="font-[family-name:var(--font-space-grotesk)] text-white/30 mt-3 text-lg italic">
+            <p className="font-mono text-sm text-[#111]/40 group-hover:text-white/50 mt-3 italic">
               {piece.excerpt}
             </p>
-          </motion.article>
+          </article>
         ))}
       </div>
-      <p className="text-white/20 text-sm mt-12 font-[family-name:var(--font-space-grotesk)]">
-        Pieces will be published here for reading on-site.
+      <p className="font-mono text-xs text-[#111]/25 mt-6 uppercase tracking-widest">
+        {"// pieces will be published here for reading on-site"}
       </p>
     </HubLayout>
   );

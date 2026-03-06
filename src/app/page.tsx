@@ -1,37 +1,29 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
-import FrequencyCanvas, { HubPosition } from "@/components/FrequencyCanvas";
+import AsciiWave from "@/components/AsciiWave";
 import { HUBS } from "@/lib/hubs";
 
-function calculatePositions(w: number, h: number): HubPosition[] {
+function calculatePositions(w: number, h: number) {
   const cx = w / 2;
   const cy = h / 2;
 
   if (w < 640) {
-    // Mobile: 2-column grid below header
+    // Mobile: 2-column grid
     const colW = w / 2;
-    const startY = h * 0.28;
-    const rowH = (h - startY - 40) / 3;
-    return HUBS.map((hub, i) => ({
+    const startY = h * 0.22;
+    const rowH = (h - startY - 20) / 3;
+    return HUBS.map((_, i) => ({
       x: colW * (i % 2) + colW / 2,
       y: startY + Math.floor(i / 2) * rowH + rowH / 2,
-      color: hub.color,
-      frequency: hub.frequency,
-      amplitude: hub.amplitude * 0.6,
     }));
   }
 
-  // Desktop: circular layout
-  const radius = Math.min(w * 0.3, h * 0.32, 340);
-  return HUBS.map((hub, i) => ({
+  const radius = Math.min(w * 0.3, h * 0.32, 300);
+  return HUBS.map((_, i) => ({
     x: cx + Math.cos((i / HUBS.length) * Math.PI * 2 - Math.PI / 2) * radius,
     y: cy + Math.sin((i / HUBS.length) * Math.PI * 2 - Math.PI / 2) * radius,
-    color: hub.color,
-    frequency: hub.frequency,
-    amplitude: hub.amplitude,
   }));
 }
 
@@ -52,92 +44,88 @@ export default function Home() {
     return calculatePositions(dims.w, dims.h);
   }, [dims]);
 
-  // Loading state
   if (dims.w === 0) {
-    return <div className="h-screen w-screen bg-[#050505]" />;
+    return <div className="h-screen w-screen bg-[#FAF9F6]" />;
   }
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-[#050505] select-none">
-      <FrequencyCanvas hubs={positions} hoveredIndex={hoveredIndex} />
-
+    <div className="relative h-screen w-screen overflow-hidden bg-[#FAF9F6] border-[4px] border-[#111]">
       {/* Center wordmark */}
-      <motion.div
-        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
-      >
-        <h1
-          className="font-[family-name:var(--font-syne)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white/90"
-          style={{
-            textShadow: "0 0 40px rgba(167, 139, 250, 0.15), 0 0 80px rgba(167, 139, 250, 0.05)",
-          }}
-        >
-          scottvibes
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+        <h1 className="font-[family-name:var(--font-playfair)] text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-[#111] tracking-tight select-none">
+          SCOTTVIBES
         </h1>
-        <motion.p
-          className="font-[family-name:var(--font-space-grotesk)] text-white/30 text-xs sm:text-sm mt-3 tracking-[0.3em] uppercase"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5, delay: 1.5 }}
-        >
-          tune into something
-        </motion.p>
-      </motion.div>
+        <p className="font-mono text-[10px] sm:text-xs tracking-[0.5em] uppercase text-[#111]/30 mt-3 select-none">
+          {"// tune into something"}
+        </p>
+      </div>
 
-      {/* Hub labels */}
+      {/* Hub blocks */}
       {positions.map((pos, i) => {
         const hub = HUBS[i];
         const isHovered = hoveredIndex === i;
+        const boxW = dims.w < 640 ? 140 : 170;
+        const boxH = dims.w < 640 ? 90 : 105;
 
         return (
-          <motion.div
+          <Link
             key={hub.id}
-            className="absolute z-20"
+            href={hub.path}
+            className="absolute z-20 group"
             style={{
-              left: pos.x,
-              top: pos.y,
-              transform: "translate(-50%, -50%)",
+              left: pos.x - boxW / 2,
+              top: pos.y - boxH / 2,
+              width: boxW,
+              height: boxH,
             }}
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              duration: 0.8,
-              delay: 1.2 + i * 0.12,
-              ease: "easeOut",
-            }}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
-            <Link
-              href={hub.path}
-              className="flex flex-col items-center group py-4 px-6"
-              onMouseEnter={() => setHoveredIndex(i)}
-              onMouseLeave={() => setHoveredIndex(null)}
+            <div
+              className="w-full h-full border-[3px] border-[#111] flex flex-col items-center justify-center transition-all duration-200 relative overflow-hidden"
+              style={{
+                backgroundColor: isHovered ? hub.color : "#FAF9F6",
+              }}
             >
+              {/* Hub name */}
               <span
-                className="text-xs sm:text-sm md:text-base font-semibold tracking-wide transition-all duration-500 font-[family-name:var(--font-syne)]"
-                style={{
-                  color: hub.color,
-                  textShadow: isHovered
-                    ? `0 0 20px ${hub.color}60, 0 0 40px ${hub.color}30`
-                    : "none",
-                  transform: isHovered ? "scale(1.15)" : "scale(1)",
-                }}
+                className="font-[family-name:var(--font-playfair)] text-sm sm:text-base font-bold uppercase tracking-wider transition-colors duration-200 z-10"
+                style={{ color: isHovered ? "#111" : "#111" }}
               >
                 {hub.name}
               </span>
+
+              {/* ASCII waveform */}
+              <div className="mt-1.5 z-10">
+                <AsciiWave
+                  frequency={hub.frequency}
+                  color={isHovered ? "#111" : hub.color}
+                  width={dims.w < 640 ? 12 : 16}
+                  speed={isHovered ? 0.35 : 0.15}
+                />
+              </div>
+
+              {/* Subtitle */}
               <span
-                className="text-[10px] sm:text-xs mt-1 transition-all duration-500 font-[family-name:var(--font-space-grotesk)]"
+                className="font-mono text-[9px] sm:text-[10px] mt-1 uppercase tracking-widest transition-colors duration-200 z-10"
                 style={{
-                  color: isHovered ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)",
+                  color: isHovered ? "rgba(17,17,17,0.6)" : "rgba(17,17,17,0.3)",
                 }}
               >
                 {hub.subtitle}
               </span>
-            </Link>
-          </motion.div>
+            </div>
+          </Link>
         );
       })}
+
+      {/* Corner decorations — brutalist ASCII */}
+      <div className="absolute top-6 left-6 font-mono text-[10px] text-[#111]/15 leading-tight select-none">
+        {"┌──────────\n│ sv.2026\n│"}
+      </div>
+      <div className="absolute bottom-6 right-6 font-mono text-[10px] text-[#111]/15 leading-tight text-right select-none whitespace-pre">
+        {"         │\n sv.2026 │\n──────────┘"}
+      </div>
     </div>
   );
 }

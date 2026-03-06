@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
-import { HUBS, Hub } from "@/lib/hubs";
+import AsciiWave from "@/components/AsciiWave";
+import { HUBS } from "@/lib/hubs";
 
 interface Props {
   hubId: string;
@@ -14,94 +14,71 @@ export default function HubLayout({ hubId, children }: Props) {
   const otherHubs = HUBS.filter((h) => h.id !== hubId);
 
   return (
-    <div className="min-h-screen bg-[#050505]">
-      {/* Top navigation */}
-      <motion.nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#050505]/80 backdrop-blur-md border-b border-white/5"
-        initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <Link
-          href="/"
-          className="font-[family-name:var(--font-syne)] text-lg font-bold text-white/80 hover:text-white transition-colors"
-        >
-          scottvibes
-        </Link>
-
-        <div className="hidden md:flex items-center gap-6">
-          {otherHubs.map((hub) => (
-            <Link
-              key={hub.id}
-              href={hub.path}
-              className="text-xs font-[family-name:var(--font-space-grotesk)] tracking-wide transition-colors duration-300 hover:opacity-100 opacity-40"
-              style={{ color: hub.color }}
-            >
-              {hub.name}
-            </Link>
-          ))}
-        </div>
-
-        {/* Mobile menu - hub dots */}
-        <div className="flex md:hidden items-center gap-2">
-          {otherHubs.map((hub) => (
-            <Link key={hub.id} href={hub.path}>
-              <span
-                className="block w-2.5 h-2.5 rounded-full transition-transform hover:scale-150"
-                style={{ backgroundColor: hub.color }}
-              />
-            </Link>
-          ))}
-        </div>
-      </motion.nav>
-
-      {/* Hub header */}
-      <motion.header
-        className="pt-28 pb-12 px-6 md:px-12 lg:px-20"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-      >
-        <div className="max-w-6xl mx-auto">
-          <div
-            className="inline-block w-12 h-1 rounded-full mb-6"
-            style={{ backgroundColor: currentHub.color }}
-          />
-          <h1
-            className="font-[family-name:var(--font-syne)] text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
-            style={{ color: currentHub.color }}
-          >
-            {currentHub.name}
-          </h1>
-          <p className="font-[family-name:var(--font-space-grotesk)] text-white/40 text-lg mt-3">
-            {currentHub.subtitle}
-          </p>
-        </div>
-      </motion.header>
-
-      {/* Content */}
-      <motion.main
-        className="px-6 md:px-12 lg:px-20 pb-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-      >
-        <div className="max-w-6xl mx-auto">{children}</div>
-      </motion.main>
-
-      {/* Footer */}
-      <footer className="border-t border-white/5 px-6 py-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-[#FAF9F6]">
+      {/* Top bar */}
+      <nav className="sticky top-0 z-50 bg-[#FAF9F6] border-b-[3px] border-[#111]">
+        <div className="flex items-center justify-between px-4 sm:px-8 py-3">
           <Link
             href="/"
-            className="font-[family-name:var(--font-syne)] text-sm text-white/30 hover:text-white/60 transition-colors"
+            className="font-[family-name:var(--font-playfair)] text-lg font-black tracking-tight hover:opacity-60 transition-opacity"
           >
-            back to the dial
+            SV
           </Link>
-          <span className="text-white/15 text-xs font-[family-name:var(--font-space-grotesk)]">
-            scottvibes
-          </span>
+
+          {/* Hub nav dots */}
+          <div className="flex items-center gap-1.5">
+            {otherHubs.map((hub) => (
+              <Link
+                key={hub.id}
+                href={hub.path}
+                className="w-4 h-4 border-2 border-[#111] transition-all hover:scale-125"
+                style={{ backgroundColor: hub.color }}
+                title={hub.name}
+              />
+            ))}
+          </div>
         </div>
+      </nav>
+
+      {/* Hero header */}
+      <header
+        className="border-b-[3px] border-[#111] px-4 sm:px-8 py-10 sm:py-16"
+        style={{ backgroundColor: currentHub.color }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <h1 className="font-[family-name:var(--font-playfair)] text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tight text-[#111]">
+            {currentHub.name}
+          </h1>
+          <div className="mt-3 flex items-center gap-4">
+            <AsciiWave
+              frequency={currentHub.frequency}
+              color="#111"
+              width={20}
+              speed={0.1}
+            />
+            <span className="font-mono text-xs uppercase tracking-widest text-[#111]/50">
+              {currentHub.subtitle}
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="px-4 sm:px-8 py-10 sm:py-16">
+        <div className="max-w-5xl mx-auto">{children}</div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t-[3px] border-[#111] px-4 sm:px-8 py-4 flex items-center justify-between">
+        <Link
+          href="/"
+          className="font-mono text-xs uppercase tracking-widest text-[#111]/30 hover:text-[#111] transition-colors"
+        >
+          {"<-- back to dial"}
+        </Link>
+        <span className="font-mono text-[10px] text-[#111]/15">
+          SCOTTVIBES
+        </span>
       </footer>
     </div>
   );
