@@ -1,65 +1,143 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import FrequencyCanvas, { HubPosition } from "@/components/FrequencyCanvas";
+import { HUBS } from "@/lib/hubs";
+
+function calculatePositions(w: number, h: number): HubPosition[] {
+  const cx = w / 2;
+  const cy = h / 2;
+
+  if (w < 640) {
+    // Mobile: 2-column grid below header
+    const colW = w / 2;
+    const startY = h * 0.28;
+    const rowH = (h - startY - 40) / 3;
+    return HUBS.map((hub, i) => ({
+      x: colW * (i % 2) + colW / 2,
+      y: startY + Math.floor(i / 2) * rowH + rowH / 2,
+      color: hub.color,
+      frequency: hub.frequency,
+      amplitude: hub.amplitude * 0.6,
+    }));
+  }
+
+  // Desktop: circular layout
+  const radius = Math.min(w * 0.3, h * 0.32, 340);
+  return HUBS.map((hub, i) => ({
+    x: cx + Math.cos((i / HUBS.length) * Math.PI * 2 - Math.PI / 2) * radius,
+    y: cy + Math.sin((i / HUBS.length) * Math.PI * 2 - Math.PI / 2) * radius,
+    color: hub.color,
+    frequency: hub.frequency,
+    amplitude: hub.amplitude,
+  }));
+}
 
 export default function Home() {
+  const [dims, setDims] = useState({ w: 0, h: 0 });
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const update = () =>
+      setDims({ w: window.innerWidth, h: window.innerHeight });
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const positions = useMemo(() => {
+    if (dims.w === 0) return [];
+    return calculatePositions(dims.w, dims.h);
+  }, [dims]);
+
+  // Loading state
+  if (dims.w === 0) {
+    return <div className="h-screen w-screen bg-[#050505]" />;
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="relative h-screen w-screen overflow-hidden bg-[#050505] select-none">
+      <FrequencyCanvas hubs={positions} hoveredIndex={hoveredIndex} />
+
+      {/* Center wordmark */}
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 2, delay: 0.3, ease: "easeOut" }}
+      >
+        <h1
+          className="font-[family-name:var(--font-syne)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white/90"
+          style={{
+            textShadow: "0 0 40px rgba(167, 139, 250, 0.15), 0 0 80px rgba(167, 139, 250, 0.05)",
+          }}
+        >
+          scottvibes
+        </h1>
+        <motion.p
+          className="font-[family-name:var(--font-space-grotesk)] text-white/30 text-xs sm:text-sm mt-3 tracking-[0.3em] uppercase"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5, delay: 1.5 }}
+        >
+          tune into something
+        </motion.p>
+      </motion.div>
+
+      {/* Hub labels */}
+      {positions.map((pos, i) => {
+        const hub = HUBS[i];
+        const isHovered = hoveredIndex === i;
+
+        return (
+          <motion.div
+            key={hub.id}
+            className="absolute z-20"
+            style={{
+              left: pos.x,
+              top: pos.y,
+              transform: "translate(-50%, -50%)",
+            }}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 0.8,
+              delay: 1.2 + i * 0.12,
+              ease: "easeOut",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            <Link
+              href={hub.path}
+              className="flex flex-col items-center group py-4 px-6"
+              onMouseEnter={() => setHoveredIndex(i)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              <span
+                className="text-xs sm:text-sm md:text-base font-semibold tracking-wide transition-all duration-500 font-[family-name:var(--font-syne)]"
+                style={{
+                  color: hub.color,
+                  textShadow: isHovered
+                    ? `0 0 20px ${hub.color}60, 0 0 40px ${hub.color}30`
+                    : "none",
+                  transform: isHovered ? "scale(1.15)" : "scale(1)",
+                }}
+              >
+                {hub.name}
+              </span>
+              <span
+                className="text-[10px] sm:text-xs mt-1 transition-all duration-500 font-[family-name:var(--font-space-grotesk)]"
+                style={{
+                  color: isHovered ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)",
+                }}
+              >
+                {hub.subtitle}
+              </span>
+            </Link>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
