@@ -18,23 +18,21 @@ export default function PotpourriPage() {
         {ITEMS.map((item, i) => (
           <div
             key={i}
-            className="border-[3px] border-[#111] -ml-[3px] first:ml-0 sm:first:ml-0 -mt-[3px] first:mt-0 p-5 cursor-pointer hover:bg-[#F15BB5] hover:text-white transition-colors duration-150 group"
-            style={{
-              minHeight: `${130 + (i % 3) * 30}px`,
-            }}
+            className="border-[3px] border-[#111] -ml-[3px] first:ml-0 sm:first:ml-0 -mt-[3px] first:mt-0 p-5 cursor-pointer hover:bg-[#EBD999] transition-colors duration-200 group"
+            style={{ minHeight: `${130 + (i % 3) * 30}px` }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-mono text-lg text-[#F15BB5] group-hover:text-white">
+              <span className="font-mono text-lg text-[#A32100]">
                 [{item.icon}]
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#111]/25 group-hover:text-white/50 border-[2px] border-[#111]/15 group-hover:border-white/30 px-1.5 py-0.5">
+              <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#111]/25 border-[2px] border-[#111]/15 px-1.5 py-0.5">
                 {item.type}
               </span>
             </div>
             <h3 className="font-[family-name:var(--font-playfair)] text-lg font-bold uppercase">
               {item.title}
             </h3>
-            <p className="font-mono text-xs text-[#111]/25 group-hover:text-white/40 mt-2">
+            <p className="font-mono text-xs text-[#111]/25 mt-2">
               Content coming soon...
             </p>
           </div>

@@ -1,76 +1,92 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+
+const BRICK = "#A32100";
+const SLATE = "#1B3644";
+const IVORY = "#EBD999";
 
 const CELLS = [
   {
     id: "photography",
     name: "Photography",
     path: "/photography",
-    color: "#FF6B35",
+    color: BRICK,
     word: "FRAME",
     grid: "md:col-start-1 md:col-end-3 md:row-start-1 md:row-end-3",
-    wordPos: "bottom-[-0.12em] right-[-0.02em] text-[140px] sm:text-[200px] md:text-[280px]",
+    wordPos: "bottom-[-0.05em] right-4 text-[100px] sm:text-[140px] md:text-[200px]",
+    wipeHidden: "inset(0 0 100% 0)", // reveals top to bottom
     mobile: "min-h-[280px]",
+    lightText: true,
   },
   {
     id: "writing",
     name: "Creative Writing",
     path: "/writing",
-    color: "#9B5DE5",
+    color: SLATE,
     word: "INK",
     grid: "md:col-start-3 md:col-end-5 md:row-start-1 md:row-end-2",
-    wordPos: "top-[-0.25em] right-[-0.05em] text-[120px] sm:text-[170px]",
+    wordPos: "top-[-0.15em] right-4 text-[100px] sm:text-[140px]",
+    wipeHidden: "inset(0 0 0 100%)", // reveals right to left
     mobile: "min-h-[200px]",
+    lightText: true,
   },
   {
     id: "theology",
     name: "Theology",
     path: "/theology",
-    color: "#00BBF9",
+    color: IVORY,
     word: "LIGHT",
     grid: "md:col-start-3 md:col-end-4 md:row-start-2 md:row-end-3",
-    wordPos: "bottom-[-0.15em] left-[-0.08em] text-[70px] sm:text-[100px]",
+    wordPos: "bottom-[-0.08em] left-2 text-[60px] sm:text-[80px]",
+    wipeHidden: "inset(100% 0 0 0)", // reveals bottom to top
     mobile: "min-h-[200px]",
+    lightText: false, // ivory is light, so use dark text
   },
   {
     id: "coded-creations",
     name: "Coded Creations",
     path: "/coded-creations",
-    color: "#00F5D4",
+    color: SLATE,
     word: "VOID",
     grid: "md:col-start-4 md:col-end-5 md:row-start-2 md:row-end-3",
-    wordPos: "top-[-0.08em] right-[-0.06em] text-[70px] sm:text-[95px]",
+    wordPos: "top-[-0.05em] right-2 text-[60px] sm:text-[80px]",
+    wipeHidden: "inset(0 0 100% 0)", // reveals top to bottom
     mobile: "min-h-[200px]",
+    lightText: true,
   },
   {
     id: "work",
     name: "Work",
     path: "/work",
-    color: "#FEE440",
+    color: BRICK,
     word: "CRAFT",
     grid: "md:col-start-1 md:col-end-3 md:row-start-3 md:row-end-4",
-    wordPos: "top-[-0.12em] right-4 text-[100px] sm:text-[140px]",
+    wordPos: "top-[-0.1em] right-4 text-[80px] sm:text-[120px]",
+    wipeHidden: "inset(0 100% 0 0)", // reveals left to right
     mobile: "min-h-[200px]",
+    lightText: true,
   },
   {
     id: "potpourri",
     name: "Potpourri",
     path: "/potpourri",
-    color: "#F15BB5",
+    color: IVORY,
     word: "WILD",
     grid: "md:col-start-3 md:col-end-5 md:row-start-3 md:row-end-4",
-    wordPos: "bottom-[-0.1em] left-4 text-[100px] sm:text-[140px]",
+    wordPos: "bottom-[-0.05em] left-4 text-[80px] sm:text-[120px]",
+    wipeHidden: "inset(100% 0 0 0)", // reveals bottom to top
     mobile: "min-h-[200px]",
+    lightText: false,
   },
 ];
 
-const MARQUEE_TEXT =
+const MARQUEE =
   "FRAME THE WORLD \u00B7 SPILL SOME INK \u00B7 FIND THE LIGHT \u00B7 ENTER THE VOID \u00B7 MASTER YOUR CRAFT \u00B7 RUN WILD \u00B7 ";
 
 function CellVisual({ id, light }: { id: string; light: boolean }) {
-  const c = light ? "rgba(255,255,255,0.45)" : "rgba(17,17,17,0.1)";
+  const c = light ? "rgba(255,255,255,0.35)" : "rgba(17,17,17,0.08)";
 
   switch (id) {
     case "photography":
@@ -148,105 +164,53 @@ function CellVisual({ id, light }: { id: string; light: boolean }) {
 }
 
 export default function Home() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const revealRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [cursorScale, setCursorScale] = useState(1);
 
   useEffect(() => {
     setLoaded(true);
-
-    const move = (e: MouseEvent) => {
-      if (cursorRef.current) {
-        cursorRef.current.style.left = e.clientX + "px";
-        cursorRef.current.style.top = e.clientY + "px";
-      }
-    };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
-  }, []);
-
-  const onEnter = useCallback((e: React.MouseEvent, id: string) => {
-    setCursorScale(2.5);
-    const el = revealRefs.current.get(id);
-    if (!el) return;
-    el.style.transition = "none";
-    const r = e.currentTarget.getBoundingClientRect();
-    el.style.clipPath = `circle(160px at ${e.clientX - r.left}px ${e.clientY - r.top}px)`;
-  }, []);
-
-  const onMove = useCallback((e: React.MouseEvent, id: string) => {
-    const el = revealRefs.current.get(id);
-    if (!el) return;
-    const r = e.currentTarget.getBoundingClientRect();
-    el.style.clipPath = `circle(160px at ${e.clientX - r.left}px ${e.clientY - r.top}px)`;
-  }, []);
-
-  const onLeave = useCallback((id: string) => {
-    setCursorScale(1);
-    const el = revealRefs.current.get(id);
-    if (!el) return;
-    el.style.transition = "clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
-    el.style.clipPath = "circle(0px at 50% 50%)";
   }, []);
 
   return (
-    <>
-      {/* Custom crosshair cursor (desktop only) */}
-      <div
-        ref={cursorRef}
-        className="fixed pointer-events-none z-[100] hidden md:block"
-        style={{ transform: "translate(-50%, -50%)" }}
-      >
-        <div
-          className="relative mix-blend-difference"
-          style={{
-            width: 28,
-            height: 28,
-            transition: "transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-            transform: `scale(${cursorScale})`,
-          }}
+    <div className="h-dvh flex flex-col border-[4px] border-[#111] overflow-hidden">
+      {/* Header */}
+      <header className="flex items-center justify-between px-5 sm:px-8 py-3 border-b-[4px] border-[#111] bg-[#FAF9F6] shrink-0">
+        <h1
+          className="font-[family-name:var(--font-playfair)] text-xl sm:text-2xl font-black tracking-tight"
+          style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.06)" }}
         >
-          <div className="absolute top-1/2 left-0 w-full h-[1.5px] bg-white -translate-y-1/2" />
-          <div className="absolute left-1/2 top-0 h-full w-[1.5px] bg-white -translate-x-1/2" />
-        </div>
-      </div>
+          SCOTTVIBES
+        </h1>
+        <span className="font-mono text-[9px] sm:text-[10px] text-[#111]/20 tracking-widest hidden sm:block">
+          CREATIVE PORTFOLIO
+        </span>
+      </header>
 
-      <div className="h-dvh flex flex-col border-[4px] border-[#111] overflow-hidden">
-        {/* Header */}
-        <header className="cursor-area flex items-center justify-between px-5 sm:px-8 py-3 border-b-[4px] border-[#111] bg-[#FAF9F6] shrink-0">
-          <h1
-            className="font-[family-name:var(--font-playfair)] text-xl sm:text-2xl font-black tracking-tight"
-            style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.06)" }}
-          >
-            SCOTTVIBES
-          </h1>
-          <span className="font-mono text-[9px] sm:text-[10px] text-[#111]/20 tracking-widest hidden sm:block">
-            CREATIVE PORTFOLIO
-          </span>
-        </header>
+      {/* Bento grid */}
+      <div className="flex-1 bg-[#111] grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-[4px] overflow-auto md:overflow-hidden">
+        {CELLS.map((cell, i) => {
+          const isHovered = hoveredId === cell.id;
+          const revealTextColor = cell.lightText ? "#FAF9F6" : "#111";
+          const revealVisualLight = cell.lightText;
 
-        {/* Bento grid */}
-        <div className="cursor-area flex-1 bg-[#111] grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-[4px] overflow-auto md:overflow-hidden">
-          {CELLS.map((cell, i) => (
+          return (
             <Link
               key={cell.id}
               href={cell.path}
-              className={`relative overflow-hidden bg-[#FAF9F6] ${cell.grid} ${cell.mobile}`}
+              className={`relative overflow-hidden bg-[#FAF9F6] group ${cell.grid} ${cell.mobile}`}
               style={{
                 opacity: loaded ? 1 : 0,
-                transform: loaded ? "none" : "translateY(30px)",
+                transform: loaded ? "none" : "translateY(20px)",
                 transition: `opacity 0.6s ${i * 0.1}s, transform 0.6s ${i * 0.1}s`,
               }}
-              onMouseEnter={(e) => onEnter(e, cell.id)}
-              onMouseMove={(e) => onMove(e, cell.id)}
-              onMouseLeave={() => onLeave(cell.id)}
+              onMouseEnter={() => setHoveredId(cell.id)}
+              onMouseLeave={() => setHoveredId(null)}
             >
               {/* Base layer */}
               <div className="absolute inset-0">
                 <span
                   className={`absolute font-[family-name:var(--font-playfair)] font-black leading-none select-none pointer-events-none ${cell.wordPos}`}
-                  style={{ color: cell.color, opacity: 0.06 }}
+                  style={{ color: cell.color, opacity: 0.07 }}
                 >
                   {cell.word}
                 </span>
@@ -254,58 +218,63 @@ export default function Home() {
                 <div className="absolute bottom-0 left-0 p-4 sm:p-5">
                   <h2
                     className="font-[family-name:var(--font-playfair)] text-base sm:text-lg font-black uppercase tracking-tight"
-                    style={{ textShadow: `2px 2px 0 ${cell.color}30` }}
+                    style={{ textShadow: `2px 2px 0 ${cell.color}20` }}
                   >
                     {cell.name}
                   </h2>
                 </div>
               </div>
 
-              {/* Reveal layer — follows cursor via clip-path */}
+              {/* Reveal layer — directional wipe */}
               <div
-                ref={(el) => {
-                  if (el) revealRefs.current.set(cell.id, el);
-                }}
-                className="absolute inset-0"
+                className="absolute inset-0 transition-[clip-path] duration-500 ease-[cubic-bezier(0.7,0,0.3,1)]"
                 style={{
                   backgroundColor: cell.color,
-                  clipPath: "circle(0px at 50% 50%)",
+                  clipPath: isHovered ? "inset(0)" : cell.wipeHidden,
                 }}
               >
                 <span
                   className={`absolute font-[family-name:var(--font-playfair)] font-black leading-none select-none pointer-events-none ${cell.wordPos}`}
-                  style={{ color: "rgba(255,255,255,0.15)" }}
+                  style={{ color: revealTextColor, opacity: 0.12 }}
                 >
                   {cell.word}
                 </span>
-                <CellVisual id={cell.id} light={true} />
+                <CellVisual id={cell.id} light={revealVisualLight} />
                 <div className="absolute bottom-0 left-0 p-4 sm:p-5">
                   <h2
-                    className="font-[family-name:var(--font-playfair)] text-base sm:text-lg font-black uppercase tracking-tight text-white"
-                    style={{ textShadow: "2px 2px 0 rgba(0,0,0,0.2)" }}
+                    className="font-[family-name:var(--font-playfair)] text-base sm:text-lg font-black uppercase tracking-tight"
+                    style={{
+                      color: revealTextColor,
+                      textShadow: cell.lightText
+                        ? "2px 2px 0 rgba(0,0,0,0.2)"
+                        : "2px 2px 0 rgba(0,0,0,0.05)",
+                    }}
                   >
                     {cell.name}
                   </h2>
                 </div>
-                <span className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 font-mono text-sm font-bold text-white/80">
+                <span
+                  className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 font-mono text-xs font-bold"
+                  style={{ color: revealTextColor, opacity: 0.7 }}
+                >
                   {"->"}
                 </span>
               </div>
             </Link>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Marquee */}
-        <div className="border-t-[4px] border-[#111] bg-[#FAF9F6] py-2 overflow-hidden shrink-0">
-          <div
-            className="whitespace-nowrap font-mono text-[10px] tracking-[0.3em] uppercase text-[#111]/25"
-            style={{ animation: "marquee 30s linear infinite" }}
-          >
-            {MARQUEE_TEXT}
-            {MARQUEE_TEXT}
-          </div>
+      {/* Marquee */}
+      <div className="border-t-[4px] border-[#111] bg-[#FAF9F6] py-2 overflow-hidden shrink-0">
+        <div
+          className="whitespace-nowrap font-mono text-[10px] tracking-[0.3em] uppercase text-[#111]/20"
+          style={{ animation: "marquee 30s linear infinite" }}
+        >
+          {MARQUEE}
+          {MARQUEE}
         </div>
       </div>
-    </>
+    </div>
   );
 }

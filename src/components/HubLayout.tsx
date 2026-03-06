@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import AsciiWave from "@/components/AsciiWave";
 import { HUBS } from "@/lib/hubs";
 
 interface Props {
@@ -12,6 +11,7 @@ interface Props {
 export default function HubLayout({ hubId, children }: Props) {
   const currentHub = HUBS.find((h) => h.id === hubId)!;
   const otherHubs = HUBS.filter((h) => h.id !== hubId);
+  const isLightBg = currentHub.color === "#EBD999";
 
   return (
     <div className="min-h-screen bg-[#FAF9F6]">
@@ -25,13 +25,12 @@ export default function HubLayout({ hubId, children }: Props) {
             SV
           </Link>
 
-          {/* Hub nav dots */}
           <div className="flex items-center gap-1.5">
             {otherHubs.map((hub) => (
               <Link
                 key={hub.id}
                 href={hub.path}
-                className="w-4 h-4 border-2 border-[#111] transition-all hover:scale-125"
+                className="w-4 h-4 border-2 border-[#111] transition-transform hover:scale-125"
                 style={{ backgroundColor: hub.color }}
                 title={hub.name}
               />
@@ -46,20 +45,25 @@ export default function HubLayout({ hubId, children }: Props) {
         style={{ backgroundColor: currentHub.color }}
       >
         <div className="max-w-5xl mx-auto">
-          <h1 className="font-[family-name:var(--font-playfair)] text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tight text-[#111]">
+          <h1
+            className="font-[family-name:var(--font-playfair)] text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tight"
+            style={{
+              color: isLightBg ? "#111" : "#FAF9F6",
+              textShadow: isLightBg
+                ? "2px 2px 0 rgba(0,0,0,0.06)"
+                : "3px 3px 0 rgba(0,0,0,0.2)",
+            }}
+          >
             {currentHub.name}
           </h1>
-          <div className="mt-3 flex items-center gap-4">
-            <AsciiWave
-              frequency={currentHub.frequency}
-              color="#111"
-              width={20}
-              speed={0.1}
-            />
-            <span className="font-mono text-xs uppercase tracking-widest text-[#111]/50">
-              {currentHub.subtitle}
-            </span>
-          </div>
+          <p
+            className="font-mono text-xs uppercase tracking-widest mt-3"
+            style={{
+              color: isLightBg ? "rgba(17,17,17,0.4)" : "rgba(255,255,255,0.4)",
+            }}
+          >
+            {currentHub.subtitle}
+          </p>
         </div>
       </header>
 
@@ -74,7 +78,7 @@ export default function HubLayout({ hubId, children }: Props) {
           href="/"
           className="font-mono text-xs uppercase tracking-widest text-[#111]/30 hover:text-[#111] transition-colors"
         >
-          {"<-- back to dial"}
+          {"<-- back"}
         </Link>
         <span className="font-mono text-[10px] text-[#111]/15">
           SCOTTVIBES

@@ -8,13 +8,18 @@ export interface Hub {
   amplitude: number;
 }
 
+// Sanzo Wada-inspired palette: Brick Red, Slate, Ivory Buff
+const BRICK = "#A32100";
+const SLATE = "#1B3644";
+const IVORY = "#EBD999";
+
 export const HUBS: Hub[] = [
   {
     id: "photography",
     name: "Photography",
     subtitle: "Visual stories",
     path: "/photography",
-    color: "#FF6B35",
+    color: BRICK,
     frequency: 1.2,
     amplitude: 30,
   },
@@ -23,7 +28,7 @@ export const HUBS: Hub[] = [
     name: "Creative Writing",
     subtitle: "Words & worlds",
     path: "/writing",
-    color: "#9B5DE5",
+    color: SLATE,
     frequency: 0.8,
     amplitude: 25,
   },
@@ -32,7 +37,7 @@ export const HUBS: Hub[] = [
     name: "Theology",
     subtitle: "Faith explored",
     path: "/theology",
-    color: "#00BBF9",
+    color: IVORY,
     frequency: 0.6,
     amplitude: 20,
   },
@@ -41,7 +46,7 @@ export const HUBS: Hub[] = [
     name: "Coded Creations",
     subtitle: "Built with code",
     path: "/coded-creations",
-    color: "#00F5D4",
+    color: SLATE,
     frequency: 1.5,
     amplitude: 35,
   },
@@ -50,7 +55,7 @@ export const HUBS: Hub[] = [
     name: "Work",
     subtitle: "The professional side",
     path: "/work",
-    color: "#FEE440",
+    color: BRICK,
     frequency: 1.0,
     amplitude: 28,
   },
@@ -59,7 +64,7 @@ export const HUBS: Hub[] = [
     name: "Potpourri",
     subtitle: "A bit of everything",
     path: "/potpourri",
-    color: "#F15BB5",
+    color: IVORY,
     frequency: 1.8,
     amplitude: 22,
   },
