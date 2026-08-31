@@ -5,6 +5,8 @@ export interface SanityPhoto {
   title?: string;
   series?: string;
   date?: string;
+  /** marks the photo used as its series' quick-link thumbnail */
+  featured?: boolean;
   url: string;
   width: number;
   height: number;
@@ -15,6 +17,7 @@ const QUERY = `*[_type == "photo" && defined(image.asset)] | order(coalesce(orde
   title,
   series,
   date,
+  featured,
   "url": image.asset->url,
   "width": image.asset->metadata.dimensions.width,
   "height": image.asset->metadata.dimensions.height

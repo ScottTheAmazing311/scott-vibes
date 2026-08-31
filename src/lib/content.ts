@@ -61,12 +61,6 @@ export const hero = {
 // TODO: tighten the one-liners for Lucky Links, Swang, Nine Postures, and IronCoach.
 const appItems: AppItem[] = [
   {
-    name: "Lucky Links",
-    kind: "Game",
-    line: "Pixel golf with a lucky streak.",
-    image: { src: "/apps/lucky-links.png", alt: "Lucky Links: a pixel-art golfer with his bag and cart", width: 1024, height: 1024 },
-  },
-  {
     name: "Swang",
     kind: "Game",
     line: "Golf in four shades of green.",
@@ -107,6 +101,13 @@ const appItems: AppItem[] = [
     line: "Strength coaching in your pocket.",
     image: { src: "/apps/ironcoach.png", alt: "IronCoach wordmark with a barbell", width: 1400, height: 600 },
     href: "#", // TODO: replace placeholder with the real IronCoach URL
+  },
+  // Last until it has a link.
+  {
+    name: "Lucky Links",
+    kind: "Game",
+    line: "Pixel golf with a lucky streak.",
+    image: { src: "/apps/lucky-links.png", alt: "Lucky Links: a pixel-art golfer with his bag and cart", width: 1024, height: 1024 },
   },
 ];
 

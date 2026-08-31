@@ -78,7 +78,9 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
             style={{ gridTemplateColumns: `repeat(${seriesGroups.length}, minmax(0, 1fr))` }}
             amount={0.1}
           >
-            {seriesGroups.map((group, i) => (
+            {seriesGroups.map((group, i) => {
+              const thumb = group.photos.find((p) => p.featured) ?? group.photos[0];
+              return (
               <a
                 key={group.series}
                 href={`#${seriesSlug(group.series)}`}
@@ -87,10 +89,10 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
               >
                 <span className="block overflow-hidden">
                   <Image
-                    src={group.photos[0].url}
+                    src={thumb.url}
                     alt={`${group.series} series`}
-                    width={group.photos[0].width}
-                    height={group.photos[0].height}
+                    width={thumb.width}
+                    height={thumb.height}
                     sizes="(min-width: 768px) 13vw, 40vw"
                     className="aspect-square w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]"
                   />
@@ -100,7 +102,8 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
                   <span className="label transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-y-1">&darr;</span>
                 </span>
               </a>
-            ))}
+              );
+            })}
           </Reveal>
           {seriesGroups.map((group, gi) => (
             <Reveal
