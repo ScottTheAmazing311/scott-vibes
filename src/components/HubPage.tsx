@@ -122,9 +122,15 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
               return (
                 <div key={e.title} className="fade" style={{ ["--i" as string]: i + 1 }}>
                   {e.href ? (
-                    <Link href={e.href} className="group block">
-                      {row}
-                    </Link>
+                    e.href.startsWith("http") ? (
+                      <a href={e.href} target="_blank" rel="noreferrer" className="group block">
+                        {row}
+                      </a>
+                    ) : (
+                      <Link href={e.href} className="group block">
+                        {row}
+                      </Link>
+                    )
                   ) : (
                     <div className="group">{row}</div>
                   )}

@@ -56,6 +56,60 @@ export const hero = {
   cta: { label: "It's down here", href: "#work" },
 };
 
+// The apps, shown on /creative/apps and listed in the Vibe Projects hub index.
+// TODO: real URLs for Lucky Links and IronCoach.
+// TODO: tighten the one-liners for Lucky Links, Swang, Nine Postures, and IronCoach.
+const appItems: AppItem[] = [
+  {
+    name: "Lucky Links",
+    kind: "Game",
+    line: "Pixel golf with a lucky streak.",
+    image: { src: "/apps/lucky-links.png", alt: "Lucky Links: a pixel-art golfer with his bag and cart", width: 1024, height: 1024 },
+  },
+  {
+    name: "Swang",
+    kind: "Game",
+    line: "Golf in four shades of green.",
+    image: { src: "/apps/swang.png", alt: "Swang: a Game Boy style golfer mid-swing", width: 1128, height: 928 },
+    href: "https://swang-golf.vercel.app/",
+  },
+  {
+    name: "Ruinous",
+    kind: "Daily puzzle",
+    line: "One expedition a day, one attempt.",
+    image: { src: "/cards/creative2.png", alt: "Ruinous title art with pyramid and gems", width: 644, height: 405 },
+    href: "https://ruinous.vercel.app/",
+  },
+  {
+    name: "Nine Postures",
+    kind: "App",
+    line: "Nine ways of standing in the world.",
+    image: { src: "/apps/nine-postures.png", alt: "Nine Postures logo with nine pixel-art figures", width: 796, height: 568 },
+    href: "https://nine-postures.vercel.app/",
+  },
+  {
+    name: "Quadrants",
+    kind: "App",
+    line: "Map perspectives. Find connections.",
+    image: { src: "/apps/quadrants.png", alt: "Quadrants: create quads and discover alignment through visual data", width: 1013, height: 789 },
+    href: "https://quadrants-i2ks.vercel.app/",
+  },
+  {
+    name: "SlideKeep",
+    kind: "App",
+    line: "Turn slides into interest.",
+    image: { src: "/apps/slidekeep.png", alt: "SlideKeep: upload your deck, gate the good stuff, capture every lead", width: 927, height: 1071 },
+    href: "https://slidekeep.io",
+  },
+  {
+    name: "IronCoach",
+    kind: "App",
+    line: "Strength coaching in your pocket.",
+    image: { src: "/apps/ironcoach.png", alt: "IronCoach wordmark with a barbell", width: 1400, height: 600 },
+    href: "#", // TODO: replace placeholder with the real IronCoach URL
+  },
+];
+
 export const domains: Domain[] = [
   {
     id: "creative",
@@ -74,12 +128,12 @@ export const domains: Domain[] = [
     },
     imagePos: "top",
     imageFull: true,
-    entries: [
-      { title: "Untitled screenplay", kind: "Screenplay", year: "2026" },
-      { title: "Future fiction", kind: "Short fiction", year: "2025" },
-      { title: "scottvibes.com", kind: "Website", year: "2026", href: "/" },
-      { title: "Experiment 01", kind: "Software", year: "2025" },
-    ],
+    entries: appItems.map((a) => ({
+      title: a.name,
+      kind: a.kind,
+      year: "2026",
+      href: a.href && a.href !== "#" ? a.href : undefined,
+    })),
     subpage: { label: "Open the Apps", href: "/creative/apps" },
   },
   {
@@ -243,58 +297,7 @@ export const creativeApps = {
   label: "Vibe Projects",
   title: "The Apps",
   line: "Small software, built to be played with.",
-  // TODO: real URLs for Lucky Links and IronCoach.
-  // TODO: tighten the one-liners for Lucky Links, Swang, Nine Postures, and IronCoach.
-  apps: [
-    {
-      name: "Lucky Links",
-      kind: "Game",
-      line: "Pixel golf with a lucky streak.",
-      image: { src: "/apps/lucky-links.png", alt: "Lucky Links: a pixel-art golfer with his bag and cart", width: 1024, height: 1024 },
-    },
-    {
-      name: "Swang",
-      kind: "Game",
-      line: "Golf in four shades of green.",
-      image: { src: "/apps/swang.png", alt: "Swang: a Game Boy style golfer mid-swing", width: 1128, height: 928 },
-      href: "https://swang-golf.vercel.app/",
-    },
-    {
-      name: "Ruinous",
-      kind: "Daily puzzle",
-      line: "One expedition a day, one attempt.",
-      image: { src: "/cards/creative2.png", alt: "Ruinous title art with pyramid and gems", width: 644, height: 405 },
-      href: "https://ruinous.vercel.app/",
-    },
-    {
-      name: "Nine Postures",
-      kind: "App",
-      line: "Nine ways of standing in the world.",
-      image: { src: "/apps/nine-postures.png", alt: "Nine Postures logo with nine pixel-art figures", width: 796, height: 568 },
-      href: "https://nine-postures.vercel.app/",
-    },
-    {
-      name: "Quadrants",
-      kind: "App",
-      line: "Map perspectives. Find connections.",
-      image: { src: "/apps/quadrants.png", alt: "Quadrants: create quads and discover alignment through visual data", width: 1013, height: 789 },
-      href: "https://quadrants-i2ks.vercel.app/",
-    },
-    {
-      name: "SlideKeep",
-      kind: "App",
-      line: "Turn slides into interest.",
-      image: { src: "/apps/slidekeep.png", alt: "SlideKeep: upload your deck, gate the good stuff, capture every lead", width: 927, height: 1071 },
-      href: "https://slidekeep.io",
-    },
-    {
-      name: "IronCoach",
-      kind: "App",
-      line: "Strength coaching in your pocket.",
-      image: { src: "/apps/ironcoach.png", alt: "IronCoach wordmark with a barbell", width: 1400, height: 600 },
-      href: "#", // TODO: replace placeholder with the real IronCoach URL
-    },
-  ] as AppItem[],
+  apps: appItems,
 };
 
 export function nextDomain(id: Domain["id"]): Domain {
