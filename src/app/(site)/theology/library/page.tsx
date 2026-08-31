@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import AudioToggle from "@/components/AudioToggle";
 import Lines from "@/components/Lines";
 import PillButton from "@/components/PillButton";
 import Reveal from "@/components/Reveal";
@@ -51,7 +50,7 @@ export default function TheologyLibraryPage() {
         </div>
       </Reveal>
 
-      {/* Sunday School lessons */}
+      {/* Gospel Doctrine folders */}
       <Reveal as="section" className="wrap py-24 md:py-32">
         <div className="grid gap-10 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-3">
@@ -64,49 +63,38 @@ export default function TheologyLibraryPage() {
             </p>
           </div>
           <div className="md:col-span-9">
-            <div className="rule-strong rule-x" />
-            {lib.lessons.map((lesson, i) => (
-              <div key={lesson.title} className="fade" style={{ ["--i" as string]: i + 1 }}>
-                <div className="grid grid-cols-[2.5rem_1fr] gap-x-4 gap-y-3 py-6 md:grid-cols-[3rem_1fr_auto] md:items-baseline md:py-8">
-                  <span className="label pt-1 tabular-nums">0{i + 1}</span>
-                  <div>
-                    <span className="display display-sm block">{lesson.title}</span>
-                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-                      {lesson.pdf && (
-                        <a href={lesson.pdf} className="ulink text-sm" target="_blank" rel="noreferrer">
-                          PDF
-                        </a>
-                      )}
-                      {lesson.slides && (
-                        <a href={lesson.slides} className="ulink text-sm" target="_blank" rel="noreferrer">
-                          Slides
-                        </a>
-                      )}
-                      {lesson.audio && <AudioToggle src={lesson.audio} title={lesson.title} />}
-                    </div>
-                  </div>
-                  <span className="label col-start-2 md:col-start-3 md:text-right">{lesson.date}</span>
-                </div>
-                <div className="rule" />
-              </div>
-            ))}
+            <div className="grid gap-5 sm:grid-cols-2">
+              {lib.folders.map((folder, i) => (
+                <a
+                  key={folder.title}
+                  href={folder.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group fade block h-full"
+                  style={{ ["--i" as string]: i + 1 }}
+                >
+                  <span className="flex h-full flex-col justify-between border border-charcoal/20 p-6 transition-colors duration-500 ease-[var(--ease-out)] group-hover:border-charcoal md:p-8">
+                    <span>
+                      <span className="label tabular-nums">0{i + 1}</span>
+                      <span className="display display-sm mt-4 block transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-1">
+                        {folder.title}
+                      </span>
+                      <span className="body mt-3 block text-sm">{folder.line}</span>
+                    </span>
+                    <span className="label mt-12 block">
+                      Open folder <span aria-hidden="true">&rarr;</span>
+                    </span>
+                  </span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </Reveal>
 
-      {/* Back */}
-      <Reveal as="section" className="wrap pb-24 md:pb-32" amount={0.3}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="label num-in">Back to</span>
-            <Link href={theology.path} className="display display-lg mt-4 block">
-              <Lines lines={[theology.name]} offset={1} />
-            </Link>
-          </div>
-          <div className="fade" style={{ ["--i" as string]: 2 }}>
-            <PillButton href={theology.path}>Open Theology</PillButton>
-          </div>
-        </div>
+      {/* Back to top */}
+      <Reveal as="section" className="wrap flex justify-center pb-24 md:pb-32" amount={0.3}>
+        <PillButton href="#" up>Back to top</PillButton>
       </Reveal>
     </main>
   );

@@ -121,12 +121,17 @@ export const domains: Domain[] = [
     line: "Games, side hustles, experiments, fun things I vibe code.",
     bg: "#DCDCD6",
     image: {
-      src: "/cards/creative.png",
+      src: "/cards/creative3.png",
       alt: "Grid of six apps built by Scott: Lucky Links, Swang, Ruinous, Nine Postures, Quadrants, and SlideKeep",
+      width: 1549,
+      height: 1061,
+    },
+    card: {
+      src: "/cards/creative.png",
+      alt: "Grid of six apps built by Scott",
       width: 598,
       height: 790,
     },
-    imagePos: "top",
     imageFull: true,
     entries: appItems.map((a) => ({
       title: a.name,
@@ -221,11 +226,11 @@ export const domains: Domain[] = [
       width: 1600,
       height: 895,
     },
+    // TODO: links for Sunnyside Mall and UltraCosmic when they have homes.
     entries: [
-      { title: "Something delicious", kind: "Recipe", year: "2026" },
-      { title: "Best album of the year", kind: "Favorite", year: "2025" },
-      { title: "A rabbit hole", kind: "Link", year: "2025" },
-      { title: "A random reflection", kind: "Thought", year: "2025" },
+      { title: "Sunnyside Mall", kind: "Pilot screenplay", year: "2026" },
+      { title: "UltraCosmic", kind: "Project", year: "2026" },
+      { title: "Steal This Idea", kind: "Podcast", year: "2026", href: "https://gostealthisidea.com/" },
     ],
   },
 ];
@@ -241,47 +246,29 @@ export const contact = {
   lines: ["I create. Let's create *together.*"],
 };
 
-export interface Lesson {
-  title: string;
-  date: string;
-  pdf?: string;
-  slides?: string;
-  audio?: string;
-}
-
 export const theologyLibrary = {
   label: "Theology",
   title: "Library",
-  line: "Readings, lessons, and recordings.",
+  line: "Readings, lessons, and resources.",
   armarium: {
     title: "Armarium",
     href: "https://armarium-mu.vercel.app/",
     line: "The reading cabinet.",
   },
-  lessonsTitle: "Sunday School",
-  lessonsLine: "Lessons as PDFs, slides, and recordings.",
-  // TODO: real lessons. Drop files into /public/lessons/ and point these at them,
-  // or use full URLs (Drive, YouTube, etc.). Omit a field and its link disappears.
-  lessons: [
+  lessonsTitle: "Gospel Doctrine",
+  lessonsLine: "Lessons and the materials behind them.",
+  folders: [
     {
-      title: "Lesson one, title to be added",
-      date: "2026",
-      pdf: "/lessons/lesson-01.pdf",
-      slides: "/lessons/lesson-01-slides.pdf",
-      audio: "/lessons/lesson-01.mp3",
+      title: "Lessons",
+      line: "Gospel Doctrine lesson plans and slides.",
+      href: "https://drive.google.com/drive/folders/1-yeEvAQDF4UQ3sNeQF50js_b3wIF3osY",
     },
     {
-      title: "Lesson two, title to be added",
-      date: "2026",
-      pdf: "/lessons/lesson-02.pdf",
-      audio: "/lessons/lesson-02.mp3",
+      title: "Lesson resources",
+      line: "Handouts, articles, and other assets.",
+      href: "https://drive.google.com/drive/folders/1uOR5qyBspwwINPAMCQL5qsqe4hu7nUay",
     },
-    {
-      title: "Lesson three, title to be added",
-      date: "2026",
-      slides: "/lessons/lesson-03-slides.pdf",
-    },
-  ] as Lesson[],
+  ],
 };
 
 export interface AppItem {
@@ -300,7 +287,3 @@ export const creativeApps = {
   apps: appItems,
 };
 
-export function nextDomain(id: Domain["id"]): Domain {
-  const i = domains.findIndex((d) => d.id === id);
-  return domains[(i + 1) % domains.length];
-}

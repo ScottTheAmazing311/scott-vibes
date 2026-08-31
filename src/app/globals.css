@@ -37,8 +37,9 @@
 /* ------------------------------------------------------------------
    Base
 ------------------------------------------------------------------ */
+/* No smooth scroll-behavior: Chrome fails to run smooth hash jumps on very
+   long pages (the photography gallery), leaving anchor links dead. */
 html {
-  scroll-behavior: smooth;
   color-scheme: light;
 }
 
@@ -233,6 +234,14 @@ img {
 .pill.pill-down:hover .dot svg {
   /* translateX along the rotated axis moves the arrow downward */
   transform: rotate(90deg) translateX(0.25rem);
+}
+
+.pill.pill-up .dot svg {
+  transform: rotate(-90deg);
+}
+
+.pill.pill-up:hover .dot svg {
+  transform: rotate(-90deg) translateX(0.25rem);
 }
 
 .pill.pill-outline {

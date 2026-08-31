@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { nextDomain, type Domain } from "@/lib/content";
+import type { Domain } from "@/lib/content";
 import { groupBySeries, type SanityPhoto } from "@/sanity/lib/photos";
 import Lines from "./Lines";
 import PillButton from "./PillButton";
 import Reveal from "./Reveal";
 
+const seriesSlug = (series: string) => `series-${series.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
 /** Shared editorial template for the five section hubs. */
 export default function HubPage({ domain, gallery }: { domain: Domain; gallery?: SanityPhoto[] }) {
-  const next = nextDomain(domain.id);
   const seriesGroups = gallery && gallery.length > 0 ? groupBySeries(gallery) : null;
 
   return (
@@ -69,8 +70,45 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
       {/* Gallery (from Sanity) or static index */}
       {seriesGroups ? (
         <section className="wrap pb-24 pt-16 md:pb-32 md:pt-48">
+          {/* Series quick links */}
+          <Reveal
+            as="nav"
+            aria-label="Series"
+            className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-16 md:grid md:overflow-visible md:pb-24"
+            style={{ gridTemplateColumns: `repeat(${seriesGroups.length}, minmax(0, 1fr))` }}
+            amount={0.1}
+          >
+            {seriesGroups.map((group, i) => (
+              <a
+                key={group.series}
+                href={`#${seriesSlug(group.series)}`}
+                className="group w-[40%] shrink-0 snap-start fade sm:w-[28%] md:w-auto"
+                style={{ ["--i" as string]: i + 1 }}
+              >
+                <span className="block overflow-hidden">
+                  <Image
+                    src={group.photos[0].url}
+                    alt={`${group.series} series`}
+                    width={group.photos[0].width}
+                    height={group.photos[0].height}
+                    sizes="(min-width: 768px) 13vw, 40vw"
+                    className="aspect-square w-full object-cover transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.04]"
+                  />
+                </span>
+                <span className="mt-3 flex items-baseline justify-between gap-2">
+                  <span className="text-[0.9375rem] font-semibold tracking-[-0.02em]">{group.series}</span>
+                  <span className="label transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-y-1">&darr;</span>
+                </span>
+              </a>
+            ))}
+          </Reveal>
           {seriesGroups.map((group, gi) => (
-            <Reveal key={group.series} className="grid gap-10 pb-20 md:grid-cols-12 md:gap-8 md:pb-28" amount={0.05}>
+            <Reveal
+              key={group.series}
+              id={seriesSlug(group.series)}
+              className="grid scroll-mt-24 gap-10 pb-20 md:grid-cols-12 md:gap-8 md:pb-28"
+              amount={0.05}
+            >
               <div className="md:col-span-3">
                 <span className="label num-in tabular-nums">0{gi + 1}</span>
                 <h2 className="display display-md mt-4">{group.series}</h2>
@@ -97,65 +135,55 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
         </section>
       ) : (
       <Reveal as="section" className="wrap pb-24 pt-16 md:pb-32 md:pt-48">
-        <div className="grid gap-10 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
-            <h2 className="display display-md">
-              <Lines lines={["Index"]} />
-            </h2>
-            <p className="label fade mt-4" style={{ ["--i" as string]: 1 }}>
-              {domain.entries.length} {domain.entries.length === 1 ? "entry" : "entries"}
-            </p>
-          </div>
-          <div className="md:col-span-9">
-            <div className="rule-strong rule-x" />
-            {domain.entries.map((e, i) => {
-              const row = (
-                <div className="grid grid-cols-[2.5rem_1fr] gap-x-4 gap-y-2 py-6 md:grid-cols-[3rem_1fr_10rem_6rem] md:items-baseline md:py-8">
-                  <span className="label pt-1 tabular-nums">0{i + 1}</span>
-                  <span className="display display-sm block transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-2">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {domain.entries.map((e, i) => {
+            const card = (
+              <span className="flex h-full flex-col justify-between border border-charcoal/20 p-6 transition-colors duration-500 ease-[var(--ease-out)] group-hover:border-charcoal md:p-8">
+                <span>
+                  <span className="label tabular-nums">0{i + 1}</span>
+                  <span className="display display-sm mt-4 block transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-1">
                     {e.title}
                   </span>
-                  <span className="label col-start-2 md:col-start-3">{e.kind}</span>
-                  <span className="label col-start-2 md:col-start-4 md:text-right">{e.year}</span>
-                </div>
-              );
-              return (
-                <div key={e.title} className="fade" style={{ ["--i" as string]: i + 1 }}>
-                  {e.href ? (
-                    e.href.startsWith("http") ? (
-                      <a href={e.href} target="_blank" rel="noreferrer" className="group block">
-                        {row}
-                      </a>
+                </span>
+                <span className="mt-12 flex items-baseline justify-between gap-4">
+                  <span className="label">{e.kind}</span>
+                  <span className="label">
+                    {e.href ? (
+                      <>
+                        Open <span aria-hidden="true">&rarr;</span>
+                      </>
                     ) : (
-                      <Link href={e.href} className="group block">
-                        {row}
-                      </Link>
-                    )
-                  ) : (
-                    <div className="group">{row}</div>
-                  )}
-                  <div className="rule" />
-                </div>
-              );
-            })}
-          </div>
+                      e.year
+                    )}
+                  </span>
+                </span>
+              </span>
+            );
+            const cls = "group fade block h-full";
+            const style = { ["--i" as string]: i + 1 };
+            return e.href ? (
+              e.href.startsWith("http") ? (
+                <a key={e.title} href={e.href} target="_blank" rel="noreferrer" className={cls} style={style}>
+                  {card}
+                </a>
+              ) : (
+                <Link key={e.title} href={e.href} className={cls} style={style}>
+                  {card}
+                </Link>
+              )
+            ) : (
+              <div key={e.title} className={cls} style={style}>
+                {card}
+              </div>
+            );
+          })}
         </div>
       </Reveal>
       )}
 
-      {/* Next */}
-      <Reveal as="section" className="wrap pb-24 md:pb-32" amount={0.3}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="label num-in">Next</span>
-            <Link href={next.path} className="display display-lg mt-4 block">
-              <Lines lines={[next.name]} offset={1} />
-            </Link>
-          </div>
-          <div className="fade" style={{ ["--i" as string]: 2 }}>
-            <PillButton href={next.path}>Open {next.name}</PillButton>
-          </div>
-        </div>
+      {/* Back to top */}
+      <Reveal as="section" className="wrap flex justify-center pb-24 md:pb-32" amount={0.3}>
+        <PillButton href="#" up>Back to top</PillButton>
       </Reveal>
     </main>
   );

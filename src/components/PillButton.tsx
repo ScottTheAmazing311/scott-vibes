@@ -6,6 +6,8 @@ interface Props {
   outline?: boolean;
   /** point the circular arrow down instead of right */
   down?: boolean;
+  /** point the circular arrow up instead of right */
+  up?: boolean;
   className?: string;
 }
 
@@ -17,9 +19,9 @@ function Arrow() {
   );
 }
 
-export default function PillButton({ href, children, outline, down, className = "" }: Props) {
-  const external = href.startsWith("http") || href.startsWith("mailto:");
-  const cls = `pill ${outline ? "pill-outline" : ""} ${down ? "pill-down" : ""} ${className}`;
+export default function PillButton({ href, children, outline, down, up, className = "" }: Props) {
+  const external = href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("#");
+  const cls = `pill ${outline ? "pill-outline" : ""} ${down ? "pill-down" : ""} ${up ? "pill-up" : ""} ${className}`;
   const inner = (
     <>
       <span>{children}</span>

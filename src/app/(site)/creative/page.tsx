@@ -1,14 +1,6 @@
-import type { Metadata } from "next";
-import HubPage from "@/components/HubPage";
-import { domains } from "@/lib/content";
+import { redirect } from "next/navigation";
 
-const domain = domains.find((d) => d.id === "creative")!;
-
-export const metadata: Metadata = {
-  title: domain.name,
-  description: domain.line,
-};
-
+/** Vibe Projects goes straight to the apps page; no index page in between. */
 export default function Page() {
-  return <HubPage domain={domain} />;
+  redirect("/creative/apps");
 }

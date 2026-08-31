@@ -12,7 +12,7 @@ interface Props {
 
 function Figure({ domain, className = "", fromLeft = false, sizes }: { domain: Domain; className?: string; fromLeft?: boolean; sizes: string }) {
   return (
-    <div className={`mask-in ${fromLeft ? "from-left" : ""} ${className}`}>
+    <Link href={domain.path} aria-label={`Explore ${domain.name}`} className={`mask-in block ${fromLeft ? "from-left" : ""} ${className}`}>
       <div className="plx relative h-full w-full">
         <Image
           src={domain.image.src}
@@ -23,7 +23,7 @@ function Figure({ domain, className = "", fromLeft = false, sizes }: { domain: D
           style={{ objectPosition: domain.imagePos ?? "center" }}
         />
       </div>
-    </div>
+    </Link>
   );
 }
 

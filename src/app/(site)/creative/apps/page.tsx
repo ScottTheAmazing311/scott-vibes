@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import Lines from "@/components/Lines";
 import PillButton from "@/components/PillButton";
 import Reveal from "@/components/Reveal";
@@ -18,18 +17,29 @@ export default function CreativeAppsPage() {
     <main>
       {/* Hero */}
       <Reveal as="section" className="pt-24 md:pt-28" style={{ background: creative.bg }} delay={200} amount={0.01}>
-        <div className="wrap pb-16 md:pb-24">
-          <p className="label fade">
-            <Link href={creative.path} className="hover:text-charcoal transition-colors">
-              {apps.label}
-            </Link>
-          </p>
-          <h1 className="display display-lg mt-8">
-            <Lines lines={[apps.title]} offset={1} />
-          </h1>
-          <p className="body fade mt-6" style={{ ["--i" as string]: 3 }}>
-            {apps.line}
-          </p>
+        <div className="wrap grid gap-10 pb-16 md:grid-cols-12 md:items-center md:gap-8 md:pb-24">
+          <div className="md:col-span-7">
+            <p className="label fade">{apps.label}</p>
+            <h1 className="display display-lg mt-8">
+              <Lines lines={[apps.title]} offset={1} />
+            </h1>
+            <p className="body fade mt-6" style={{ ["--i" as string]: 3 }}>
+              {apps.line}
+            </p>
+          </div>
+          <div className="md:col-span-4 md:col-start-9">
+            <div className="mask-in">
+              <Image
+                src={creative.image.src}
+                alt={creative.image.alt}
+                width={creative.image.width}
+                height={creative.image.height}
+                priority
+                sizes="(min-width: 768px) 33vw, 100vw"
+                className="h-auto w-full"
+              />
+            </div>
+          </div>
         </div>
       </Reveal>
 
@@ -85,19 +95,9 @@ export default function CreativeAppsPage() {
         </div>
       </section>
 
-      {/* Back */}
-      <Reveal as="section" className="wrap pb-24 md:pb-32" amount={0.3}>
-        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <span className="label num-in">Back to</span>
-            <Link href={creative.path} className="display display-lg mt-4 block">
-              <Lines lines={[creative.name]} offset={1} />
-            </Link>
-          </div>
-          <div className="fade" style={{ ["--i" as string]: 2 }}>
-            <PillButton href={creative.path}>Open {creative.name}</PillButton>
-          </div>
-        </div>
+      {/* Back to top */}
+      <Reveal as="section" className="wrap flex justify-center pb-24 md:pb-32" amount={0.3}>
+        <PillButton href="#" up>Back to top</PillButton>
       </Reveal>
     </main>
   );
