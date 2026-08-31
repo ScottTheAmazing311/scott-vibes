@@ -1,39 +1,38 @@
 import type { Metadata } from "next";
-import { Space_Mono, Playfair_Display } from "next/font/google";
+import { Archivo, Newsreader } from "next/font/google";
 import "./globals.css";
+import { site } from "@/lib/content";
 
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
+const archivo = Archivo({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const newsreader = Newsreader({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  style: ["italic"],
+  weight: ["400", "500"],
+  variable: "--font-newsreader",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "SCOTTVIBES",
-  description: "The creative universe of Scott — photography, writing, theology, code, and more.",
-  metadataBase: new URL("https://www.scottvibes.com"),
+  title: {
+    default: site.name,
+    template: `%s, ${site.name}`,
+  },
+  description: site.description,
+  metadataBase: new URL(`https://www.${site.domain}`),
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${spaceMono.variable} ${playfair.variable} font-mono antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="en" className={`no-js ${archivo.variable} ${newsreader.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.remove('no-js')" }} />
+      </head>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }

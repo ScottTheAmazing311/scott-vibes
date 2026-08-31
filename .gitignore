@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# raw source assets (optimized copies live in /public)
+/Photos/
+/Apps/
+/Cards/
+/clouds.mp4
+/golf header.mp4
+/IMG_7624.PNG

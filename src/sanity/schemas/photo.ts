@@ -18,6 +18,11 @@ export const photo = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "series",
+      title: "Series (e.g. \"Wasatch, winter\")",
+      type: "string",
+    }),
+    defineField({
       name: "description",
       title: "Description",
       type: "text",
@@ -45,6 +50,6 @@ export const photo = defineType({
     { title: "Date", name: "dateDesc", by: [{ field: "date", direction: "desc" }] },
   ],
   preview: {
-    select: { title: "title", media: "image" },
+    select: { title: "title", subtitle: "series", media: "image" },
   },
 });
