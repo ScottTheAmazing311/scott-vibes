@@ -206,10 +206,11 @@ export const domains: Domain[] = [
       width: 944,
       height: 1125,
     },
+    // TODO: point Projects at the built-things gallery when it exists.
     entries: [
-      { title: "Current role", kind: "Role", year: "20XX to now" },
-      { title: "Previous role", kind: "Role", year: "20XX to 20XX" },
-      { title: "Earlier role", kind: "Role", year: "20XX to 20XX" },
+      { title: "Work CV", kind: "LinkedIn", year: "2026", href: "https://www.linkedin.com/in/scotttheamazing/" },
+      { title: "Projects", kind: "Things I've built", year: "Coming soon" },
+      { title: "Content", kind: "Speaking", year: "2026", href: "https://www.youtube.com/watch?v=94VevwovokM" },
     ],
   },
   {
