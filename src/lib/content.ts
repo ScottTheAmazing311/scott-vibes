@@ -43,6 +43,8 @@ export interface Domain {
 
 export const site = {
   name: "Scott Knudson",
+  /** header wordmark */
+  wordmark: "Scott Knudson Creative",
   domain: "scottvibes.com",
   email: "scott.knudson@gmail.com",
   availability: "Taking on select projects from October 2026", // TODO: confirm
@@ -52,7 +54,6 @@ export const site = {
 };
 
 export const hero = {
-  label: "Creative Portfolio of Scott Knudson",
   cta: { label: "It's down here", href: "#work" },
 };
 

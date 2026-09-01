@@ -27,7 +27,6 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-ivory/85 via-ivory/35 to-ivory/10 md:bg-gradient-to-r md:from-ivory/90 md:via-ivory/55 md:to-transparent" />
         <div className="wrap relative flex flex-1 flex-col">
           <div className="flex flex-1 flex-col justify-center md:max-w-[60%]">
-            <p className="label fade">{hero.label}</p>
             <h1 className="display display-xl hero-grow mt-6 md:mt-8">
               <span className="line">
                 <span className="line-in" style={{ ["--i" as string]: 1 }}>
@@ -41,14 +40,8 @@ export default function Home() {
               </span>
             </h1>
           </div>
-          <div className="fade relative flex items-end justify-between pb-8 pt-12 md:pt-6" style={{ ["--i" as string]: 6 }}>
-            <div className="flex flex-col items-start gap-3">
-              <span className="label">Scroll</span>
-              <span className="scroll-ind" aria-hidden="true" />
-            </div>
-            <div className="absolute inset-x-0 bottom-8 flex justify-center">
-              <PillButton href={hero.cta.href} down>{hero.cta.label}</PillButton>
-            </div>
+          <div className="fade flex justify-center pb-8 pt-12 md:pt-6" style={{ ["--i" as string]: 6 }}>
+            <PillButton href={hero.cta.href} down>{hero.cta.label}</PillButton>
           </div>
         </div>
       </Reveal>
