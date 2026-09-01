@@ -58,26 +58,25 @@ export const hero = {
 
 // The apps, shown on /creative/apps and listed in the Vibe Projects hub index.
 // TODO: real URLs for Lucky Links and IronCoach.
-// TODO: tighten the one-liners for Lucky Links, Swang, Nine Postures, and IronCoach.
 const appItems: AppItem[] = [
   {
     name: "Swang",
     kind: "Game",
-    line: "Golf in four shades of green.",
+    line: "Log golf practice and score rounds the Swang way.",
     image: { src: "/apps/swang.png", alt: "Swang: a Game Boy style golfer mid-swing", width: 1128, height: 928 },
     href: "https://swang-golf.vercel.app/",
   },
   {
     name: "Ruinous",
     kind: "Daily puzzle",
-    line: "One expedition a day, one attempt.",
+    line: "Trivia runner.",
     image: { src: "/cards/creative2.png", alt: "Ruinous title art with pyramid and gems", width: 644, height: 405 },
     href: "https://ruinous.vercel.app/",
   },
   {
     name: "Nine Postures",
     kind: "App",
-    line: "Nine ways of standing in the world.",
+    line: "A smarter personality test.",
     image: { src: "/apps/nine-postures.png", alt: "Nine Postures logo with nine pixel-art figures", width: 796, height: 568 },
     href: "https://nine-postures.vercel.app/",
   },
@@ -98,7 +97,7 @@ const appItems: AppItem[] = [
   {
     name: "IronCoach",
     kind: "App",
-    line: "Strength coaching in your pocket.",
+    line: "Hyperpersonalized fitness trainer.",
     image: { src: "/apps/ironcoach.png", alt: "IronCoach wordmark with a barbell", width: 1400, height: 600 },
     href: "#", // TODO: replace placeholder with the real IronCoach URL
   },
@@ -106,7 +105,7 @@ const appItems: AppItem[] = [
   {
     name: "Lucky Links",
     kind: "Game",
-    line: "Pixel golf with a lucky streak.",
+    line: "2D golf RPG game. Coming soon.",
     image: { src: "/apps/lucky-links.png", alt: "Lucky Links: a pixel-art golfer with his bag and cart", width: 1024, height: 1024 },
   },
 ];
