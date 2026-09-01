@@ -38,13 +38,13 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
         <div className="mask-in">
           <div className="plx relative h-44 w-full md:h-60">
             <Image
-              src={domain.image.src}
-              alt={domain.image.alt}
+              src={(domain.header ?? domain.image).src}
+              alt={(domain.header ?? domain.image).alt}
               fill
               priority
               sizes="100vw"
               className="object-cover"
-              style={{ objectPosition: domain.imagePos ?? "center" }}
+              style={{ objectPosition: domain.header ? "center" : domain.imagePos ?? "center" }}
             />
           </div>
         </div>

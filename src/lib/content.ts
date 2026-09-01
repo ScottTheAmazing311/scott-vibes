@@ -32,6 +32,8 @@ export interface Domain {
   image: ImageSpec;
   /** optional separate image for the quick-link card (falls back to image) */
   card?: ImageSpec;
+  /** optional wide crop for the hub hero band (falls back to image) */
+  header?: ImageSpec;
   /** CSS object-position for the home spread crop, e.g. "top" | "bottom" */
   imagePos?: string;
   entries: Entry[];
@@ -173,6 +175,7 @@ export const domains: Domain[] = [
     discipline: "Lessons, video essays",
     year: "2024 to now",
     line: "LDS apologetics and Gospel Doctrine lessons and assets.",
+    header: { src: "/headers/theology.jpg", alt: "Celestial engraving of a sun with a watching eye", width: 1080, height: 311 },
     subpage: { label: "Open the Library", href: "/theology/library" },
     bg: "#E7E2D6",
     image: {
@@ -196,6 +199,7 @@ export const domains: Domain[] = [
     discipline: "Career, consulting",
     year: "2008 to now",
     line: "CV, work projects, and skills.",
+    header: { src: "/headers/professional.jpg", alt: "Eyes of Scott Knudson against a green backdrop", width: 1682, height: 237 },
     bg: "#E2DED4",
     image: {
       src: "/cards/professional.jpg",
@@ -218,6 +222,7 @@ export const domains: Domain[] = [
     discipline: "Recipes, favorites, rabbit holes",
     year: "Ongoing",
     line: "Screenplays, podcasts, and other fun things.",
+    header: { src: "/headers/odds.jpg", alt: "Neon astronaut streaking through space", width: 2165, height: 471 },
     bg: "#D9DDD1",
     image: {
       src: "/cards/odds.jpg",
@@ -283,6 +288,7 @@ export const creativeApps = {
   label: "Vibe Projects",
   title: "The Apps",
   line: "Small software, built to be played with.",
+  header: { src: "/headers/apps.png", alt: "Row of six app cards", width: 1682, height: 237 } as ImageSpec,
   apps: appItems,
 };
 

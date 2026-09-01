@@ -29,8 +29,8 @@ export default function CreativeAppsPage() {
         <div className="mask-in">
           <div className="plx relative h-44 w-full md:h-60">
             <Image
-              src={creative.image.src}
-              alt={creative.image.alt}
+              src={apps.header.src}
+              alt={apps.header.alt}
               fill
               priority
               sizes="100vw"
