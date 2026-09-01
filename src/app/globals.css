@@ -442,6 +442,49 @@ img {
   animation: hero-grow 3s var(--ease-out) 0.3s both;
 }
 
+/* "Creating." — letters float in a slow wave while an acid ink sheen
+   ripples through the word, letter by letter. */
+.creating .ch {
+  display: inline-block;
+  background: linear-gradient(100deg, var(--charcoal) 38%, #86c421 50%, var(--charcoal) 62%);
+  background-size: 300% 100%;
+  background-position: 115% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation:
+    ch-float 3.4s ease-in-out calc(var(--ci) * 0.14s) infinite,
+    ch-ink 5.2s ease-in-out calc(var(--ci) * 0.11s) infinite;
+}
+
+@keyframes ch-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-0.055em) rotate(-1.2deg);
+  }
+}
+
+@keyframes ch-ink {
+  0%, 18% {
+    background-position: 115% 0;
+  }
+  55%, 100% {
+    background-position: -35% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .creating .ch {
+    animation: none;
+    background: none;
+    color: var(--charcoal);
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 @keyframes hero-grow {
   from {
     transform: scale(0.78);

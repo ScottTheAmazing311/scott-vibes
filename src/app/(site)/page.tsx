@@ -35,7 +35,13 @@ export default function Home() {
               </span>
               <span className="line">
                 <span className="line-in" style={{ ["--i" as string]: 2 }}>
-                  <em className="em">Creating.</em>
+                  <em className="em creating" aria-label="Creating.">
+                    {"Creating.".split("").map((ch, i) => (
+                      <span key={i} aria-hidden="true" className="ch" style={{ ["--ci" as string]: i }}>
+                        {ch}
+                      </span>
+                    ))}
+                  </em>
                 </span>
               </span>
             </h1>
