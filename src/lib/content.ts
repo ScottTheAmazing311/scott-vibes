@@ -235,6 +235,7 @@ export const domains: Domain[] = [
       { title: "Sunnyside Mall", kind: "Pilot screenplay", year: "2026" },
       { title: "UltraCosmic", kind: "Project", year: "2026" },
       { title: "Steal This Idea", kind: "Podcast", year: "2026", href: "https://gostealthisidea.com/" },
+      { title: "Compass", kind: "Album", year: "2026", href: "https://soundcloud.com/scotttheamazing/sets/compass" },
     ],
   },
 ];
