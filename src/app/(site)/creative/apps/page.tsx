@@ -17,28 +17,25 @@ export default function CreativeAppsPage() {
     <main>
       {/* Hero */}
       <Reveal as="section" className="pt-24 md:pt-28" style={{ background: creative.bg }} delay={200} amount={0.01}>
-        <div className="wrap grid gap-10 pb-16 md:grid-cols-12 md:items-center md:gap-8 md:pb-24">
-          <div className="md:col-span-7">
-            <p className="label fade">{apps.label}</p>
-            <h1 className="display display-lg mt-8">
-              <Lines lines={[apps.title]} offset={1} />
-            </h1>
-            <p className="body fade mt-6" style={{ ["--i" as string]: 3 }}>
-              {apps.line}
-            </p>
-          </div>
-          <div className="md:col-span-4 md:col-start-9">
-            <div className="mask-in">
-              <Image
-                src={creative.image.src}
-                alt={creative.image.alt}
-                width={creative.image.width}
-                height={creative.image.height}
-                priority
-                sizes="(min-width: 768px) 33vw, 100vw"
-                className="h-auto w-full"
-              />
-            </div>
+        <div className="wrap pb-14 md:pb-20">
+          <p className="label fade">{apps.label}</p>
+          <h1 className="display display-lg mt-8">
+            <Lines lines={[apps.title]} offset={1} />
+          </h1>
+          <p className="body fade mt-6" style={{ ["--i" as string]: 3 }}>
+            {apps.line}
+          </p>
+        </div>
+        <div className="mask-in">
+          <div className="plx relative h-44 w-full md:h-60">
+            <Image
+              src={creative.image.src}
+              alt={creative.image.alt}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
           </div>
         </div>
       </Reveal>

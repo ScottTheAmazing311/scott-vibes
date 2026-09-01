@@ -34,8 +34,6 @@ export interface Domain {
   card?: ImageSpec;
   /** CSS object-position for the home spread crop, e.g. "top" | "bottom" */
   imagePos?: string;
-  /** show the hub hero image uncropped at its natural aspect (default crops to 3:4) */
-  imageFull?: boolean;
   entries: Entry[];
   /** optional prominent link to a deeper page */
   subpage?: { label: string; href: string };
@@ -133,7 +131,6 @@ export const domains: Domain[] = [
       width: 598,
       height: 790,
     },
-    imageFull: true,
     entries: appItems.map((a) => ({
       title: a.name,
       kind: a.kind,

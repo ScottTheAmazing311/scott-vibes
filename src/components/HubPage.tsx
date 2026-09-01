@@ -14,62 +14,45 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
 
   return (
     <main>
-      {/* Hero block in the domain color; image hangs below into the ivory */}
+      {/* Hero block in the domain color; narrow full-bleed image band below the copy */}
       <Reveal as="section" className="relative pt-24 md:pt-28" style={{ background: domain.bg }} delay={200} amount={0.01}>
-        <div className="wrap grid gap-10 pb-16 md:grid-cols-12 md:gap-8 md:pb-0">
-          <div className="md:col-span-7 md:pb-24">
-            <div className="flex items-baseline gap-4">
-              <span className="numeral num-in text-[clamp(3.5rem,8vw,6.5rem)]">{domain.number}</span>
-              <span className="label fade" style={{ ["--i" as string]: 1 }}>
-                {domain.discipline}
-              </span>
-            </div>
-            <h1 className="display display-lg mt-10 md:mt-14">
-              <Lines lines={domain.name.split(" ")} offset={1} />
-            </h1>
-            <p className="body fade mt-6" style={{ ["--i" as string]: 4 }}>
-              {domain.line}
-            </p>
-            {domain.subpage && (
-              <div className="fade mt-10" style={{ ["--i" as string]: 5 }}>
-                <PillButton href={domain.subpage.href}>{domain.subpage.label}</PillButton>
-              </div>
-            )}
+        <div className="wrap pb-14 md:pb-20">
+          <div className="flex items-baseline gap-4">
+            <span className="numeral num-in text-[clamp(3.5rem,8vw,6.5rem)]">{domain.number}</span>
+            <span className="label fade" style={{ ["--i" as string]: 1 }}>
+              {domain.discipline}
+            </span>
           </div>
-          <div className="md:col-span-4 md:col-start-9 md:translate-y-24">
-            <div className="mask-in">
-              {domain.imageFull ? (
-                <div className="plx">
-                  <Image
-                    src={domain.image.src}
-                    alt={domain.image.alt}
-                    width={domain.image.width}
-                    height={domain.image.height}
-                    priority
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    className="h-auto w-full"
-                  />
-                </div>
-              ) : (
-                <div className="plx relative aspect-[3/4] w-full">
-                  <Image
-                    src={domain.image.src}
-                    alt={domain.image.alt}
-                    fill
-                    priority
-                    sizes="(min-width: 768px) 33vw, 100vw"
-                    className="object-cover object-[70%_50%]"
-                  />
-                </div>
-              )}
+          <h1 className="display display-lg mt-10 md:mt-14">
+            <Lines lines={domain.name.split(" ")} offset={1} />
+          </h1>
+          <p className="body fade mt-6" style={{ ["--i" as string]: 4 }}>
+            {domain.line}
+          </p>
+          {domain.subpage && (
+            <div className="fade mt-10" style={{ ["--i" as string]: 5 }}>
+              <PillButton href={domain.subpage.href}>{domain.subpage.label}</PillButton>
             </div>
+          )}
+        </div>
+        <div className="mask-in">
+          <div className="plx relative h-44 w-full md:h-60">
+            <Image
+              src={domain.image.src}
+              alt={domain.image.alt}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+              style={{ objectPosition: domain.imagePos ?? "center" }}
+            />
           </div>
         </div>
       </Reveal>
 
       {/* Gallery (from Sanity) or static index */}
       {seriesGroups ? (
-        <section className="wrap pb-24 pt-16 md:pb-32 md:pt-48">
+        <section className="wrap pb-24 pt-16 md:pb-32 md:pt-24">
           {/* Series quick links */}
           <Reveal
             as="nav"
@@ -137,7 +120,7 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
           ))}
         </section>
       ) : (
-      <Reveal as="section" className="wrap pb-24 pt-16 md:pb-32 md:pt-48">
+      <Reveal as="section" className="wrap pb-24 pt-16 md:pb-32 md:pt-24">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {domain.entries.map((e, i) => {
             const card = (
