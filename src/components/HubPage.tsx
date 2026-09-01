@@ -133,15 +133,13 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
                 </span>
                 <span className="mt-12 flex items-baseline justify-between gap-4">
                   <span className="label">{e.kind}</span>
-                  <span className="label">
-                    {e.href ? (
-                      <>
-                        Open <span aria-hidden="true">&rarr;</span>
-                      </>
-                    ) : (
-                      e.year
-                    )}
-                  </span>
+                  {e.href ? (
+                    <span className="label">
+                      Open <span aria-hidden="true">&rarr;</span>
+                    </span>
+                  ) : (
+                    <span className="label border border-charcoal/30 px-2 py-1">Coming soon</span>
+                  )}
                 </span>
               </span>
             );

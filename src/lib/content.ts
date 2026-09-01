@@ -100,7 +100,7 @@ const appItems: AppItem[] = [
     kind: "App",
     line: "Hyperpersonalized fitness trainer.",
     image: { src: "/apps/ironcoach.png", alt: "IronCoach wordmark with a barbell", width: 1400, height: 600 },
-    href: "#", // TODO: replace placeholder with the real IronCoach URL
+    // TODO: add href when IronCoach has a home; shows Coming soon until then
   },
   // Last until it has a link.
   {
@@ -210,7 +210,7 @@ export const domains: Domain[] = [
     // TODO: point Projects at the built-things gallery when it exists.
     entries: [
       { title: "Work CV", kind: "LinkedIn", year: "2026", href: "https://www.linkedin.com/in/scotttheamazing/" },
-      { title: "Projects", kind: "Things I've built", year: "Coming soon" },
+      { title: "Projects", kind: "Things I've built", year: "2026" },
       { title: "Content", kind: "Speaking", year: "2026", href: "https://www.youtube.com/watch?v=94VevwovokM" },
     ],
   },
@@ -221,7 +221,7 @@ export const domains: Domain[] = [
     path: "/other",
     discipline: "Recipes, favorites, rabbit holes",
     year: "Ongoing",
-    line: "Screenplays, podcasts, and other fun things.",
+    line: "Screenplays, podcasts, music, and other fun things.",
     header: { src: "/headers/odds.jpg", alt: "Neon astronaut streaking through space", width: 2165, height: 471 },
     bg: "#D9DDD1",
     image: {

@@ -65,10 +65,12 @@ export default function CreativeAppsPage() {
                 </span>
                 <span className="body mt-3 flex items-baseline justify-between gap-4">
                   <span>{app.line}</span>
-                  {app.href && (
+                  {app.href ? (
                     <span className="ulink shrink-0 text-sm">
                       Visit <span aria-hidden="true">&rarr;</span>
                     </span>
+                  ) : (
+                    <span className="label shrink-0 border border-charcoal/30 px-2 py-1">Coming soon</span>
                   )}
                 </span>
               </span>
