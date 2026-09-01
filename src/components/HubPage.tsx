@@ -124,7 +124,10 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {domain.entries.map((e, i) => {
             const card = (
-              <span className="flex h-full flex-col justify-between border border-charcoal/20 p-6 transition-colors duration-500 ease-[var(--ease-out)] group-hover:border-charcoal md:p-8">
+              <span className="relative flex h-full flex-col justify-between border border-charcoal/20 p-6 transition-colors duration-500 ease-[var(--ease-out)] group-hover:border-charcoal md:p-8">
+                {!e.href && (
+                  <span className="label absolute -right-px -top-px bg-acid px-2.5 py-1.5 text-charcoal">Coming soon</span>
+                )}
                 <span>
                   <span className="label tabular-nums">0{i + 1}</span>
                   <span className="display display-sm mt-4 block transition-transform duration-500 ease-[var(--ease-out)] group-hover:translate-x-1">
@@ -133,12 +136,10 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
                 </span>
                 <span className="mt-12 flex items-baseline justify-between gap-4">
                   <span className="label">{e.kind}</span>
-                  {e.href ? (
+                  {e.href && (
                     <span className="label">
                       Open <span aria-hidden="true">&rarr;</span>
                     </span>
-                  ) : (
-                    <span className="label border border-charcoal/30 px-2 py-1">Coming soon</span>
                   )}
                 </span>
               </span>

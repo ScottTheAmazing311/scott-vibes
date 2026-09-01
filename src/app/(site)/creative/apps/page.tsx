@@ -45,7 +45,7 @@ export default function CreativeAppsPage() {
         <div className="grid gap-x-8 gap-y-20 md:grid-cols-2 md:gap-y-28">
           {apps.apps.map((app, i) => {
             const figure = (
-              <span className="mask-in block overflow-hidden">
+              <span className="mask-in relative block overflow-hidden">
                 <Image
                   src={app.image.src}
                   alt={app.image.alt}
@@ -54,6 +54,9 @@ export default function CreativeAppsPage() {
                   sizes="(min-width: 768px) 45vw, 100vw"
                   className="w-full transition-transform duration-700 ease-[var(--ease-out)] group-hover:scale-[1.03]"
                 />
+                {!app.href && (
+                  <span className="label absolute right-3 top-3 bg-acid px-2.5 py-1.5 text-charcoal">Coming soon</span>
+                )}
               </span>
             );
             const caption = (
@@ -65,12 +68,10 @@ export default function CreativeAppsPage() {
                 </span>
                 <span className="body mt-3 flex items-baseline justify-between gap-4">
                   <span>{app.line}</span>
-                  {app.href ? (
+                  {app.href && (
                     <span className="ulink shrink-0 text-sm">
                       Visit <span aria-hidden="true">&rarr;</span>
                     </span>
-                  ) : (
-                    <span className="label shrink-0 border border-charcoal/30 px-2 py-1">Coming soon</span>
                   )}
                 </span>
               </span>
