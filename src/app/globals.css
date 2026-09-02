@@ -437,8 +437,18 @@ img {
 }
 
 /* hero headline: appears small, grows to full size, settles */
+/* One-line centered hero headline in Space Grotesk (a near cousin of Archivo). */
+.hero-title {
+  font-family: var(--font-space);
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: clamp(2rem, 7vw, 7.75rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
 .hero-grow {
-  transform-origin: 0% 62%;
+  transform-origin: 50% 62%;
   animation: hero-grow 3s var(--ease-out) 0.3s both;
 }
 

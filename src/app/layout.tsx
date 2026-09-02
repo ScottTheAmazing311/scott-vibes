@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Newsreader } from "next/font/google";
+import { Archivo, Newsreader, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/content";
 
@@ -14,6 +14,13 @@ const newsreader = Newsreader({
   style: ["italic"],
   weight: ["400", "500"],
   variable: "--font-newsreader",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-space",
   display: "swap",
 });
 
@@ -42,7 +49,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`no-js ${archivo.variable} ${newsreader.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`no-js ${archivo.variable} ${newsreader.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.remove('no-js')" }} />
       </head>

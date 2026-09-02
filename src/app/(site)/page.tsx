@@ -24,17 +24,13 @@ export default function Home() {
           className="absolute inset-0 h-full w-full"
         />
         {/* ivory scrim keeps the type readable while the landscape shows through */}
-        <div className="absolute inset-0 bg-gradient-to-b from-ivory/85 via-ivory/35 to-ivory/10 md:bg-gradient-to-r md:from-ivory/90 md:via-ivory/55 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ivory/85 via-ivory/35 to-ivory/10" />
         <div className="wrap relative flex flex-1 flex-col">
-          <div className="flex flex-1 flex-col justify-center md:max-w-[60%]">
-            <h1 className="display display-xl hero-grow mt-6 md:mt-8">
+          <div className="flex flex-1 flex-col items-center justify-center text-center">
+            <h1 className="display hero-title hero-grow mt-6 md:mt-8">
               <span className="line">
                 <span className="line-in" style={{ ["--i" as string]: 1 }}>
-                  Never Stop
-                </span>
-              </span>
-              <span className="line">
-                <span className="line-in" style={{ ["--i" as string]: 2 }}>
+                  Never Stop{" "}
                   <em className="em creating" aria-label="Creating.">
                     {"Creating.".split("").map((ch, i) => (
                       <span key={i} aria-hidden="true" className="ch" style={{ ["--ci" as string]: i }}>
