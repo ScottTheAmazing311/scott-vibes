@@ -437,6 +437,42 @@ img {
 }
 
 /* hero headline: appears small, grows to full size, settles */
+/* ── Marquee (ticker + film strip): duplicated track scrolls left, pauses on
+   hover, degrades to a static scrollable row under reduced motion. */
+.marquee {
+  overflow: hidden;
+}
+
+.marquee-fade {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-dur, 40s) linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* One-line centered hero headline in Space Grotesk (a near cousin of Archivo). */
 .hero-title {
   font-family: var(--font-space);

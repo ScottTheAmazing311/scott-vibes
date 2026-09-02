@@ -2,15 +2,35 @@ import Image from "next/image";
 import Link from "next/link";
 import Lines from "@/components/Lines";
 import HeroVideo from "@/components/HeroVideo";
+import LatticeField from "@/components/LatticeField";
+import MakerTicker from "@/components/MakerTicker";
 import PillButton from "@/components/PillButton";
 import ProjectSpread from "@/components/ProjectSpread";
 import Reveal from "@/components/Reveal";
 import SocialBand from "@/components/SocialBand";
-import { contact, domains, hero, site } from "@/lib/content";
+import { contact, creativeApps, domains, hero, site } from "@/lib/content";
+import { getPhotos, groupBySeries } from "@/sanity/lib/photos";
 
 const layouts = ["right", "left", "right", "left", "right"] as const;
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Home() {
+  const photos = await getPhotos();
+  const seriesCount = photos.length ? groupBySeries(photos).length : 7;
+  const photoCount = photos.length || 123;
+  const stats = [
+    { value: creativeApps.apps.length, label: "Apps" },
+    { value: photoCount, label: "Photographs" },
+    { value: seriesCount, label: "Photo series" },
+    { value: 1, label: "Podcast" },
+    { value: 1, label: "Album" },
+  ];
+  const tickerItems = [
+    ...creativeApps.apps.map((a) => a.name),
+    ...domains.flatMap((d) => (d.id === "other" ? d.entries.map((e) => e.title) : [])),
+    ...domains.flatMap((d) => (d.id === "photography" ? d.entries.map((e) => `${e.title} photos`) : [])),
+  ];
   return (
     <main>
       {/* 1. Introduction */}
@@ -87,6 +107,11 @@ export default function Home() {
         </nav>
       </Reveal>
 
+      {/* Everything-I-make ticker */}
+      <Reveal as="section" className="pb-14 md:pb-20" amount={0.4}>
+        <MakerTicker items={tickerItems} />
+      </Reveal>
+
       {/* 3. The Workshop */}
       <section id="work" className="scroll-mt-16">
         <Reveal className="wrap flex items-end justify-between pb-8 pt-8 md:pt-0">
@@ -99,7 +124,21 @@ export default function Home() {
         ))}
       </section>
 
-      {/* 3. Social */}
+      {/* 4. By the numbers */}
+      <Reveal as="section" className="on-dark bg-charcoal py-14 md:py-20" amount={0.3}>
+        <div className="wrap">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 md:grid-cols-5">
+            {stats.map((s, i) => (
+              <div key={s.label} className="fade" style={{ ["--i" as string]: i + 1 }}>
+                <div className="display display-md tabular-nums">{s.value}</div>
+                <div className="label mt-3 opacity-70">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Reveal>
+
+      {/* 5. Social */}
       <Reveal as="section" className="on-acid bg-acid py-16 md:py-24" amount={0.3}>
         <div className="wrap">
           <SocialBand />
@@ -107,8 +146,9 @@ export default function Home() {
       </Reveal>
 
       {/* 5. Contact */}
-      <Reveal as="section" id="contact" className="on-dark scroll-mt-16 bg-charcoal py-14 md:py-20" amount={0.15} data-header-theme="dark">
-        <div className="wrap">
+      <Reveal as="section" id="contact" className="on-dark relative scroll-mt-16 overflow-hidden bg-charcoal py-14 md:py-20" amount={0.15} data-header-theme="dark">
+        <LatticeField />
+        <div className="wrap relative">
           <p className="label num-in">Contact</p>
           <h2 className="display display-md mt-4 [&_.em]:text-acid">
             <Lines lines={contact.lines} offset={1} />

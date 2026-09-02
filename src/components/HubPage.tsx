@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Domain } from "@/lib/content";
 import { groupBySeries, type SanityPhoto } from "@/sanity/lib/photos";
+import FilmStrip from "./FilmStrip";
 import Lines from "./Lines";
 import PillButton from "./PillButton";
 import Reveal from "./Reveal";
@@ -9,8 +10,20 @@ import Reveal from "./Reveal";
 const seriesSlug = (series: string) => `series-${series.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 /** Shared editorial template for the five section hubs. */
-export default function HubPage({ domain, gallery }: { domain: Domain; gallery?: SanityPhoto[] }) {
+export default function HubPage({
+  domain,
+  gallery,
+  extra,
+}: {
+  domain: Domain;
+  gallery?: SanityPhoto[];
+  extra?: React.ReactNode;
+}) {
   const seriesGroups = gallery && gallery.length > 0 ? groupBySeries(gallery) : null;
+  // A sample of frames spread across the whole collection for the film strip.
+  const stripPhotos = gallery?.length
+    ? gallery.filter((_, i) => i % Math.max(1, Math.floor(gallery.length / 12)) === 0).slice(0, 12)
+    : [];
 
   return (
     <main>
@@ -49,6 +62,13 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
           </div>
         </div>
       </Reveal>
+
+      {/* Film strip of frames across the collection */}
+      {stripPhotos.length > 0 && (
+        <Reveal as="section" className="pt-10 md:pt-14" amount={0.2}>
+          <FilmStrip photos={stripPhotos} />
+        </Reveal>
+      )}
 
       {/* Gallery (from Sanity) or static index */}
       {seriesGroups ? (
@@ -165,6 +185,8 @@ export default function HubPage({ domain, gallery }: { domain: Domain; gallery?:
         </div>
       </Reveal>
       )}
+
+      {extra}
 
       {/* Back to top */}
       <Reveal as="section" className="wrap flex justify-center pb-24 md:pb-32" amount={0.3}>
