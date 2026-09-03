@@ -9,27 +9,21 @@ import ProjectSpread from "@/components/ProjectSpread";
 import Reveal from "@/components/Reveal";
 import SocialBand from "@/components/SocialBand";
 import { contact, creativeApps, domains, hero, site } from "@/lib/content";
-import { getPhotos, groupBySeries } from "@/sanity/lib/photos";
 
 const layouts = ["right", "left", "right", "left", "right"] as const;
 
-export const revalidate = 3600;
-
-export default async function Home() {
-  const photos = await getPhotos();
-  const seriesCount = photos.length ? groupBySeries(photos).length : 7;
-  const photoCount = photos.length || 123;
-  const stats = [
-    { value: creativeApps.apps.length, label: "Apps" },
-    { value: photoCount, label: "Photographs" },
-    { value: seriesCount, label: "Photo series" },
-    { value: 1, label: "Podcast" },
-    { value: 1, label: "Album" },
-  ];
+export default function Home() {
+  const seriesSlug = (s: string) => `/photography#series-${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   const tickerItems = [
-    ...creativeApps.apps.map((a) => a.name),
-    ...domains.flatMap((d) => (d.id === "other" ? d.entries.map((e) => e.title) : [])),
-    ...domains.flatMap((d) => (d.id === "photography" ? d.entries.map((e) => `${e.title} photos`) : [])),
+    ...creativeApps.apps.map((a) => ({ name: a.name, kind: a.kind, href: a.href ?? "/creative/apps" })),
+    ...domains.flatMap((d) =>
+      d.id === "other" ? d.entries.map((e) => ({ name: e.title, kind: e.kind, href: e.href ?? d.path })) : [],
+    ),
+    ...domains.flatMap((d) =>
+      d.id === "photography"
+        ? d.entries.map((e) => ({ name: e.title, kind: "Photo series", href: seriesSlug(e.title) }))
+        : [],
+    ),
   ];
   return (
     <main>
@@ -124,21 +118,7 @@ export default async function Home() {
         ))}
       </section>
 
-      {/* 4. By the numbers */}
-      <Reveal as="section" className="on-dark bg-charcoal py-14 md:py-20" amount={0.3}>
-        <div className="wrap">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 md:grid-cols-5">
-            {stats.map((s, i) => (
-              <div key={s.label} className="fade" style={{ ["--i" as string]: i + 1 }}>
-                <div className="display display-md tabular-nums">{s.value}</div>
-                <div className="label mt-3 opacity-70">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Reveal>
-
-      {/* 5. Social */}
+      {/* 4. Social */}
       <Reveal as="section" className="on-acid bg-acid py-16 md:py-24" amount={0.3}>
         <div className="wrap">
           <SocialBand />
