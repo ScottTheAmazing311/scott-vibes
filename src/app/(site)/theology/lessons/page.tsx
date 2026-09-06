@@ -63,7 +63,12 @@ export default function LessonsPage() {
                         </span>
                         <span className="mt-10 flex items-baseline justify-between gap-4">
                           <span className="label">
-                            {[lesson.slidesId && "Slides", lesson.audioId && "Audio", lesson.links?.length && "Extras"]
+                            {[
+                              lesson.slidesId && "Slides",
+                              lesson.songs?.length && "Songs",
+                              lesson.audioId && "Audio",
+                              lesson.links?.length && "Extras",
+                            ]
                               .filter(Boolean)
                               .join(", ")}
                           </span>

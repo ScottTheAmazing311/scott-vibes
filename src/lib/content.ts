@@ -287,6 +287,8 @@ export interface SundayLesson {
   slidesId?: string;
   /** Google Drive audio file id — embeds the recording */
   audioId?: string;
+  /** songs written for the lesson: artwork + a playable Drive embed each */
+  songs?: { title: string; audioId: string; art?: ImageSpec }[];
   /** extra materials, e.g. a songs folder */
   links?: { label: string; href: string }[];
 }
@@ -305,7 +307,28 @@ export const sundayLessons: SundayLesson[] = [
     title: "Psalms",
     course: "Old Testament",
     slidesId: "1zPBdpeDZE3LrIa8Jg-BS40MGYpGx1JAyekD8A6UcOL4",
-    links: [{ label: "Psalm Songs", href: "https://drive.google.com/drive/folders/13gdcidbauL1bNTKobaFJPViFGaweZ6Tv" }],
+    songs: [
+      {
+        title: "A Lamp unto My Feet",
+        audioId: "1minFcvTbm_4CZM2VNGixVL9FNZ2p6szZ",
+        art: { src: "/lessons/psalms/lamp.jpg", alt: "A woman carrying a lantern down a dark forest path", width: 1200, height: 1200 },
+      },
+      {
+        title: "Bless the Lord, O My Soul",
+        audioId: "1zjt7b0C8seKAvxiRBZAEAfgcOSOP1J1v",
+        art: { src: "/lessons/psalms/bless.jpg", alt: "Artwork for Bless the Lord, O My Soul", width: 1200, height: 1200 },
+      },
+      {
+        title: "Hear My Prayer",
+        audioId: "1YrrMZVicX2JAJs4SDd3WR1yh5QMQbwC_",
+        art: { src: "/lessons/psalms/hear.jpg", alt: "Artwork for Hear My Prayer", width: 1200, height: 1200 },
+      },
+      {
+        title: "Peace Upon Israel",
+        audioId: "1Kx-0cep2pZ9vECyyOpBvU1jQ5NaVYTEb",
+        art: { src: "/lessons/psalms/peace.jpg", alt: "Artwork for Peace Upon Israel", width: 1200, height: 1200 },
+      },
+    ],
   },
   { slug: "dc-3-5", title: "Doctrine & Covenants 3–5", course: "Doctrine & Covenants", audioId: "1xbPf612XWmN_3OA343znRPw5Syb1UpmX" },
   { slug: "dc-18", title: "Doctrine & Covenants 18", course: "Doctrine & Covenants", audioId: "1WA6qGteEqmnYPfUYNdgT2tdOIN3g2ivb" },

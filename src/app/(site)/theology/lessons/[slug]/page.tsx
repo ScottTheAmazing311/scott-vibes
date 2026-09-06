@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Lines from "@/components/Lines";
@@ -54,15 +55,59 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
       {/* The lesson slides */}
       {lesson.slidesId && (
         <Reveal as="section" className="wrap py-14 md:py-20" amount={0.1}>
-          <span className="label num-in tabular-nums">0{++sectionIndex}</span>
-          <h2 className="display display-md mt-4">The lesson</h2>
-          <div className="fade mt-8" style={{ ["--i" as string]: 1 }}>
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <span className="label num-in tabular-nums">0{++sectionIndex}</span>
+              <h2 className="display display-md mt-4">The lesson</h2>
+            </div>
+            <a
+              href={`https://docs.google.com/presentation/d/${lesson.slidesId}/present`}
+              target="_blank"
+              rel="noreferrer"
+              className="ulink fade text-sm"
+              style={{ ["--i" as string]: 1 }}
+            >
+              Present full screen <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+          <div className="fade mt-8" style={{ ["--i" as string]: 2 }}>
             <iframe
               src={`https://docs.google.com/presentation/d/${lesson.slidesId}/embed?start=false&loop=false`}
               className="aspect-video w-full border border-charcoal/20"
               allowFullScreen
               title={`${lesson.title} slides`}
             />
+          </div>
+        </Reveal>
+      )}
+
+      {/* The songs */}
+      {lesson.songs && lesson.songs.length > 0 && (
+        <Reveal as="section" className="wrap py-14 md:py-20" amount={0.1}>
+          <span className="label num-in tabular-nums">0{++sectionIndex}</span>
+          <h2 className="display display-md mt-4">The songs</h2>
+          <div className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {lesson.songs.map((song, i) => (
+              <div key={song.audioId} className="fade" style={{ ["--i" as string]: i + 1 }}>
+                {song.art && (
+                  <Image
+                    src={song.art.src}
+                    alt={song.art.alt}
+                    width={song.art.width}
+                    height={song.art.height}
+                    sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 100vw"
+                    className="aspect-square w-full object-cover"
+                  />
+                )}
+                <h3 className="display display-sm mt-4">{song.title}</h3>
+                <iframe
+                  src={`https://drive.google.com/file/d/${song.audioId}/preview`}
+                  className="mt-3 h-16 w-full border border-charcoal/20"
+                  title={`${song.title} audio`}
+                  allow="autoplay"
+                />
+              </div>
+            ))}
           </div>
         </Reveal>
       )}
