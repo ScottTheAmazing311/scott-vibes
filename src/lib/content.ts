@@ -199,7 +199,7 @@ export const domains: Domain[] = [
     discipline: "Career, consulting",
     year: "2008 to now",
     line: "CV, work projects, and skills.",
-    header: { src: "/headers/professional.jpg", alt: "Eyes of Scott Knudson against a green backdrop", width: 1682, height: 237 },
+    header: { src: "/headers/professional-pattern.png", alt: "", width: 2400, height: 480 },
     bg: "#E2DED4",
     image: {
       src: "/cards/professional.jpg",
