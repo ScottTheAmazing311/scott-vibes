@@ -64,15 +64,9 @@ export default function TheologyLibraryPage() {
           </div>
           <div className="md:col-span-9">
             <div className="grid gap-5 sm:grid-cols-2">
-              {lib.folders.map((folder, i) => (
-                <a
-                  key={folder.title}
-                  href={folder.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group fade block h-full"
-                  style={{ ["--i" as string]: i + 1 }}
-                >
+              {lib.folders.map((folder, i) => {
+                const external = folder.href.startsWith("http");
+                const card = (
                   <span className="flex h-full flex-col justify-between border border-charcoal/20 p-6 transition-colors duration-500 ease-[var(--ease-out)] group-hover:border-charcoal md:p-8">
                     <span>
                       <span className="label tabular-nums">0{i + 1}</span>
@@ -82,11 +76,22 @@ export default function TheologyLibraryPage() {
                       <span className="body mt-3 block text-sm">{folder.line}</span>
                     </span>
                     <span className="label mt-12 block">
-                      Open folder <span aria-hidden="true">&rarr;</span>
+                      Open <span aria-hidden="true">&rarr;</span>
                     </span>
                   </span>
-                </a>
-              ))}
+                );
+                const cls = "group fade block h-full";
+                const style = { ["--i" as string]: i + 1 };
+                return external ? (
+                  <a key={folder.title} href={folder.href} target="_blank" rel="noreferrer" className={cls} style={style}>
+                    {card}
+                  </a>
+                ) : (
+                  <Link key={folder.title} href={folder.href} className={cls} style={style}>
+                    {card}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>

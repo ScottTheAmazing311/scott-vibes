@@ -186,7 +186,7 @@ export const domains: Domain[] = [
     },
     imagePos: "bottom",
     entries: [
-      { title: "Sunday School lessons", kind: "PDF, slides, audio", year: "Ongoing", href: "/theology/library" },
+      { title: "Sunday School lessons", kind: "Slides and audio", year: "Ongoing", href: "/theology/lessons" },
       { title: "Armarium", kind: "Reading cabinet", year: "2026", href: "https://armarium-mu.vercel.app/" },
       { title: "Video essay", kind: "Video essay", year: "2026" },
     ],
@@ -264,17 +264,60 @@ export const theologyLibrary = {
   lessonsLine: "Lessons and the materials behind them.",
   folders: [
     {
-      title: "Lessons",
-      line: "Gospel Doctrine lesson plans and slides.",
-      href: "https://drive.google.com/drive/folders/1-yeEvAQDF4UQ3sNeQF50js_b3wIF3osY",
+      title: "Sunday School lessons",
+      line: "Every lesson with its slides and recording.",
+      href: "/theology/lessons",
     },
     {
       title: "Lesson resources",
-      line: "Handouts, articles, and other assets.",
+      line: "The raw Drive folder: slides, songs, and assets.",
       href: "https://drive.google.com/drive/folders/1uOR5qyBspwwINPAMCQL5qsqe4hu7nUay",
     },
   ],
 };
+
+export interface SundayLesson {
+  slug: string;
+  title: string;
+  /** curriculum block; the listing groups by this */
+  course: string;
+  /** customize: one line about the lesson, shown on the card and the page */
+  line?: string;
+  /** Google Slides file id — embeds the interactive lesson */
+  slidesId?: string;
+  /** Google Drive audio file id — embeds the recording */
+  audioId?: string;
+  /** extra materials, e.g. a songs folder */
+  links?: { label: string; href: string }[];
+}
+
+// Sunday School lessons (/theology/lessons). To add one: append an entry with a
+// unique slug; slidesId is the Google Slides id, audioId the Drive file id —
+// both must be shared "anyone with the link". Everything here is editable.
+export const sundayLessons: SundayLesson[] = [
+  { slug: "intro-to-ot", title: "Introduction to the Old Testament", course: "Old Testament", audioId: "1TiKgwwDJTglgkyetr5WA_ODCTCURzH4x" },
+  { slug: "genesis-18-23", title: "Genesis 18–23", course: "Old Testament", audioId: "1bLWZfqFiZTrZwErnaueb3TXundbDGRsr" },
+  { slug: "moses-6", title: "Moses 6", course: "Old Testament", audioId: "1-rl0xahdmFy3abM6K8b1nDnLx6Zx1kQ7" },
+  { slug: "1-kings", title: "1 Kings", course: "Old Testament", slidesId: "14K3zHL8byk9NnIQh0A4xuGrkqGvUgcIrCLDOwMy6d18" },
+  { slug: "ezra-nehemiah", title: "Ezra & Nehemiah", course: "Old Testament", slidesId: "114tyBtaVpqs0-G0uRSrvSSivcDURoQnLfpI2N5h0vd4" },
+  {
+    slug: "psalms",
+    title: "Psalms",
+    course: "Old Testament",
+    slidesId: "1zPBdpeDZE3LrIa8Jg-BS40MGYpGx1JAyekD8A6UcOL4",
+    links: [{ label: "Psalm Songs", href: "https://drive.google.com/drive/folders/13gdcidbauL1bNTKobaFJPViFGaweZ6Tv" }],
+  },
+  { slug: "dc-3-5", title: "Doctrine & Covenants 3–5", course: "Doctrine & Covenants", audioId: "1xbPf612XWmN_3OA343znRPw5Syb1UpmX" },
+  { slug: "dc-18", title: "Doctrine & Covenants 18", course: "Doctrine & Covenants", audioId: "1WA6qGteEqmnYPfUYNdgT2tdOIN3g2ivb" },
+  { slug: "dc-41-44", title: "Doctrine & Covenants 41–44", course: "Doctrine & Covenants", audioId: "1AN7FjpnnOQgCPTMexPvxLztIBxije-ri" },
+  { slug: "dc-51-57", title: "Doctrine & Covenants 51–57", course: "Doctrine & Covenants", audioId: "19Qe9uoMhAOQn4YjO_EQl9xmfwXBKSkpP" },
+  { slug: "dc-71", title: "Doctrine & Covenants 71", course: "Doctrine & Covenants", audioId: "1WYUzL-82TL8IcPi2qlPkpeq4KPay0juJ" },
+  { slug: "dc-84", title: "Doctrine & Covenants 84", course: "Doctrine & Covenants", audioId: "1WsGQJ3PA9_gfOx-zORpTwgG2rBDHD9ii" },
+  { slug: "dc-94-97", title: "Doctrine & Covenants 94–97", course: "Doctrine & Covenants", audioId: "1pyf9e8O8bxLDys_jdoYmnzFHUubl87Vw" },
+  { slug: "dc-137-138", title: "Doctrine & Covenants 137–138", course: "Doctrine & Covenants", audioId: "1OEceR3T7eyNf8q6Smpkis_JKvT6OAT3C" },
+  { slug: "ether-1-5", title: "Ether 1–5", course: "Book of Mormon", audioId: "1v1Iy6h6gIaH1ynk5ErUEOXR7kbd2ygqh" },
+  { slug: "moroni-1-8", title: "Moroni 1–8", course: "Book of Mormon", audioId: "1_t-q9b5-8aMoTfubw00vbxWRbAXE0AUm" },
+];
 
 export interface AppItem {
   name: string;
