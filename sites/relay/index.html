@@ -82,15 +82,7 @@ nav a:hover::after{right:0}
 .photo{margin:0; min-width:0}
 .frame{position:relative; overflow:hidden; border-radius:4px; aspect-ratio:4/5; background:var(--blue)}
 .frame.wide{aspect-ratio:3/2}
-.ph-fill{position:absolute; inset:-9% 0; background:
-  repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 9px),
-  radial-gradient(130% 90% at 18% 12%, var(--blue-soft) 0%, transparent 52%),
-  radial-gradient(120% 110% at 85% 95%, var(--blue-deep) 0%, transparent 58%),
-  linear-gradient(160deg, var(--blue) 20%, var(--blue-deep) 100%)}
-.frame img{position:absolute; inset:-9% 0; width:100%; height:118%; object-fit:cover}
-.ph-tag{position:absolute; top:12px; left:12px; font-size:.72rem; letter-spacing:.06em;
-  text-transform:uppercase; color:var(--on-blue); border:1px dashed rgba(243,246,248,.55);
-  padding:.3em .6em; border-radius:3px; background:rgba(35,43,50,.25)}
+.frame img{position:absolute; inset:-9% 0; width:100%; height:118%; object-fit:cover; filter:saturate(.8)}
 .photo figcaption{font-size:.88rem; color:var(--muted); margin-top:10px; max-width:34ch}
 
 /* sections */
@@ -115,6 +107,8 @@ table.weekend{border-collapse:collapse; width:100%; min-width:640px}
 
 /* blue promise band */
 .promise{background:var(--blue); color:var(--on-blue); position:relative; overflow:hidden}
+.promise .band-img{position:absolute; inset:-10% 0; width:100%; height:120%; object-fit:cover;
+  opacity:.14; filter:grayscale(1)}
 .promise .bg{position:absolute; inset:-12% 0; background:
   radial-gradient(90% 120% at 90% 10%, var(--blue-soft) 0%, transparent 55%),
   radial-gradient(110% 130% at 8% 100%, var(--blue-deep) 0%, transparent 60%)}
@@ -180,7 +174,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
   .photo-grid .rv:nth-child(3){transition-delay:.18s}
   /* scroll-driven parallax where supported */
   @supports (animation-timeline: view()){
-    .ph-fill, .frame img{animation:drift linear both; animation-timeline:view(); animation-range:entry 0% exit 100%}
+    .frame img{animation:drift linear both; animation-timeline:view(); animation-range:entry 0% exit 100%}
     @keyframes drift{from{transform:translateY(-4.5%)} to{transform:translateY(4.5%)}}
     .promise .bg{animation:pan linear both; animation-timeline:view()}
     @keyframes pan{from{transform:translateY(-7%)} to{transform:translateY(7%)}}
@@ -297,19 +291,16 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 <div class="photos">
   <div class="wrap photo-grid">
     <figure class="photo rv">
-      <div class="frame"><div class="ph-fill"></div>
-        <span class="ph-tag">Photo slot</span></div>
-      <figcaption>Crews wrap and tag every workstation before it leaves the floor.</figcaption>
+      <div class="frame"><img src="img/crew.jpg" alt="Crew carrying packed boxes to a truck"></div>
+      <figcaption>Crews pack, tag, and carry every workstation before it leaves the floor.</figcaption>
     </figure>
     <figure class="photo rv">
-      <div class="frame"><div class="ph-fill"></div>
-        <span class="ph-tag">Photo slot</span></div>
-      <figcaption>Dock-out: every asset scanned onto air-ride trucks.</figcaption>
+      <div class="frame"><img src="img/dock.jpg" alt="Palletized load riding a liftgate into a trailer"></div>
+      <figcaption>Dock-out: every asset scanned as it rides onto the truck.</figcaption>
     </figure>
     <figure class="photo rv">
-      <div class="frame"><div class="ph-fill"></div>
-        <span class="ph-tag">Photo slot</span></div>
-      <figcaption>Racked, climate-controlled storage, barcoded to the item.</figcaption>
+      <div class="frame"><img src="img/fleet.jpg" alt="Box truck on the highway"></div>
+      <figcaption>Air-ride transport between addresses, tracked end to end.</figcaption>
     </figure>
   </div>
 </div>
@@ -423,6 +414,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 </section>
 
 <div class="promise">
+  <img class="band-img" src="img/facade.webp" alt="" aria-hidden="true">
   <div class="bg" aria-hidden="true"></div>
   <div class="wrap">
     <p>A move only costs what it takes out of your calendar. Relay schedules every job so
@@ -543,8 +535,9 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
       </ul>
     </div>
     <div class="fine">Relay Workplace Logistics. Licensed and insured. USDOT 0000000 (placeholder).
-      Phone, email, and registration numbers on this page are placeholders. Photo slots carry
-      placeholder art until photography is supplied.</div>
+      Phone, email, and registration numbers on this page are placeholders. Photography is
+      demo imagery from open-licensed web templates; replace with licensed brand photography
+      before launch.</div>
   </div>
 </footer>
 
