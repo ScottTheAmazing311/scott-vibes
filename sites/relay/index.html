@@ -1,0 +1,434 @@
+<title>Relay Workplace Logistics</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout concept: freight spec sheet — hard edges, heavy rules, left-aligned, inventory-tag labels. */
+:root{
+  --paper:#F1F2EF;      /* concrete */
+  --ink:#16202B;        /* dock slate */
+  --steel:#44515E;      /* secondary text */
+  --line:#16202B;       /* structural rules follow ink */
+  --amber:#F2A900;      /* signal amber — the only accent */
+  --on-amber:#16202B;
+  --dock:#10181F;       /* night dock band */
+  --dock-fg:#EDF1F4;
+  --dock-steel:#9FACB8;
+  --field:#FFFFFF;
+  --ok:#2E7D4F;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E141A; --ink:#E8EDF1; --steel:#9FACB8; --line:#E8EDF1;
+    --dock:#0A0F14; --field:#161F28; --ok:#4CAF7A; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E141A; --ink:#E8EDF1; --steel:#9FACB8; --line:#E8EDF1;
+  --dock:#0A0F14; --field:#161F28; --ok:#4CAF7A; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Barlow',Helvetica,Arial,sans-serif; font-size:17px; line-height:1.55;
+}
+.wrap{max-width:1080px; margin:0 auto; padding-inline:20px}
+a{color:inherit}
+h1,h2,h3{font-family:'Barlow Condensed','Arial Narrow',sans-serif; text-transform:uppercase;
+  letter-spacing:.01em; line-height:.95; margin:0; text-wrap:balance}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.tag{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.72rem; letter-spacing:.14em;
+  text-transform:uppercase; border:1px solid var(--line); padding:.3em .6em; display:inline-block}
+.tag.amber{background:var(--amber); color:var(--on-amber); border-color:var(--amber)}
+
+/* header */
+header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  background:var(--paper); border-bottom:2px solid var(--line)}
+.top-row{display:flex; align-items:center; gap:18px; padding-block:12px}
+.brand{display:flex; align-items:center; gap:10px; text-decoration:none}
+.brand svg{display:block}
+.brand b{font-family:'Barlow Condensed','Arial Narrow',sans-serif; font-weight:700;
+  font-size:1.45rem; letter-spacing:.06em}
+nav{margin-left:auto; display:flex; gap:20px; flex-wrap:wrap}
+nav a{text-decoration:none; font-weight:500; font-size:.95rem}
+nav a:hover{text-decoration:underline; text-underline-offset:4px}
+.btn{display:inline-block; background:var(--amber); color:var(--on-amber);
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif; font-weight:700;
+  text-transform:uppercase; letter-spacing:.08em; font-size:1.05rem;
+  padding:.55em 1.1em; text-decoration:none; border:2px solid var(--amber); cursor:pointer}
+.btn:hover{background:transparent; color:var(--ink); border-color:var(--line)}
+.btn.ghost{background:transparent; color:var(--dock-fg); border-color:var(--dock-fg)}
+.btn.ghost:hover{background:var(--dock-fg); color:var(--dock)}
+.btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:3px solid var(--amber); outline-offset:2px}
+
+/* hero */
+.hero{background:var(--dock); color:var(--dock-fg)}
+.hero-grid{display:grid; grid-template-columns:1.4fr 1fr; gap:48px; padding-block:72px 64px; align-items:end}
+.hero .tag{border-color:var(--dock-steel); color:var(--dock-steel)}
+.hero h1{font-size:clamp(3rem,8.5vw,6.2rem); margin-top:18px}
+.hero h1 .go{color:var(--amber)}
+.hero p.lede{max-width:46ch; color:var(--dock-steel); font-size:1.1rem; margin:22px 0 30px}
+.hero-ctas{display:flex; gap:14px; flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){
+  .rise{animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+  .rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.16s}.rise.d3{animation-delay:.24s}
+  @keyframes rise{from{transform:translateY(14px)}to{transform:translateY(0)}}
+}
+/* manifest card */
+.manifest{border:1px solid var(--dock-steel); font-size:.8rem; color:var(--dock-fg)}
+.manifest header{display:flex; justify-content:space-between; gap:10px; border-bottom:1px solid var(--dock-steel);
+  padding:10px 14px; letter-spacing:.12em; text-transform:uppercase; position:static; background:none}
+.manifest header span:last-child{color:var(--amber)}
+.manifest table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums}
+.manifest td{padding:8px 14px; border-top:1px solid color-mix(in srgb, var(--dock-steel) 35%, transparent)}
+.manifest tr:first-child td{border-top:0}
+.manifest td:last-child{text-align:right; color:var(--dock-steel)}
+
+/* hazard divider */
+.hazard{height:14px; background:repeating-linear-gradient(135deg,
+  var(--amber) 0 16px, var(--dock) 16px 32px)}
+
+/* sections */
+section{padding-block:64px}
+.sec-head{display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; margin-bottom:34px}
+.sec-head h2{font-size:clamp(1.9rem,4.5vw,2.8rem)}
+.sec-head .tag{translate:0 -4px}
+
+/* services as spec rows */
+.spec{border-top:2px solid var(--line)}
+.spec-row{display:grid; grid-template-columns:110px 1.1fr 1.6fr 1fr; gap:22px;
+  padding-block:26px; border-bottom:2px solid var(--line)}
+.spec-row .idx{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.78rem;
+  letter-spacing:.12em; color:var(--steel); padding-top:6px}
+.spec-row h3{font-size:1.5rem}
+.spec-row p{margin:0; color:var(--steel)}
+.spec-row ul{list-style:none; margin:0; padding:0; font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:.74rem; letter-spacing:.06em; text-transform:uppercase; display:flex; flex-direction:column; gap:8px}
+.spec-row li::before{content:"+ "; color:var(--amber); font-weight:700}
+
+/* move weekend schedule */
+.sched{background:var(--dock); color:var(--dock-fg)}
+.sched .sec-head .tag{border-color:var(--dock-steel); color:var(--dock-steel)}
+.sched-grid{display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--dock-steel)}
+.slot{padding:20px; border-left:1px solid var(--dock-steel); min-width:0}
+.slot:first-child{border-left:0}
+.slot .when{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.75rem;
+  letter-spacing:.12em; color:var(--amber); text-transform:uppercase}
+.slot h3{font-size:1.3rem; margin:10px 0 8px}
+.slot p{margin:0; color:var(--dock-steel); font-size:.92rem}
+.sched .note{margin-top:18px; font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:.75rem; letter-spacing:.08em; color:var(--dock-steel)}
+.sched .note b{color:var(--ok); font-weight:500}
+
+/* why */
+.why-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:0; border-top:2px solid var(--line)}
+.why{display:grid; grid-template-columns:14px 1fr; gap:16px; padding:26px 26px 26px 0; border-bottom:2px solid var(--line)}
+.why .sq{width:14px; height:14px; background:var(--amber); margin-top:6px}
+.why h3{font-size:1.35rem; margin-bottom:6px}
+.why p{margin:0; color:var(--steel); font-size:.97rem}
+
+/* quote */
+.quote-grid{display:grid; grid-template-columns:1fr 1.4fr; gap:48px}
+.quote-side p{color:var(--steel); max-width:40ch}
+.contact-line{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:18px}
+.contact-line code{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.9rem;
+  border:1px solid var(--line); padding:.35em .6em; user-select:all}
+.copybtn{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.72rem; letter-spacing:.1em;
+  text-transform:uppercase; background:none; border:1px solid var(--line); color:var(--ink);
+  padding:.45em .7em; cursor:pointer}
+.copybtn:hover{background:var(--amber); border-color:var(--amber); color:var(--on-amber)}
+form{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.fw{grid-column:1 / -1}
+label{display:flex; flex-direction:column; gap:6px; font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--steel); min-width:0}
+input,select,textarea{border:2px solid var(--line); background:var(--field); color:var(--ink);
+  font-family:'Barlow',Helvetica,sans-serif; font-size:1rem; padding:.6em .7em; border-radius:0; width:100%}
+textarea{resize:vertical; min-height:96px}
+.form-ok{border:2px solid var(--ok); padding:22px; font-size:1rem}
+.form-ok .when{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.75rem;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--ok)}
+.form-ok p{margin:.5em 0 0}
+
+/* footer */
+footer{background:var(--dock); color:var(--dock-steel); padding-block:36px; font-size:.9rem}
+footer .wrap{display:flex; gap:24px; flex-wrap:wrap; align-items:center; justify-content:space-between}
+footer .fbrand{display:flex; align-items:center; gap:10px; color:var(--dock-fg)}
+footer .fbrand b{font-family:'Barlow Condensed','Arial Narrow',sans-serif; letter-spacing:.06em; font-size:1.2rem}
+footer .mono{font-size:.72rem; letter-spacing:.1em; text-transform:uppercase}
+
+/* responsive */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr; gap:36px; padding-block:52px 48px}
+  .spec-row{grid-template-columns:1fr; gap:12px}
+  .sched-grid{grid-template-columns:1fr 1fr}
+  .slot:nth-child(3){border-left:0}
+  .slot:nth-child(n+3){border-top:1px solid var(--dock-steel)}
+  .quote-grid{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .why-grid{grid-template-columns:1fr}
+  .sched-grid{grid-template-columns:1fr}
+  .slot{border-left:0}
+  .slot:nth-child(n+2){border-top:1px solid var(--dock-steel)}
+  form{grid-template-columns:1fr}
+  nav{display:none}
+}
+</style>
+
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="#" aria-label="Relay home">
+      <svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#F2A900"/>
+        <path d="M13 20 L25 32 L13 44 L21 44 L33 32 L21 20 Z" fill="#16202B"/>
+        <path d="M30 20 L42 32 L30 44 L38 44 L50 32 L38 20 Z" fill="#16202B"/>
+      </svg>
+      <b>RELAY</b>
+    </a>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#weekend">The move weekend</a>
+      <a href="#why">Why Relay</a>
+    </nav>
+    <a class="btn" href="#quote">Plan a move</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="tag rise">Commercial office moves only</span>
+      <h1 class="rise d1">Out Friday.<br><span class="go">Open Monday.</span></h1>
+      <p class="lede rise d2">Relay moves offices end to end: furniture decommission, transport,
+        storage, and reassembly, scheduled so your team badges out of the old address on Friday
+        evening and into the new one before the first meeting on Monday.</p>
+      <div class="hero-ctas rise d3">
+        <a class="btn" href="#quote">Plan a move</a>
+        <a class="btn ghost" href="#weekend">See the weekend</a>
+      </div>
+    </div>
+    <div class="manifest mono rise d3" aria-label="Sample move manifest">
+      <header><span>Manifest 2611-B</span><span>240 seats</span></header>
+      <table>
+        <tr><td>Sit-stand desks ×240</td><td>wrapped</td></tr>
+        <tr><td>Task chairs ×252</td><td>stacked</td></tr>
+        <tr><td>Conference AV, 11 rooms</td><td>crated</td></tr>
+        <tr><td>Lateral files, 310 lin ft</td><td>sealed</td></tr>
+        <tr><td>Fri 18:00 dock-out</td><td>scan</td></tr>
+        <tr><td>Mon 07:30 badge-in</td><td>ready</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="hazard" aria-hidden="true"></div>
+
+<section id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag amber">Scope</span>
+      <h2>Four jobs. One manifest.</h2>
+    </div>
+    <div class="spec">
+      <div class="spec-row">
+        <span class="idx">LOT 01</span>
+        <h3>Decommission &amp; removal</h3>
+        <p>We take the old office down to broom-clean. Panel systems and benching broken
+          to spec, cabling pulled, e-waste manifested. Furniture you keep gets tagged for
+          the truck; furniture you shed gets routed to donation and recycling first, and
+          you get the tonnage report for your sustainability filing.</p>
+        <ul>
+          <li>Panel &amp; benching teardown</li>
+          <li>Donate-first disposition</li>
+          <li>Landlord broom-clean handback</li>
+        </ul>
+      </div>
+      <div class="spec-row">
+        <span class="idx">LOT 02</span>
+        <h3>Transport</h3>
+        <p>Air-ride trucks, blanket wrap and custom crating for stone, glass, and AV.
+          Every asset carries a barcode and is scanned at dock-out and dock-in, so the
+          manifest answers "where is it" at any hour of the weekend.</p>
+        <ul>
+          <li>Air-ride fleet</li>
+          <li>Chain-of-custody scans</li>
+          <li>Crating for glass, stone, AV</li>
+        </ul>
+      </div>
+      <div class="spec-row">
+        <span class="idx">LOT 03</span>
+        <h3>Secure storage</h3>
+        <p>When the new space isn't ready, your inventory waits in racked,
+          climate-controlled storage, barcoded by asset and retrievable by line item.
+          Re-delivery is staged by floor so install crews never dig through a mixed load.</p>
+        <ul>
+          <li>Racked &amp; climate-controlled</li>
+          <li>Retrieval by line item</li>
+          <li>Staged re-delivery by floor</li>
+        </ul>
+      </div>
+      <div class="spec-row">
+        <span class="idx">LOT 04</span>
+        <h3>Reassembly &amp; install</h3>
+        <p>Desks, benching, monitor arms, and seating rebuilt to the space plan, chairs
+          at the right desks, conference rooms live. We walk the punch list with you
+          Sunday night, not Monday noon.</p>
+        <ul>
+          <li>Rebuild to space plan</li>
+          <li>Monitor arms &amp; power re-set</li>
+          <li>Sunday punch-list walk</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sched" id="weekend">
+  <section class="wrap">
+    <div class="sec-head">
+      <span class="tag">Schedule</span>
+      <h2>The move weekend, by the clock</h2>
+    </div>
+    <div class="sched-grid">
+      <div class="slot">
+        <span class="when">T-minus 3 weeks</span>
+        <h3>Walkthrough</h3>
+        <p>Both sites surveyed, inventory counted, elevators and docks reserved,
+          COI delivered to both buildings.</p>
+      </div>
+      <div class="slot">
+        <span class="when">Fri 18:00</span>
+        <h3>Dock-out</h3>
+        <p>Masonite down, pads up. Crews wrap, tag, and scan every asset onto
+          the trucks. Your people just go home.</p>
+      </div>
+      <div class="slot">
+        <span class="when">Sat–Sun</span>
+        <h3>Transport &amp; build</h3>
+        <p>Load lands at the new address, staged by floor, rebuilt to plan.
+          Punch-list walk Sunday night.</p>
+      </div>
+      <div class="slot">
+        <span class="when">Mon 07:30</span>
+        <h3>Badge-in</h3>
+        <p>Chairs at desks, screens on arms, conference rooms live.
+          The first meeting starts on time.</p>
+      </div>
+    </div>
+    <p class="note">Downtime for your staff across the whole sequence: <b>zero working hours</b>.</p>
+  </section>
+</div>
+<div class="hazard" aria-hidden="true"></div>
+
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="tag amber">Why Relay</span>
+      <h2>Built for buildings, not driveways</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why"><span class="sq" aria-hidden="true"></span><div>
+        <h3>Building-ready paperwork</h3>
+        <p>COI to your property manager within the hour, freight elevator reservations,
+          dock schedules, and protection plans your landlord will actually sign off on.</p>
+      </div></div>
+      <div class="why"><span class="sq" aria-hidden="true"></span><div>
+        <h3>Chain of custody</h3>
+        <p>Barcoded assets, scanned at every handoff. The manifest is shared with you
+          live, so "did the server rack make it" is never a phone call.</p>
+      </div></div>
+      <div class="why"><span class="sq" aria-hidden="true"></span><div>
+        <h3>One crew lead, start to finish</h3>
+        <p>The person who walked your old office runs your dock-out and your install.
+          Nothing gets lost between shifts because the shifts share a brain.</p>
+      </div></div>
+      <div class="why"><span class="sq" aria-hidden="true"></span><div>
+        <h3>Donate-first decommission</h3>
+        <p>Surplus furniture goes to schools and nonprofits before it goes to a dumpster.
+          You get the diversion numbers for your ESG report.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section id="quote">
+  <div class="wrap quote-grid">
+    <div class="quote-side">
+      <div class="sec-head" style="margin-bottom:18px">
+        <span class="tag amber">Quote</span>
+        <h2>Plan your move</h2>
+      </div>
+      <p>Tell us the shape of the job and a crew lead will come back with a walkthrough
+        time and a fixed quote. No call centers; the person who replies is the person
+        who shows up.</p>
+      <div class="contact-line">
+        <code id="email-text">hello@relaymoves.com</code>
+        <button class="copybtn" id="copy-email" type="button">Copy</button>
+      </div>
+    </div>
+    <form id="quote-form" novalidate>
+      <label>Name<input id="q-name" name="name" autocomplete="name" required></label>
+      <label>Company<input id="q-company" name="company" autocomplete="organization" required></label>
+      <label>Email<input id="q-email" name="email" type="email" autocomplete="email" required></label>
+      <label>Target move date<input id="q-date" name="date" type="date"></label>
+      <label>Seats to move
+        <select id="q-seats" name="seats">
+          <option>Under 50</option><option>50–150</option>
+          <option>150–500</option><option>500+</option>
+        </select>
+      </label>
+      <label>Storage needed?
+        <select id="q-storage" name="storage">
+          <option>No</option><option>Yes, short term</option><option>Yes, long term</option>
+        </select>
+      </label>
+      <label class="fw">From → To (addresses or neighborhoods)
+        <input id="q-route" name="route" placeholder="e.g. 400 Pine St, 6th fl → 1200 Harbor Blvd, 3rd fl"></label>
+      <label class="fw">Anything unusual?
+        <textarea id="q-notes" name="notes" placeholder="Server room, stone conference table, art, lab equipment…"></textarea></label>
+      <div class="fw"><button class="btn" type="submit">Request a walkthrough</button></div>
+      <div class="fw form-ok" id="form-ok" hidden>
+        <span class="when">Logged</span>
+        <p id="form-ok-msg">Request noted. This demo site isn't wired to a dispatcher yet;
+          email us directly and we'll schedule your walkthrough.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fbrand">
+      <svg viewBox="0 0 64 64" width="26" height="26" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#F2A900"/>
+        <path d="M13 20 L25 32 L13 44 L21 44 L33 32 L21 20 Z" fill="#16202B"/>
+        <path d="M30 20 L42 32 L30 44 L38 44 L50 32 L38 20 Z" fill="#16202B"/>
+      </svg>
+      <b>RELAY</b>
+    </div>
+    <span class="mono">Licensed &amp; insured · USDOT 0000000 (placeholder)</span>
+    <span class="mono">Out Friday. Open Monday.</span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('quote-form').addEventListener('submit', function(e){
+  e.preventDefault();
+  var ok = document.getElementById('form-ok');
+  var name = document.getElementById('q-name').value.trim();
+  document.getElementById('form-ok-msg').textContent =
+    (name ? name + ', request' : 'Request') +
+    ' noted. This demo site isn’t wired to a dispatcher yet; email hello@relaymoves.com directly and we’ll schedule your walkthrough.';
+  ok.hidden = false;
+  ok.scrollIntoView({block:'nearest', behavior:'smooth'});
+});
+document.getElementById('copy-email').addEventListener('click', function(){
+  var btn = this, text = document.getElementById('email-text').textContent;
+  function done(label){ btn.textContent = label; setTimeout(function(){ btn.textContent = 'Copy'; }, 1600); }
+  try{
+    navigator.clipboard.writeText(text).then(function(){ done('Copied'); }, fallback);
+  }catch(err){ fallback(); }
+  function fallback(){
+    var r = document.createRange(); r.selectNodeContents(document.getElementById('email-text'));
+    var s = getSelection(); s.removeAllRanges(); s.addRange(r); done('Selected');
+  }
+});
+</script>
