@@ -1,7 +1,7 @@
 <title>Relay Workplace Logistics</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
-/* Layout concept: established-company site; light ground, slab headings, plain sections, floor-plan illustration. */
+/* Layout concept: established-company site; light ground, slab headings, editorial photography band, floor-plan illustration. */
 :root{
   --paper:#FFFFFF;
   --band:#F4F4F1;      /* warm-grey section band */
@@ -11,6 +11,8 @@
   --amber:#F2A900;     /* brand accent: CTAs, highlights */
   --on-amber:#232B32;
   --blue:#44607A;      /* blanket blue: secondary surface */
+  --blue-deep:#32485C;
+  --blue-soft:#7E95A9;
   --on-blue:#F3F6F8;
   --field:#FFFFFF;
   --field-edge:#B9C0C4;
@@ -19,12 +21,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --paper:#151B20; --band:#1C242B; --ink:#E8ECEF; --muted:#9BA7B0; --rule:#333E47;
-    --blue:#3A5166; --field:#20292F; --field-edge:#4A565F; --ok:#4CAF7A; color-scheme:dark;
+    --blue:#3A5166; --blue-deep:#2B3D4E; --blue-soft:#5E788A;
+    --field:#20292F; --field-edge:#4A565F; --ok:#4CAF7A; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --paper:#151B20; --band:#1C242B; --ink:#E8ECEF; --muted:#9BA7B0; --rule:#333E47;
-  --blue:#3A5166; --field:#20292F; --field-edge:#4A565F; --ok:#4CAF7A; color-scheme:dark;
+  --blue:#3A5166; --blue-deep:#2B3D4E; --blue-soft:#5E788A;
+  --field:#20292F; --field-edge:#4A565F; --ok:#4CAF7A; color-scheme:dark;
 }
 *{box-sizing:border-box}
 body{margin:0; background:var(--paper); color:var(--ink);
@@ -39,8 +43,10 @@ p{margin:0}
 a{color:inherit; text-decoration-color:var(--amber); text-decoration-thickness:2px; text-underline-offset:3px}
 .btn{display:inline-block; background:var(--amber); color:var(--on-amber); font-weight:600;
   font-family:'Source Sans 3',system-ui,sans-serif; font-size:1rem;
-  padding:.65em 1.2em; border:0; border-radius:4px; text-decoration:none; cursor:pointer}
-.btn:hover{filter:brightness(.94)}
+  padding:.65em 1.2em; border:0; border-radius:4px; text-decoration:none; cursor:pointer;
+  transition:transform .18s ease, filter .18s ease}
+.btn:hover{filter:brightness(.94); transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
 .btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
   outline:3px solid var(--amber); outline-offset:2px}
 
@@ -51,8 +57,11 @@ header.top{position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
 .brand{display:flex; align-items:center; gap:9px; text-decoration:none}
 .brand b{font-family:Bitter,Georgia,serif; font-weight:700; font-size:1.3rem}
 nav{display:flex; gap:20px; flex-wrap:wrap; margin-left:8px}
-nav a{text-decoration:none; font-size:.98rem; color:var(--muted)}
+nav a{text-decoration:none; font-size:.98rem; color:var(--muted); position:relative}
+nav a::after{content:""; position:absolute; left:0; right:100%; bottom:-4px; height:2px; background:var(--amber);
+  transition:right .22s ease}
 nav a:hover{color:var(--ink)}
+nav a:hover::after{right:0}
 .top-right{margin-left:auto; display:flex; align-items:center; gap:16px}
 .phone{font-weight:600; font-size:.98rem; white-space:nowrap}
 
@@ -65,6 +74,24 @@ nav a:hover{color:var(--ink)}
 .plan-fig figcaption{font-size:.85rem; color:var(--muted); margin-top:10px}
 .factline{border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
   padding-block:14px; font-size:.95rem; color:var(--muted)}
+
+/* photography */
+.photos{padding-block:56px 48px}
+.photo-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:26px; align-items:start}
+.photo-grid figure:nth-child(2){translate:0 26px}
+.photo{margin:0; min-width:0}
+.frame{position:relative; overflow:hidden; border-radius:4px; aspect-ratio:4/5; background:var(--blue)}
+.frame.wide{aspect-ratio:3/2}
+.ph-fill{position:absolute; inset:-9% 0; background:
+  repeating-linear-gradient(115deg, rgba(255,255,255,.05) 0 2px, transparent 2px 9px),
+  radial-gradient(130% 90% at 18% 12%, var(--blue-soft) 0%, transparent 52%),
+  radial-gradient(120% 110% at 85% 95%, var(--blue-deep) 0%, transparent 58%),
+  linear-gradient(160deg, var(--blue) 20%, var(--blue-deep) 100%)}
+.frame img{position:absolute; inset:-9% 0; width:100%; height:118%; object-fit:cover}
+.ph-tag{position:absolute; top:12px; left:12px; font-size:.72rem; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--on-blue); border:1px dashed rgba(243,246,248,.55);
+  padding:.3em .6em; border-radius:3px; background:rgba(35,43,50,.25)}
+.photo figcaption{font-size:.88rem; color:var(--muted); margin-top:10px; max-width:34ch}
 
 /* sections */
 section{padding-block:60px}
@@ -87,14 +114,24 @@ table.weekend{border-collapse:collapse; width:100%; min-width:640px}
 .weekend td:last-child{color:var(--muted)}
 
 /* blue promise band */
-.promise{background:var(--blue); color:var(--on-blue)}
-.promise .wrap{display:flex; gap:36px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding-block:44px}
+.promise{background:var(--blue); color:var(--on-blue); position:relative; overflow:hidden}
+.promise .bg{position:absolute; inset:-12% 0; background:
+  radial-gradient(90% 120% at 90% 10%, var(--blue-soft) 0%, transparent 55%),
+  radial-gradient(110% 130% at 8% 100%, var(--blue-deep) 0%, transparent 60%)}
+.promise .wrap{position:relative; display:flex; gap:36px; align-items:center; justify-content:space-between;
+  flex-wrap:wrap; padding-block:52px}
 .promise p{font-family:Bitter,Georgia,serif; font-size:clamp(1.15rem,2.4vw,1.45rem); line-height:1.4; max-width:34em}
 
 /* faq */
 .faq{margin-top:26px; border-top:1px solid var(--rule)}
 details{border-bottom:1px solid var(--rule)}
-summary{cursor:pointer; padding:16px 2px; font-weight:600; font-size:1.02rem; list-style-position:inside}
+summary{cursor:pointer; padding:16px 2px; font-weight:600; font-size:1.02rem;
+  list-style:none; display:flex; align-items:baseline; gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:""; width:9px; height:9px; border-right:2px solid var(--amber);
+  border-bottom:2px solid var(--amber); rotate:-45deg; translate:0 -2px; flex:none;
+  transition:rotate .2s ease}
+details[open] summary::before{rotate:45deg}
 details p{padding:0 2px 18px; color:var(--muted); max-width:68ch}
 
 /* quote */
@@ -113,8 +150,7 @@ textarea{resize:vertical; min-height:92px}
 .form-ok b{color:var(--ok)}
 
 /* footer */
-footer{background:var(--ink); color:var(--paper); padding-block:44px; margin-top:0}
-:root[data-theme="dark"] footer, footer{background:#232B32; color:#E8ECEF}
+footer{background:#232B32; color:#E8ECEF; padding-block:44px}
 footer .wrap{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:36px}
 footer h3{font-size:.95rem; font-family:'Source Sans 3',sans-serif; font-weight:600; margin-bottom:10px; color:#AEB8C0}
 footer ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; font-size:.95rem}
@@ -123,16 +159,50 @@ footer .fbrand b{font-family:Bitter,Georgia,serif; font-size:1.2rem}
 footer .tagline{margin-top:10px; color:#AEB8C0; font-style:italic; font-family:Bitter,Georgia,serif}
 footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px; font-size:.84rem; color:#8E99A2}
 
+/* ------- motion ------- */
+@media (prefers-reduced-motion: no-preference){
+  /* hero load sequence */
+  .hl{animation:riseIn .55s cubic-bezier(.2,.7,.2,1) both}
+  .hl.d1{animation-delay:.08s}.hl.d2{animation-delay:.16s}.hl.d3{animation-delay:.24s}
+  @keyframes riseIn{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+  /* floor plan installs itself */
+  .dk{transform-box:fill-box; transform-origin:center; animation:deskIn .4s cubic-bezier(.2,.7,.3,1.3) both}
+  @keyframes deskIn{from{opacity:0; transform:scale(.55)} to{opacity:1; transform:scale(1)}}
+  .route{animation:dashMarch 1.3s linear infinite}
+  @keyframes dashMarch{to{stroke-dashoffset:-22}}
+  /* scroll reveals: translate only, fully visible at rest */
+  .rv{transform:translateY(22px); transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{transform:none}
+  .svc-grid .rv:nth-child(2){transition-delay:.07s}
+  .svc-grid .rv:nth-child(3){transition-delay:.14s}
+  .svc-grid .rv:nth-child(4){transition-delay:.21s}
+  .photo-grid .rv:nth-child(2){transition-delay:.09s}
+  .photo-grid .rv:nth-child(3){transition-delay:.18s}
+  /* scroll-driven parallax where supported */
+  @supports (animation-timeline: view()){
+    .ph-fill, .frame img{animation:drift linear both; animation-timeline:view(); animation-range:entry 0% exit 100%}
+    @keyframes drift{from{transform:translateY(-4.5%)} to{transform:translateY(4.5%)}}
+    .promise .bg{animation:pan linear both; animation-timeline:view()}
+    @keyframes pan{from{transform:translateY(-7%)} to{transform:translateY(7%)}}
+  }
+}
+
 @media (max-width:860px){
   .hero{grid-template-columns:1fr; gap:38px; padding-block:44px}
   .svc-grid{grid-template-columns:1fr}
   .quote-grid{grid-template-columns:1fr}
+  .photo-grid{grid-template-columns:1fr 1fr}
+  .photo-grid figure:nth-child(2){translate:0 0}
+  .photo-grid figure:nth-child(3){grid-column:1 / -1}
+  .photo-grid figure:nth-child(3) .frame{aspect-ratio:2/1}
   footer .wrap{grid-template-columns:1fr 1fr}
 }
 @media (max-width:560px){
   nav{display:none}
   form{grid-template-columns:1fr}
   footer .wrap{grid-template-columns:1fr}
+  .photo-grid{grid-template-columns:1fr}
+  .photo-grid figure:nth-child(3) .frame{aspect-ratio:4/5}
 }
 </style>
 
@@ -159,49 +229,45 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 
 <div class="wrap hero">
   <div>
-    <h1>Commercial office moving, storage, and furniture installation</h1>
-    <p class="lede">Relay plans and runs office moves from the first walkthrough to the last
+    <h1 class="hl">Commercial office moving, storage, and furniture installation</h1>
+    <p class="lede hl d1">Relay plans and runs office moves from the first walkthrough to the last
       monitor arm. Decommission, transport, storage, and reassembly for offices of 50 to
       1,000 seats, scheduled so the move costs your team zero working hours.
       <strong>Out Friday, open Monday.</strong></p>
-    <a class="btn" href="#quote">Request a walkthrough</a>
+    <a class="btn hl d2" href="#quote">Request a walkthrough</a>
   </div>
-  <figure class="plan-fig">
-    <svg viewBox="0 0 380 300" role="img" aria-label="Floor plan of a new office with most desks installed">
+  <figure class="plan-fig hl d3">
+    <svg viewBox="0 0 380 300" role="img" aria-label="Floor plan of a new office with desks being installed zone by zone">
       <rect x="6" y="6" width="368" height="288" fill="var(--band)" stroke="var(--ink)" stroke-width="2.5"/>
-      <!-- conference room -->
       <line x1="6" y1="112" x2="126" y2="112" stroke="var(--ink)" stroke-width="2"/>
       <line x1="126" y1="6" x2="126" y2="76" stroke="var(--ink)" stroke-width="2"/>
       <rect x="30" y="38" width="66" height="30" rx="2" fill="var(--paper)" stroke="var(--muted)" stroke-width="1.5"/>
-      <!-- storage / staging room -->
-      <line x1="6" y1="112" x2="92" y2="112" stroke="var(--ink)" stroke-width="2"/>
       <line x1="92" y1="112" x2="92" y2="186" stroke="var(--ink)" stroke-width="2"/>
       <line x1="6" y1="186" x2="92" y2="186" stroke="var(--ink)" stroke-width="2"/>
       <rect x="20" y="128" width="18" height="18" fill="var(--paper)" stroke="var(--muted)" stroke-width="1.5"/>
       <rect x="44" y="128" width="18" height="18" fill="var(--paper)" stroke="var(--muted)" stroke-width="1.5"/>
       <rect x="32" y="152" width="18" height="18" fill="var(--paper)" stroke="var(--muted)" stroke-width="1.5"/>
-      <!-- desk clusters: installed (amber) and pending (outline) -->
       <g>
-        <g transform="translate(160,36)">
+        <g transform="translate(160,36)"><g class="dk" style="animation-delay:.45s">
           <rect width="17" height="11" fill="var(--amber)"/><rect x="20" width="17" height="11" fill="var(--amber)"/>
           <rect y="14" width="17" height="11" fill="var(--amber)"/><rect x="20" y="14" width="17" height="11" fill="var(--amber)"/>
-        </g>
-        <g transform="translate(236,36)">
+        </g></g>
+        <g transform="translate(236,36)"><g class="dk" style="animation-delay:.60s">
           <rect width="17" height="11" fill="var(--amber)"/><rect x="20" width="17" height="11" fill="var(--amber)"/>
           <rect y="14" width="17" height="11" fill="var(--amber)"/><rect x="20" y="14" width="17" height="11" fill="var(--amber)"/>
-        </g>
-        <g transform="translate(312,36)">
+        </g></g>
+        <g transform="translate(312,36)"><g class="dk" style="animation-delay:.75s">
           <rect width="17" height="11" fill="var(--amber)"/><rect x="20" width="17" height="11" fill="var(--amber)"/>
           <rect y="14" width="17" height="11" fill="var(--amber)"/><rect x="20" y="14" width="17" height="11" fill="var(--amber)"/>
-        </g>
-        <g transform="translate(160,106)">
+        </g></g>
+        <g transform="translate(160,106)"><g class="dk" style="animation-delay:.90s">
           <rect width="17" height="11" fill="var(--amber)"/><rect x="20" width="17" height="11" fill="var(--amber)"/>
           <rect y="14" width="17" height="11" fill="var(--amber)"/><rect x="20" y="14" width="17" height="11" fill="var(--amber)"/>
-        </g>
-        <g transform="translate(236,106)">
+        </g></g>
+        <g transform="translate(236,106)"><g class="dk" style="animation-delay:1.05s">
           <rect width="17" height="11" fill="var(--amber)"/><rect x="20" width="17" height="11" fill="var(--amber)"/>
           <rect y="14" width="17" height="11" fill="var(--amber)"/><rect x="20" y="14" width="17" height="11" fill="var(--amber)"/>
-        </g>
+        </g></g>
         <g transform="translate(312,106)" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 3">
           <rect width="17" height="11"/><rect x="20" width="17" height="11"/>
           <rect y="14" width="17" height="11"/><rect x="20" y="14" width="17" height="11"/>
@@ -215,9 +281,8 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
           <rect y="14" width="17" height="11"/><rect x="20" y="14" width="17" height="11"/>
         </g>
       </g>
-      <!-- door gap + route in -->
       <rect x="44" y="290" width="44" height="8" fill="var(--paper)"/>
-      <path d="M66 288 V 254 H 136 V 222" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="6 5"/>
+      <path class="route" d="M66 288 V 254 H 136 V 222" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-dasharray="6 5"/>
       <path d="M130 230 L136 222 L142 230" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
     </svg>
     <figcaption>Install in progress: desks placed to the space plan, zone by zone.</figcaption>
@@ -229,13 +294,33 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
   USDOT 0000000 (placeholder). Crews are employees, never day labor.
 </div>
 
+<div class="photos">
+  <div class="wrap photo-grid">
+    <figure class="photo rv">
+      <div class="frame"><div class="ph-fill"></div>
+        <span class="ph-tag">Photo slot</span></div>
+      <figcaption>Crews wrap and tag every workstation before it leaves the floor.</figcaption>
+    </figure>
+    <figure class="photo rv">
+      <div class="frame"><div class="ph-fill"></div>
+        <span class="ph-tag">Photo slot</span></div>
+      <figcaption>Dock-out: every asset scanned onto air-ride trucks.</figcaption>
+    </figure>
+    <figure class="photo rv">
+      <div class="frame"><div class="ph-fill"></div>
+        <span class="ph-tag">Photo slot</span></div>
+      <figcaption>Racked, climate-controlled storage, barcoded to the item.</figcaption>
+    </figure>
+  </div>
+</div>
+
 <section class="band" id="services">
   <div class="wrap">
-    <h2>What we do</h2>
-    <p class="sec-intro">Four services, usually bought together, each available on its own.
+    <h2 class="rv">What we do</h2>
+    <p class="sec-intro rv">Four services, usually bought together, each available on its own.
       One crew lead owns your job from the first walkthrough to the Monday punch list.</p>
     <div class="svc-grid">
-      <div class="svc">
+      <div class="svc rv">
         <svg viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <rect x="4" y="6" width="14" height="10"/><rect x="4" y="20" width="14" height="10"/>
           <rect x="22" y="6" width="14" height="10" stroke-dasharray="3 3"/>
@@ -249,7 +334,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
             and you receive the diversion report.</p>
         </div>
       </div>
-      <div class="svc">
+      <div class="svc rv">
         <svg viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <rect x="3" y="12" width="24" height="18"/>
           <path d="M27 18 H 37 L 42 24 V 30 H 27"/>
@@ -262,7 +347,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
             dock-in, so the shared manifest can always say where a given chair or crate is.</p>
         </div>
       </div>
-      <div class="svc">
+      <div class="svc rv">
         <svg viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M5 14 H 41 M 5 28 H 41 M 7 6 V 40 M 39 6 V 40"/>
           <rect x="12" y="18" width="9" height="10"/><rect x="25" y="18" width="9" height="10"/>
@@ -276,7 +361,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
             mixed load.</p>
         </div>
       </div>
-      <div class="svc">
+      <div class="svc rv">
         <svg viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M5 28 H 41 M 9 28 V 40 M 37 28 V 40"/>
           <rect x="16" y="10" width="14" height="10"/><path d="M23 20 V 28"/>
@@ -296,10 +381,10 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 
 <section id="weekend">
   <div class="wrap">
-    <h2>How a move weekend runs</h2>
-    <p class="sec-intro">Most Relay jobs follow the same clock. Larger moves add weekends,
+    <h2 class="rv">How a move weekend runs</h2>
+    <p class="sec-intro rv">Most Relay jobs follow the same clock. Larger moves add weekends,
       never weekdays.</p>
-    <div class="tbl-scroll">
+    <div class="tbl-scroll rv">
       <table class="weekend">
         <tr><th>When</th><th>What happens</th><th>What it asks of you</th></tr>
         <tr>
@@ -338,6 +423,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 </section>
 
 <div class="promise">
+  <div class="bg" aria-hidden="true"></div>
   <div class="wrap">
     <p>A move only costs what it takes out of your calendar. Relay schedules every job so
       the office closes at the usual time on Friday and opens, working, on Monday.</p>
@@ -347,8 +433,8 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 
 <section id="faq">
   <div class="wrap">
-    <h2>Common questions</h2>
-    <div class="faq">
+    <h2 class="rv">Common questions</h2>
+    <div class="faq rv">
       <details>
         <summary>Do you move server rooms and IT equipment?</summary>
         <p>We de-rack, label, pack, and transport IT hardware in padded crates, and we
@@ -388,7 +474,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
 
 <section class="band" id="quote">
   <div class="wrap quote-grid">
-    <div class="quote-side">
+    <div class="quote-side rv">
       <h2>Request a walkthrough</h2>
       <p>Tell us the shape of the job and a crew lead will reply with a walkthrough time
         and a fixed quote. The person who replies is the person who shows up.</p>
@@ -398,7 +484,7 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
         <li><b>Hours</b> Monday to Friday, 8am to 6pm. Move weekends, around the clock.</li>
       </ul>
     </div>
-    <form id="quote-form" novalidate>
+    <form id="quote-form" class="rv" novalidate>
       <label>Name<input id="q-name" name="name" autocomplete="name" required></label>
       <label>Company<input id="q-company" name="company" autocomplete="organization" required></label>
       <label>Email<input id="q-email" name="email" type="email" autocomplete="email" required></label>
@@ -457,7 +543,8 @@ footer .fine{grid-column:1 / -1; border-top:1px solid #3A444D; padding-top:16px;
       </ul>
     </div>
     <div class="fine">Relay Workplace Logistics. Licensed and insured. USDOT 0000000 (placeholder).
-      Phone, email, and registration numbers on this page are placeholders.</div>
+      Phone, email, and registration numbers on this page are placeholders. Photo slots carry
+      placeholder art until photography is supplied.</div>
   </div>
 </footer>
 
@@ -472,4 +559,17 @@ document.getElementById('quote-form').addEventListener('submit', function(e){
   ok.hidden = false;
   ok.scrollIntoView({block:'nearest', behavior:'smooth'});
 });
+(function(){
+  var els = document.querySelectorAll('.rv');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, {rootMargin:'0px 0px -8% 0px'});
+  els.forEach(function(el){ io.observe(el); });
+})();
 </script>
