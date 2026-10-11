@@ -285,6 +285,8 @@ export interface SundayLesson {
   line?: string;
   /** Google Slides file id — embeds the interactive lesson */
   slidesId?: string;
+  /** self-hosted deck: slide images under /public at `${dir}/slide-NN.jpg`, 1-indexed */
+  deck?: { dir: string; count: number };
   /** Google Drive audio file id — embeds the recording */
   audioId?: string;
   /** songs written for the lesson: artwork + a playable Drive embed each */
@@ -335,7 +337,7 @@ export const sundayLessons: SundayLesson[] = [
     title: "Isaiah 50–57",
     course: "Old Testament",
     line: "Hope, covenant, and the Suffering Servant.",
-    slidesId: "13GkRcGFrL-4HMm48EdCFqqCsLGA2TNzpQLlVzV9kRZE",
+    deck: { dir: "/lessons/isaiah", count: 31 },
   },
   { slug: "dc-3-5", title: "Doctrine & Covenants 3–5", course: "Doctrine & Covenants", audioId: "1xbPf612XWmN_3OA343znRPw5Syb1UpmX" },
   { slug: "dc-18", title: "Doctrine & Covenants 18", course: "Doctrine & Covenants", audioId: "1WA6qGteEqmnYPfUYNdgT2tdOIN3g2ivb" },
