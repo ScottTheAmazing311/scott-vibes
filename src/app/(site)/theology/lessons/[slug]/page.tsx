@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Lines from "@/components/Lines";
 import PillButton from "@/components/PillButton";
 import Reveal from "@/components/Reveal";
+import SlideDeck from "@/components/SlideDeck";
 import { domains, sundayLessons } from "@/lib/content";
 
 const theology = domains.find((d) => d.id === "theology")!;
@@ -77,6 +78,17 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
               allowFullScreen
               title={`${lesson.title} slides`}
             />
+          </div>
+        </Reveal>
+      )}
+
+      {/* The lesson, self-hosted deck */}
+      {lesson.deck && (
+        <Reveal as="section" className="wrap py-14 md:py-20" amount={0.1}>
+          <span className="label num-in tabular-nums">0{++sectionIndex}</span>
+          <h2 className="display display-md mt-4">The lesson</h2>
+          <div className="fade mt-8" style={{ ["--i" as string]: 2 }}>
+            <SlideDeck dir={lesson.deck.dir} count={lesson.deck.count} title={lesson.title} />
           </div>
         </Reveal>
       )}
