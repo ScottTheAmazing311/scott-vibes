@@ -330,6 +330,13 @@ export const sundayLessons: SundayLesson[] = [
       },
     ],
   },
+  {
+    slug: "isaiah-50-57",
+    title: "Isaiah 50–57",
+    course: "Old Testament",
+    line: "Hope, covenant, and the Suffering Servant.",
+    slidesId: "13GkRcGFrL-4HMm48EdCFqqCsLGA2TNzpQLlVzV9kRZE",
+  },
   { slug: "dc-3-5", title: "Doctrine & Covenants 3–5", course: "Doctrine & Covenants", audioId: "1xbPf612XWmN_3OA343znRPw5Syb1UpmX" },
   { slug: "dc-18", title: "Doctrine & Covenants 18", course: "Doctrine & Covenants", audioId: "1WA6qGteEqmnYPfUYNdgT2tdOIN3g2ivb" },
   { slug: "dc-41-44", title: "Doctrine & Covenants 41–44", course: "Doctrine & Covenants", audioId: "1AN7FjpnnOQgCPTMexPvxLztIBxije-ri" },
