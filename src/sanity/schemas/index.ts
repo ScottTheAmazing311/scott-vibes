@@ -4,6 +4,7 @@ import { theologyEntry } from "./theology";
 import { project } from "./project";
 import { workEntry } from "./workEntry";
 import { potpourriItem } from "./potpourriItem";
+import { santaLetter } from "./santaLetter";
 
 export const schemaTypes = [
   photo,
@@ -12,4 +13,5 @@ export const schemaTypes = [
   project,
   workEntry,
   potpourriItem,
+  santaLetter,
 ];

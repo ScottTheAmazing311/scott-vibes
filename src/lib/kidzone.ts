@@ -6,7 +6,7 @@ export interface KidGame {
   slug: string;
   title: string;
   /** geometric mark, see components/kidzone/Mark.tsx */
-  shape: "circle" | "triangle" | "bars" | "cards";
+  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval";
   blurb: string;
   /** token name of the game's toy color */
   accent: "marigold" | "brick" | "leaf" | "cobalt";
@@ -17,6 +17,123 @@ export const kidGames: KidGame[] = [
   { slug: "dash", title: "Shape Dash", shape: "triangle", blurb: "Jump the spikes! How far can you run?", accent: "brick" },
   { slug: "piano", title: "Piano Lab", shape: "bars", blurb: "Play for real, or learn a song note by note.", accent: "leaf" },
   { slug: "cards", title: "Flash Cards", shape: "cards", blurb: "Math facts and sight words, one flip at a time.", accent: "cobalt" },
+  { slug: "animals", title: "Animal Awesome", shape: "paw", blurb: "Dad's animal photos, wild sounds, and wow facts.", accent: "leaf" },
+  { slug: "countdown", title: "Countdown", shape: "ring", blurb: "How many sleeps until the good stuff?", accent: "cobalt" },
+  { slug: "santa", title: "Letters to Santa", shape: "star", blurb: "Write your wish list and send it to the North Pole.", accent: "brick" },
+  { slug: "nfl", title: "NFL Matchup", shape: "oval", blurb: "Pick who wins this week and defend your record.", accent: "marigold" },
+];
+
+/* ---------------- Countdown ---------------- */
+
+export interface CountdownEvent {
+  id: string;
+  title: string;
+  /** MM-DD for yearly events, or YYYY-MM-DD for one-time dates */
+  date: string;
+  accent: KidGame["accent"];
+}
+
+// TODO: add the kids' birthdays (yearly MM-DD entries).
+export const countdownEvents: CountdownEvent[] = [
+  { id: "christmas", title: "Christmas", date: "12-25", accent: "brick" },
+  { id: "halloween", title: "Halloween", date: "10-31", accent: "marigold" },
+  { id: "thanksgiving", title: "Thanksgiving", date: "2026-11-26", accent: "leaf" },
+  { id: "newyear", title: "New Year's Day", date: "01-01", accent: "cobalt" },
+  { id: "lastday", title: "Last Day of School", date: "2027-05-28", accent: "marigold" },
+];
+
+/* ---------------- Animal Awesome ---------------- */
+
+export type AnimalCall =
+  | "roar" | "chuff" | "whoop" | "screech" | "neigh" | "baa"
+  | "squeak" | "growl" | "honk" | "hiss-screech" | "buzz" | "purr";
+
+export interface KidAnimal {
+  id: string;
+  name: string;
+  /** Sanity photo URL from Dad's Animals series */
+  photo: string;
+  /** portrait or landscape framing */
+  tall: boolean;
+  call: AnimalCall;
+  callLabel: string;
+  facts: string[];
+  wow: string;
+}
+
+export const kidAnimals: KidAnimal[] = [
+  {
+    id: "tiger", name: "Tiger", call: "roar", callLabel: "Hear the roar", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/78925c8aa0b05ab9277a5548e3f45aa37a4b844a-2001x2191.jpg",
+    facts: ["A tiger's stripes are on its skin, not just its fur.", "Tigers love to swim, unlike most cats."],
+    wow: "A tiger's roar can be heard almost two miles away.",
+  },
+  {
+    id: "snow-leopard", name: "Snow Leopard", call: "chuff", callLabel: "Hear the chuff", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/2680d2bcfcc6232325a4505e02442d129225a823-1667x2500.jpg",
+    facts: ["Its huge fluffy tail works like a scarf on cold nights.", "It can jump about as far as a school bus is long."],
+    wow: "Snow leopards cannot roar. They chuff and puff instead.",
+  },
+  {
+    id: "orangutan", name: "Orangutan", call: "whoop", callLabel: "Hear the whoop", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/77ccb799015d03689548f892cb5d73fea67ba8e3-2500x1667.jpg",
+    facts: ["Orangutan means 'person of the forest' in Malay.", "They build a brand-new leaf nest to sleep in every night."],
+    wow: "An orangutan's arms stretch wider than your dad is tall.",
+  },
+  {
+    id: "bald-eagle", name: "Bald Eagle", call: "screech", callLabel: "Hear the cry", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/cf8a8abccfda1625e8e361917c8c87c840742c3f-1667x2500.jpg",
+    facts: ["Eagles can spot a fish from more than a mile up.", "Their nests can weigh as much as a car."],
+    wow: "Movie eagle screams are fake. Real bald eagles sound like squeaky giggles.",
+  },
+  {
+    id: "horse", name: "Horse", call: "neigh", callLabel: "Hear the neigh", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/d65921940a3450236f2cde0459745c3ae802e982-2500x1783.jpg",
+    facts: ["Horses can sleep standing up.", "A horse's eyes are bigger than almost any other land animal's."],
+    wow: "Horses can't breathe through their mouths, only their noses.",
+  },
+  {
+    id: "sheep", name: "Sheep", call: "baa", callLabel: "Hear the baa", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/851f4ef2085ff64fb415de2ffc44ded4a0b31bd2-2500x1572.jpg",
+    facts: ["Sheep remember friends' faces for years.", "A sheep's wool never stops growing."],
+    wow: "Sheep have rectangle-shaped pupils so they can see almost all the way around.",
+  },
+  {
+    id: "otter", name: "River Otter", call: "squeak", callLabel: "Hear the squeak", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/cc2c1a08f4a2b5e0ddacbdea2cfcf3e318297287-1666x2500.jpg",
+    facts: ["Otters can close their nose and ears underwater.", "They slide down mudbanks just for fun."],
+    wow: "Sea otters hold hands while they sleep so they don't float apart.",
+  },
+  {
+    id: "crocodile", name: "Crocodile", call: "growl", callLabel: "Hear the growl", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/b517c42c0a45354d55f0264c81c5830bed468d69-2500x1667.jpg",
+    facts: ["Crocodiles have been around since the dinosaurs.", "They can go months between big meals."],
+    wow: "A crocodile can't stick out its tongue.",
+  },
+  {
+    id: "flamingo", name: "Flamingo", call: "honk", callLabel: "Hear the honk", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/4f6daab565603562a967b07ac7f27706ad047d3c-1699x2500.jpg",
+    facts: ["Flamingos are born gray. Their food turns them pink.", "They eat with their heads upside down."],
+    wow: "A flamingo can sleep while standing on one leg.",
+  },
+  {
+    id: "barn-owl", name: "Barn Owl", call: "hiss-screech", callLabel: "Hear the screech", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/4ccc4afb89764c64680b0ee06582f73b1edb8f83-1667x2500.jpg",
+    facts: ["Barn owls fly almost silently thanks to fringed feathers.", "They can hunt in total darkness, by sound alone."],
+    wow: "Barn owls don't hoot. They screech like tiny dragons.",
+  },
+  {
+    id: "bee", name: "Bumblebee", call: "buzz", callLabel: "Hear the buzz", tall: false,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/f097c9f064217303f839040bdcc0a34ee17decdd-2500x1675.jpg",
+    facts: ["Bees tell each other where flowers are by dancing.", "A bee visits hundreds of flowers in one trip."],
+    wow: "The buzz is the sound of wings beating about 200 times a second.",
+  },
+  {
+    id: "cougar", name: "Cougar", call: "purr", callLabel: "Hear the purr", tall: true,
+    photo: "https://cdn.sanity.io/images/1tz611ft/production/2881a5d6d0ce79b79cefb588f618cc2c67211de3-1833x2500.jpg",
+    facts: ["Cougars can leap over a minivan in one bound.", "They live all the way from Canada to Chile."],
+    wow: "The cougar is the biggest cat that can purr, just like a house cat.",
+  },
 ];
 
 /* ---------------- Trivia ---------------- */
