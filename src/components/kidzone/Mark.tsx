@@ -2,7 +2,7 @@
  * Geometric game marks: simple primitives in place of icons.
  * Color comes from currentColor; size from the width/height props.
  */
-export type KidShape = "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe";
+export type KidShape = "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe" | "gem";
 
 export default function Mark({
   shape,
@@ -55,6 +55,12 @@ export default function Mark({
         <>
           <path d="M11.2 5.6C8.9 4.1 5.8 3.7 2.8 4.5c-.5.1-.8.5-.8 1v12.6c0 .7.6 1.1 1.3 1 2.6-.6 5.6-.2 7.9 1.2V5.6Z" />
           <path d="M12.8 5.6c2.3-1.5 5.4-1.9 8.4-1.1.5.1.8.5.8 1v12.6c0 .7-.6 1.1-1.3 1-2.6-.6-5.6-.2-7.9 1.2V5.6Z" />
+        </>
+      )}
+      {shape === "gem" && (
+        <>
+          <path d="M12 22 2.8 9.6 7 3h10l4.2 6.6Z" />
+          <path d="M7.6 4.4h8.8l3 4.8H4.6Z" fill="currentColor" opacity="0.55" />
         </>
       )}
       {shape === "globe" && (

@@ -126,3 +126,20 @@
     transform: none;
   }
 }
+
+/* Knudson Kards: legendary card sheen */
+@keyframes kz-shine {
+  from { transform: translateX(-160%) rotate(10deg); }
+  to { transform: translateX(160%) rotate(10deg); }
+}
+.kz-shine::after {
+  content: "";
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 43%, rgba(255, 253, 247, 0.55) 50%, transparent 57%);
+  animation: kz-shine 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kz-shine::after { animation: none; }
+}

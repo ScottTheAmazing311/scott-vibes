@@ -26,8 +26,12 @@ Scott Knudson's personal site. Next.js 16 (App Router), Tailwind v4, deployed fr
 
 - Self-hosted lesson decks are rendered from PowerPoint via LibreOffice → PDF →
   JPEG (1600px wide, quality 85), see the Isaiah lesson (31 slides) as the model.
-- Kid Zone style: #2B2440 ink, 3px borders, hard offset shadows, rounded-3xl,
-  bright card colors from the registry. Keep new games consistent.
+- Kid Zone style ("modern toy", replaced the old hard-shadow look in Oct 2026):
+  tokens live in `src/app/kidzone/kidzone.css` (ground #f3efe6, ink #323b52,
+  accents marigold/brick/leaf/cobalt with -soft tints, 20px radius, soft
+  shadows). Use the shared classes (.kz-panel, .kz-tile, .kz-btn, .kz-chip),
+  the geometric `Mark` component instead of icons or emoji, and Bricolage
+  Grotesque (set in the layout). Keep new games consistent.
 - No em-dash-heavy copy; match the site's existing voice.
 - Placeholder images on portfolio pages come from picsum.photos (grayscale).
 
