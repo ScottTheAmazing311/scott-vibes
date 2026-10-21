@@ -92,24 +92,15 @@ export default function PianoLab() {
     <div>
       {/* song picker */}
       <div className="flex flex-wrap items-center gap-2">
-        <button
-          onClick={() => { setSong(null); setPos(0); }}
-          className="rounded-full border-2 border-[#2B2440] px-4 py-1.5 text-sm font-bold"
-          style={{ background: song === null ? "#06D6A0" : "white" }}
-        >
+        <button onClick={() => { setSong(null); setPos(0); }} className="kz-chip" data-on={song === null}>
           Free play
         </button>
         {pianoSongs.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => { setSong(s); setPos(0); }}
-            className="rounded-full border-2 border-[#2B2440] px-4 py-1.5 text-sm font-bold"
-            style={{ background: song?.id === s.id ? "#06D6A0" : "white" }}
-          >
+          <button key={s.id} onClick={() => { setSong(s); setPos(0); }} className="kz-chip" data-on={song?.id === s.id}>
             {s.title}
           </button>
         ))}
-        <label className="ml-auto flex items-center gap-2 text-sm font-bold">
+        <label className="ml-auto flex items-center gap-2 text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
           <input type="checkbox" checked={labels} onChange={(e) => setLabels(e.target.checked)} />
           Note names
         </label>
@@ -117,27 +108,28 @@ export default function PianoLab() {
 
       {/* lesson strip */}
       {song && (
-        <div className="mt-4 rounded-2xl border-[3px] border-[#2B2440] bg-white p-4" style={{ boxShadow: "4px 4px 0 #2B2440" }}>
+        <div className="kz-panel mt-4 p-5">
           {done ? (
-            <div className="flex items-center justify-between">
-              <span className="text-xl font-extrabold">You played {song.title}! 🎉🎹</span>
-              <button onClick={() => setPos(0)} className="rounded-full border-2 border-[#2B2440] px-4 py-1.5 text-sm font-bold" style={{ background: "#06D6A0" }}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xl font-extrabold tracking-tight">You played {song.title}!</span>
+              <button onClick={() => setPos(0)} className="kz-btn !min-h-[2.5rem] !text-sm">
                 Play it again
               </button>
             </div>
           ) : (
             <div>
-              <span className="text-sm font-bold opacity-60">
-                Press the glowing key · note {pos + 1} of {song.notes.length}
+              <span className="text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
+                Press the yellow key. Note {pos + 1} of {song.notes.length}
               </span>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
                 {song.notes.map((n, i) => (
                   <span
                     key={i}
-                    className="rounded-md border-2 border-[#2B2440] px-2 py-0.5 text-sm font-bold"
+                    className="rounded-lg border-[1.5px] px-2 py-0.5 text-sm font-bold"
                     style={{
-                      background: i < pos ? "#9BE8A8" : i === pos ? "#FFD166" : "white",
-                      opacity: i < pos ? 0.6 : 1,
+                      borderColor: i === pos ? "var(--kz-marigold)" : "var(--kz-line)",
+                      background: i < pos ? "var(--kz-leaf-soft)" : i === pos ? "var(--kz-marigold)" : "var(--kz-panel)",
+                      opacity: i < pos ? 0.55 : 1,
                     }}
                   >
                     {n.slice(0, -1)}
@@ -150,20 +142,23 @@ export default function PianoLab() {
       )}
 
       {/* keyboard */}
-      <div className="mt-5 overflow-x-auto rounded-3xl border-[3px] border-[#2B2440] bg-white p-4" style={{ boxShadow: "6px 6px 0 #2B2440" }}>
-        <div className="relative flex h-52 min-w-[640px] select-none">
+      <div className="kz-panel mt-5 overflow-x-auto p-4">
+        <div className="relative flex h-52 min-w-[640px] select-none gap-[3px]">
           {whiteKeys.map((note) => (
             <button
               key={note}
               onPointerDown={() => press(note)}
-              className="relative flex-1 rounded-b-lg border-2 border-[#2B2440] text-xs font-bold"
+              className="relative flex-1 rounded-b-lg border-[1.5px] text-xs font-bold transition-colors duration-100"
               style={{
-                background: active === note ? "#9BE8A8" : expected === note ? "#FFD166" : "white",
-                boxShadow: expected === note ? "0 0 0 3px #FFD166 inset" : undefined,
+                borderColor: expected === note ? "var(--kz-marigold)" : "var(--kz-line)",
+                background: active === note ? "var(--kz-leaf-soft)" : expected === note ? "var(--kz-marigold-soft)" : "var(--kz-panel)",
+                boxShadow: expected === note ? "inset 0 0 0 2px var(--kz-marigold)" : "inset 0 -5px 0 rgba(50,59,82,0.07)",
               }}
               aria-label={`Piano key ${note}`}
             >
-              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 opacity-60">{labels ? note.slice(0, -1) : ""}</span>
+              <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2" style={{ color: "var(--kz-ink-soft)" }}>
+                {labels ? note.slice(0, -1) : ""}
+              </span>
             </button>
           ))}
           {/* black keys overlay */}
@@ -177,15 +172,19 @@ export default function PianoLab() {
               <button
                 key={sharp}
                 onPointerDown={(e) => { e.stopPropagation(); press(sharp); }}
-                className="absolute top-0 z-10 h-[58%] w-[4.2%] -translate-x-1/2 rounded-b-md border-2 border-[#2B2440]"
-                style={{ left, background: active === sharp ? "#06D6A0" : expected === sharp ? "#FFD166" : "#2B2440" }}
+                className="absolute top-0 z-10 h-[58%] w-[4.2%] -translate-x-1/2 rounded-b-md transition-colors duration-100"
+                style={{
+                  left,
+                  background: active === sharp ? "var(--kz-leaf)" : expected === sharp ? "var(--kz-marigold)" : "var(--kz-ink)",
+                  boxShadow: "0 3px 0 rgba(50,59,82,0.25)",
+                }}
                 aria-label={`Piano key ${sharp}`}
               />
             );
           })}
         </div>
       </div>
-      <p className="mt-3 text-center text-sm font-bold opacity-70">
+      <p className="mt-3 text-center text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
         Play with your mouse, touch, or the A S D F row on a keyboard
       </p>
     </div>

@@ -128,10 +128,10 @@ export default function DashGame() {
       }
 
       // ---- draw ----
-      ctx.fillStyle = "#DFF3FF";
+      ctx.fillStyle = "#dbe2f5";
       ctx.fillRect(0, 0, W, H);
       // distant hills
-      ctx.fillStyle = "#BFE3F5";
+      ctx.fillStyle = "#c7d2ec";
       for (let i = 0; i < 4; i++) {
         const hx = ((i * 280 - (dist * 0.25) % 280) + 280) % (W + 280) - 140;
         ctx.beginPath();
@@ -139,9 +139,9 @@ export default function DashGame() {
         ctx.fill();
       }
       // ground
-      ctx.fillStyle = "#9BE8A8";
+      ctx.fillStyle = "#4f9c63";
       ctx.fillRect(0, GROUND, W, H - GROUND);
-      ctx.strokeStyle = "#2B2440";
+      ctx.strokeStyle = "#323b52";
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.moveTo(0, GROUND);
@@ -150,8 +150,8 @@ export default function DashGame() {
 
       // obstacles
       for (const o of obstacles) {
-        ctx.fillStyle = o.kind === "spike" ? "#EF476F" : "#7F9CF5";
-        ctx.strokeStyle = "#2B2440";
+        ctx.fillStyle = o.kind === "spike" ? "#d95b43" : "#4467c9";
+        ctx.strokeStyle = "#323b52";
         if (o.kind === "spike") {
           const n = o.w > 40 ? 2 : 1;
           const w = o.w / n;
@@ -174,34 +174,34 @@ export default function DashGame() {
       ctx.save();
       ctx.translate(120 + SIZE / 2, y - SIZE / 2);
       ctx.rotate(rot);
-      ctx.fillStyle = "#FFD166";
-      ctx.strokeStyle = "#2B2440";
+      ctx.fillStyle = "#e8a33d";
+      ctx.strokeStyle = "#323b52";
       ctx.lineWidth = 3;
       ctx.fillRect(-SIZE / 2, -SIZE / 2, SIZE, SIZE);
       ctx.strokeRect(-SIZE / 2, -SIZE / 2, SIZE, SIZE);
       // face
-      ctx.fillStyle = "#2B2440";
+      ctx.fillStyle = "#323b52";
       ctx.fillRect(-4, -8, 5, 5);
       ctx.fillRect(6, -8, 5, 5);
       ctx.fillRect(-2, 4, 10, 3);
       ctx.restore();
 
       // score
-      ctx.fillStyle = "#2B2440";
-      ctx.font = "800 26px var(--font-baloo), system-ui";
+      ctx.fillStyle = "#323b52";
+      ctx.font = "800 26px var(--font-bricolage), system-ui";
       ctx.textAlign = "left";
       ctx.fillText(String(Math.floor(dist / 10)), 20, 40);
 
       if (state !== "playing") {
         ctx.textAlign = "center";
-        ctx.font = "800 34px var(--font-baloo), system-ui";
+        ctx.font = "800 34px var(--font-bricolage), system-ui";
         if (state === "ready") {
           ctx.fillText("Tap or press SPACE to start", W / 2, 130);
-          ctx.font = "600 20px var(--font-baloo), system-ui";
+          ctx.font = "600 20px var(--font-bricolage), system-ui";
           ctx.fillText("Jump the spikes. Don't stop running!", W / 2, 165);
         } else {
           ctx.fillText(`Ouch! You ran ${Math.floor(dist / 10)}`, W / 2, 130);
-          ctx.font = "600 20px var(--font-baloo), system-ui";
+          ctx.font = "600 20px var(--font-bricolage), system-ui";
           ctx.fillText("Tap to try again", W / 2, 165);
         }
       }
@@ -225,11 +225,11 @@ export default function DashGame() {
 
   return (
     <div>
-      <div className="rounded-3xl border-[3px] border-[#2B2440] bg-white p-3" style={{ boxShadow: "6px 6px 0 #2B2440" }}>
+      <div className="kz-panel p-3">
         <canvas ref={canvasRef} className="w-full touch-none rounded-2xl" style={{ aspectRatio: "900 / 320" }} aria-label="Shape Dash game" />
       </div>
-      <p className="mt-3 text-center text-sm font-bold opacity-70">
-        Best run: {best} · space, tap, or click to jump
+      <p className="mt-3 text-center text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
+        Best run: {best}. Space, tap, or click to jump
       </p>
     </div>
   );

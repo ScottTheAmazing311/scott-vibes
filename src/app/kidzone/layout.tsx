@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Baloo_2 } from "next/font/google";
+import { Bricolage_Grotesque } from "next/font/google";
 import Link from "next/link";
+import Mark from "@/components/kidzone/Mark";
+import "./kidzone.css";
 
-const baloo = Baloo_2({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  weight: ["500", "700", "800"],
-  variable: "--font-baloo",
+  variable: "--font-bricolage",
   display: "swap",
 });
 
@@ -18,23 +19,23 @@ export const metadata: Metadata = {
 export default function KidzoneLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className={`${baloo.variable} min-h-screen`}
-      style={{
-        fontFamily: "var(--font-baloo), system-ui, sans-serif",
-        background:
-          "radial-gradient(1200px 500px at 80% -10%, #FFE8C2 0%, transparent 60%), radial-gradient(900px 500px at 0% 110%, #DFF3FF 0%, transparent 55%), #FFF8ED",
-        color: "#2B2440",
-      }}
+      className={`${bricolage.variable} kidzone min-h-[100dvh]`}
+      style={{ fontFamily: "var(--font-bricolage), system-ui, sans-serif" }}
     >
-      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-6">
-        <Link href="/kidzone" className="text-2xl font-extrabold tracking-tight no-underline" style={{ color: "#2B2440" }}>
-          🎈 Kid Zone
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-7">
+        <Link href="/kidzone" className="flex items-center gap-3 no-underline" style={{ color: "var(--kz-ink)" }}>
+          <span className="flex items-end gap-1" aria-hidden="true">
+            <Mark shape="circle" size={13} className="text-[var(--kz-marigold)]" />
+            <Mark shape="triangle" size={13} className="text-[var(--kz-brick)]" />
+            <Mark shape="cards" size={13} className="text-[var(--kz-cobalt)]" />
+          </span>
+          <span className="text-xl font-extrabold tracking-tight">Kid Zone</span>
         </Link>
-        <span className="rounded-full border-2 border-[#2B2440] bg-white px-3 py-1 text-xs font-bold">
-          Knudson family arcade
+        <span className="text-sm font-semibold" style={{ color: "var(--kz-ink-soft)" }}>
+          the Knudson arcade
         </span>
       </header>
-      <main className="mx-auto max-w-5xl px-5 pb-24 pt-8">{children}</main>
+      <main className="mx-auto max-w-5xl px-5 pb-24 pt-10">{children}</main>
     </div>
   );
 }

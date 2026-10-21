@@ -3,8 +3,6 @@
 import { useMemo, useState } from "react";
 import { triviaCategories, type TriviaCategory } from "@/lib/kidzone";
 
-const ACCENT = "#FFD166";
-
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -47,12 +45,13 @@ export default function TriviaGame() {
           <button
             key={c.id}
             onClick={() => start(c)}
-            className="rounded-3xl border-[3px] border-[#2B2440] bg-white p-6 text-left transition-transform duration-150 hover:-translate-y-1"
-            style={{ boxShadow: "5px 5px 0 #2B2440" }}
+            className="kz-tile p-6"
+            style={{ background: "var(--kz-marigold-soft)" }}
           >
-            <span className="text-4xl" aria-hidden="true">{c.emoji}</span>
-            <span className="mt-2 block text-2xl font-extrabold">{c.title}</span>
-            <span className="block text-sm font-semibold opacity-60">{c.questions.length} questions</span>
+            <span className="block text-2xl font-extrabold tracking-tight">{c.title}</span>
+            <span className="mt-1 block text-sm font-semibold" style={{ color: "var(--kz-ink-soft)" }}>
+              {c.questions.length} questions
+            </span>
           </button>
         ))}
       </div>
@@ -62,24 +61,22 @@ export default function TriviaGame() {
   if (index >= questions.length) {
     const stars = score === questions.length ? 3 : score >= questions.length - 2 ? 2 : score >= Math.ceil(questions.length / 2) ? 1 : 0;
     return (
-      <div className="rounded-3xl border-[3px] border-[#2B2440] bg-white p-8 text-center" style={{ boxShadow: "6px 6px 0 #2B2440" }}>
-        <div className="text-6xl">{["😅", "🙂", "😃", "🤩"][stars]}</div>
-        <h2 className="mt-3 text-4xl font-extrabold">
+      <div className="kz-panel mx-auto max-w-xl p-10 text-center">
+        <div className="text-5xl tracking-wide" aria-label={`${stars} of 3 stars`} style={{ color: "var(--kz-marigold)" }}>
+          {"★".repeat(stars)}
+          <span style={{ color: "var(--kz-line)" }}>{"★".repeat(3 - stars)}</span>
+        </div>
+        <h2 className="mt-4 text-4xl font-extrabold tracking-tight">
           {score} out of {questions.length}!
         </h2>
-        <div className="mt-2 text-4xl" aria-label={`${stars} of 3 stars`}>
-          {"★".repeat(stars)}
-          <span className="opacity-20">{"★".repeat(3 - stars)}</span>
-        </div>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <button
-            onClick={() => start(category)}
-            className="rounded-full border-2 border-[#2B2440] px-5 py-2 text-lg font-bold"
-            style={{ background: ACCENT }}
-          >
+        <p className="mt-2 text-lg font-semibold" style={{ color: "var(--kz-ink-soft)" }}>
+          {stars === 3 ? "Perfect round." : stars === 2 ? "So close to three stars." : stars === 1 ? "Good run. One more try?" : "Warmed up now. Go again!"}
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <button onClick={() => start(category)} className="kz-btn">
             Play again
           </button>
-          <button onClick={() => setCategory(null)} className="rounded-full border-2 border-[#2B2440] bg-white px-5 py-2 text-lg font-bold">
+          <button onClick={() => setCategory(null)} className="kz-btn-ghost">
             Pick another topic
           </button>
         </div>
@@ -95,17 +92,15 @@ export default function TriviaGame() {
 
   return (
     <div>
-      <div className="flex items-center justify-between text-sm font-bold opacity-70">
+      <div className="flex items-center justify-between text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
+        <span>{category.title}</span>
         <span>
-          {category.emoji} {category.title}
-        </span>
-        <span>
-          Question {index + 1} / {questions.length} · Score {score}
+          Question {index + 1} of {questions.length}
         </span>
       </div>
-      <div className="mt-4 rounded-3xl border-[3px] border-[#2B2440] bg-white p-6 md:p-8" style={{ boxShadow: "6px 6px 0 #2B2440" }}>
-        <h2 className="text-2xl font-extrabold md:text-3xl">{q.q}</h2>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="kz-panel mt-4 p-6 md:p-9">
+        <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">{q.q}</h2>
+        <div className="mt-7 grid gap-3 sm:grid-cols-2">
           {q.choices.map((choice, i) => {
             const isAnswer = i === q.answer;
             const isPicked = picked === i;
@@ -118,22 +113,23 @@ export default function TriviaGame() {
                   setPicked(i);
                   if (isAnswer) setScore((s) => s + 1);
                 }}
-                className="rounded-2xl border-[3px] border-[#2B2440] px-4 py-3 text-left text-lg font-bold transition-transform duration-100 enabled:hover:-translate-y-0.5"
+                className="rounded-[14px] border-[1.5px] px-5 py-3.5 text-left text-lg font-bold transition-transform duration-100 enabled:hover:-translate-y-0.5 enabled:active:scale-[0.99] motion-reduce:transition-none"
                 style={{
-                  background: revealed ? (isAnswer ? "#9BE8A8" : isPicked ? "#FFB3C1" : "#F3F0E8") : "#FFF8ED",
-                  opacity: revealed && !isAnswer && !isPicked ? 0.6 : 1,
+                  borderColor: revealed && (isAnswer || isPicked) ? (isAnswer ? "var(--kz-leaf)" : "var(--kz-brick)") : "var(--kz-line)",
+                  background: revealed ? (isAnswer ? "var(--kz-leaf-soft)" : isPicked ? "var(--kz-brick-soft)" : "transparent") : "var(--kz-ground)",
+                  opacity: revealed && !isAnswer && !isPicked ? 0.45 : 1,
                 }}
               >
-                {choice} {revealed && isAnswer && "✓"} {revealed && isPicked && !isAnswer && "✗"}
+                {choice}
               </button>
             );
           })}
         </div>
         {picked !== null && (
-          <div className="mt-5 flex items-center justify-between">
-            <span className="text-xl font-extrabold">{picked === q.answer ? "Nice! 🎉" : "Good try!"}</span>
-            <button onClick={next} className="rounded-full border-2 border-[#2B2440] px-5 py-2 text-lg font-bold" style={{ background: ACCENT }}>
-              {index + 1 < questions.length ? "Next →" : "See score →"}
+          <div className="mt-6 flex items-center justify-between">
+            <span className="text-xl font-extrabold">{picked === q.answer ? "Nice one!" : "Good try!"}</span>
+            <button onClick={next} className="kz-btn">
+              {index + 1 < questions.length ? "Next question" : "See my stars"}
             </button>
           </div>
         )}

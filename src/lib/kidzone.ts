@@ -5,17 +5,18 @@
 export interface KidGame {
   slug: string;
   title: string;
-  emoji: string;
+  /** geometric mark, see components/kidzone/Mark.tsx */
+  shape: "circle" | "triangle" | "bars" | "cards";
   blurb: string;
-  /** card accent color */
-  color: string;
+  /** token name of the game's toy color */
+  accent: "marigold" | "brick" | "leaf" | "cobalt";
 }
 
 export const kidGames: KidGame[] = [
-  { slug: "trivia", title: "Trivia Blast", emoji: "🧠", blurb: "Animals, space, and brain teasers. Can you get three stars?", color: "#FFD166" },
-  { slug: "dash", title: "Shape Dash", emoji: "🟧", blurb: "Jump the spikes! How far can you run?", color: "#EF476F" },
-  { slug: "piano", title: "Piano Lab", emoji: "🎹", blurb: "Play for real, or learn a song note by note.", color: "#06D6A0" },
-  { slug: "cards", title: "Flash Cards", emoji: "⚡", blurb: "Math facts and sight words, one flip at a time.", color: "#7F9CF5" },
+  { slug: "trivia", title: "Trivia Blast", shape: "circle", blurb: "Animals, space, and brain teasers. Can you get three stars?", accent: "marigold" },
+  { slug: "dash", title: "Shape Dash", shape: "triangle", blurb: "Jump the spikes! How far can you run?", accent: "brick" },
+  { slug: "piano", title: "Piano Lab", shape: "bars", blurb: "Play for real, or learn a song note by note.", accent: "leaf" },
+  { slug: "cards", title: "Flash Cards", shape: "cards", blurb: "Math facts and sight words, one flip at a time.", accent: "cobalt" },
 ];
 
 /* ---------------- Trivia ---------------- */
@@ -30,7 +31,6 @@ export interface TriviaQuestion {
 export interface TriviaCategory {
   id: string;
   title: string;
-  emoji: string;
   questions: TriviaQuestion[];
 }
 
@@ -38,7 +38,6 @@ export const triviaCategories: TriviaCategory[] = [
   {
     id: "animals",
     title: "Amazing Animals",
-    emoji: "🦁",
     questions: [
       { q: "What is the tallest animal in the world?", choices: ["Elephant", "Giraffe", "Horse", "T-Rex"], answer: 1 },
       { q: "Which animal sleeps standing up?", choices: ["Horse", "Dog", "Snake", "Penguin"], answer: 0 },
@@ -53,7 +52,6 @@ export const triviaCategories: TriviaCategory[] = [
   {
     id: "space",
     title: "Outer Space",
-    emoji: "🚀",
     questions: [
       { q: "Which planet is called the Red Planet?", choices: ["Venus", "Jupiter", "Mars", "Saturn"], answer: 2 },
       { q: "What do we call a person who travels to space?", choices: ["A pilot", "An astronaut", "A diver", "A wizard"], answer: 1 },
@@ -68,7 +66,6 @@ export const triviaCategories: TriviaCategory[] = [
   {
     id: "brain",
     title: "Brain Teasers",
-    emoji: "🧩",
     questions: [
       { q: "What has hands but cannot clap?", choices: ["A clock", "A tree", "A fish", "A sock"], answer: 0 },
       { q: "What gets wetter the more it dries?", choices: ["The sun", "A towel", "A rock", "A shoe"], answer: 1 },
@@ -87,7 +84,6 @@ export const triviaCategories: TriviaCategory[] = [
 export interface FlashDeck {
   id: string;
   title: string;
-  emoji: string;
   cards: { front: string; back: string }[];
 }
 
@@ -95,7 +91,6 @@ export const flashDecks: FlashDeck[] = [
   {
     id: "add",
     title: "Addition",
-    emoji: "➕",
     cards: [
       { front: "3 + 4", back: "7" }, { front: "6 + 5", back: "11" }, { front: "8 + 7", back: "15" },
       { front: "9 + 9", back: "18" }, { front: "4 + 8", back: "12" }, { front: "7 + 6", back: "13" },
@@ -106,7 +101,6 @@ export const flashDecks: FlashDeck[] = [
   {
     id: "multiply",
     title: "Multiplication",
-    emoji: "✖️",
     cards: [
       { front: "2 × 3", back: "6" }, { front: "4 × 4", back: "16" }, { front: "3 × 6", back: "18" },
       { front: "5 × 5", back: "25" }, { front: "6 × 7", back: "42" }, { front: "8 × 3", back: "24" },
@@ -117,7 +111,6 @@ export const flashDecks: FlashDeck[] = [
   {
     id: "sight",
     title: "Sight Words",
-    emoji: "📖",
     cards: [
       { front: "because", back: "We stayed in because it rained." }, { front: "friend", back: "My friend shares with me." },
       { front: "could", back: "I could hear the birds." }, { front: "would", back: "Would you like a turn?" },
