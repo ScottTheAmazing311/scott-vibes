@@ -6,7 +6,7 @@ export interface KidGame {
   slug: string;
   title: string;
   /** geometric mark, see components/kidzone/Mark.tsx */
-  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval";
+  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe";
   blurb: string;
   /** token name of the game's toy color */
   accent: "marigold" | "brick" | "leaf" | "cobalt";
@@ -21,6 +21,8 @@ export const kidGames: KidGame[] = [
   { slug: "countdown", title: "Countdown", shape: "ring", blurb: "How many sleeps until the good stuff?", accent: "cobalt" },
   { slug: "santa", title: "Letters to Santa", shape: "star", blurb: "Write your wish list and send it to the North Pole.", accent: "brick" },
   { slug: "nfl", title: "NFL Matchup", shape: "oval", blurb: "Pick who wins this week and defend your record.", accent: "marigold" },
+  { slug: "sunday", title: "Sunday Prep", shape: "book", blurb: "This week's scripture story, with activities to try before church.", accent: "leaf" },
+  { slug: "map", title: "World Explorer", shape: "globe", blurb: "Tap a country. Learn hellos, foods, and wild facts. Collect stamps.", accent: "cobalt" },
 ];
 
 /* ---------------- Countdown ---------------- */
