@@ -1,7 +1,8 @@
 import { houses } from "@/lib/resorted/houses";
-import { diagonal, readingOrder } from "@/lib/resorted/model";
+import { diagonal, readingOrder, type Key } from "@/lib/resorted/model";
+import { hv } from "./hv";
 
-const rows: { label: string; value: (k: (typeof readingOrder)[number]) => string }[] = [
+const rows: { label: string; value: (k: Key) => string }[] = [
   { label: "Driver", value: (k) => houses[k].driver },
   { label: "Asks first", value: (k) => houses[k].firstQuestion },
   { label: "Loyal to", value: (k) => houses[k].loyal.replace(/^Loyal to /, "") },
@@ -16,7 +17,7 @@ const rows: { label: string; value: (k: (typeof readingOrder)[number]) => string
 
 export default function GlanceTable() {
   return (
-    <div className="rs-scroll">
+    <div className="rs-glance-wrap">
       <table className="rs-glance">
         <thead>
           <tr>
@@ -24,7 +25,7 @@ export default function GlanceTable() {
               <span className="sr-only">Attribute</span>
             </th>
             {readingOrder.map((k) => (
-              <th key={k} scope="col" style={{ "--house": `var(--${k})` } as React.CSSProperties}>
+              <th key={k} scope="col" style={hv(k)}>
                 {houses[k].name}
               </th>
             ))}

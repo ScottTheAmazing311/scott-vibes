@@ -1,73 +1,150 @@
-/** The map's relationship diagram: four house nodes, labeled edges, dashed diagonals. */
-export default function RelationshipSquare() {
+"use client";
+
+import { useState } from "react";
+import Reveal from "./Reveal";
+
+type Focus = "rivals" | "background" | "diagonals";
+
+const NODES = {
+  g: { x: 110, y: 96 },
+  s: { x: 450, y: 96 },
+  h: { x: 110, y: 364 },
+  r: { x: 450, y: 364 },
+} as const;
+
+type NodeKey = keyof typeof NODES;
+
+const EDGES: { cls: string; a: NodeKey; b: NodeKey; diag?: boolean }[] = [
+  { cls: "sq-edge e-top", a: "g", b: "s" },
+  { cls: "sq-edge e-bottom", a: "h", b: "r" },
+  { cls: "sq-edge e-left", a: "g", b: "h" },
+  { cls: "sq-edge e-right", a: "s", b: "r" },
+  { cls: "sq-diag", a: "g", b: "r", diag: true },
+  { cls: "sq-diag", a: "s", b: "h", diag: true },
+];
+
+const NAMES: Record<NodeKey, string> = { g: "Gryffindor", s: "Slytherin", h: "Hufflepuff", r: "Ravenclaw" };
+
+/** Shorten a segment by `pad` at each end so edges stop short of the node halos. */
+function trim(a: NodeKey, b: NodeKey, pad: number) {
+  const A = NODES[a];
+  const B = NODES[b];
+  const len = Math.hypot(B.x - A.x, B.y - A.y);
+  const ux = (B.x - A.x) / len;
+  const uy = (B.y - A.y) / len;
+  return { x1: A.x + ux * pad, y1: A.y + uy * pad, x2: B.x - ux * pad, y2: B.y - uy * pad };
+}
+
+/**
+ * The relationship square. Edges draw themselves in on scroll; hovering one
+ * of the explanations beside it lights the edge it's about.
+ */
+export default function RelationshipSquare({ points }: { points: { focus: Focus; title: string; text: string }[] }) {
+  const [focus, setFocus] = useState<Focus | null>(null);
+
   return (
-    <svg
-      className="rs-square"
-      viewBox="0 0 380 332"
-      role="img"
-      aria-label="Relationship square. Gryffindor and Slytherin share Self and are rivals. Gryffindor and Hufflepuff share Heart. Slytherin and Ravenclaw share Head. Hufflepuff and Ravenclaw share Beyond self. The diagonals, Gryffindor to Ravenclaw and Slytherin to Hufflepuff, are opposite on both axes."
-    >
-      <line className="sq-diag" x1="128" y1="78" x2="252" y2="254" />
-      <line className="sq-diag" x1="252" y1="78" x2="128" y2="254" />
-      <line className="sq-edge" x1="128" y1="56" x2="252" y2="56" />
-      <line className="sq-edge" x1="128" y1="276" x2="252" y2="276" />
-      <line className="sq-edge" x1="68" y1="78" x2="68" y2="254" />
-      <line className="sq-edge" x1="312" y1="78" x2="312" y2="254" />
-      <text className="sq-lab" x="190" y="46" textAnchor="middle">
-        RIVALS
-      </text>
-      <text className="sq-sub" x="190" y="73" textAnchor="middle">
-        share Self
-      </text>
-      <text className="sq-lab" x="190" y="266" textAnchor="middle">
-        STEADY ALLIES
-      </text>
-      <text className="sq-sub" x="190" y="294" textAnchor="middle">
-        share Beyond self
-      </text>
-      <text className="sq-lab" x="60" y="166" textAnchor="middle" transform="rotate(-90 60 166)">
-        HEART ALLIES
-      </text>
-      <text className="sq-sub" x="85" y="166" textAnchor="middle" transform="rotate(-90 85 166)">
-        share Heart
-      </text>
-      <text className="sq-lab" x="330" y="166" textAnchor="middle" transform="rotate(90 330 166)">
-        HEAD ALLIES
-      </text>
-      <text className="sq-sub" x="305" y="166" textAnchor="middle" transform="rotate(90 305 166)">
-        share Head
-      </text>
-      <rect className="sq-center" x="122" y="146" width="136" height="42" rx="4" />
-      <text className="sq-lab" x="190" y="164" textAnchor="middle">
-        DIAGONALS
-      </text>
-      <text className="sq-sub" x="190" y="180" textAnchor="middle">
-        opposite on both axes
-      </text>
-      <g>
-        <rect x="8" y="34" width="120" height="44" rx="5" style={{ fill: "color-mix(in srgb, var(--g) 13%, var(--surface))", stroke: "var(--g)", strokeWidth: 1.5 }} />
-        <text className="sq-name" x="68" y="61" textAnchor="middle" style={{ fill: "var(--g)" }}>
-          Gryffindor
-        </text>
-      </g>
-      <g>
-        <rect x="252" y="34" width="120" height="44" rx="5" style={{ fill: "color-mix(in srgb, var(--s) 13%, var(--surface))", stroke: "var(--s)", strokeWidth: 1.5 }} />
-        <text className="sq-name" x="312" y="61" textAnchor="middle" style={{ fill: "var(--s)" }}>
-          Slytherin
-        </text>
-      </g>
-      <g>
-        <rect x="8" y="254" width="120" height="44" rx="5" style={{ fill: "color-mix(in srgb, var(--h) 13%, var(--surface))", stroke: "var(--h)", strokeWidth: 1.5 }} />
-        <text className="sq-name" x="68" y="281" textAnchor="middle" style={{ fill: "var(--h)" }}>
-          Hufflepuff
-        </text>
-      </g>
-      <g>
-        <rect x="252" y="254" width="120" height="44" rx="5" style={{ fill: "color-mix(in srgb, var(--r) 13%, var(--surface))", stroke: "var(--r)", strokeWidth: 1.5 }} />
-        <text className="sq-name" x="312" y="281" textAnchor="middle" style={{ fill: "var(--r)" }}>
-          Ravenclaw
-        </text>
-      </g>
-    </svg>
+    <div className="rs-square-wrap">
+      <Reveal>
+        <svg
+          className="rs-square"
+          viewBox="0 0 560 460"
+          role="img"
+          data-focus={focus ?? undefined}
+          aria-label="Relationship square. Gryffindor and Slytherin share Self and are rivals. Gryffindor and Hufflepuff share Heart. Slytherin and Ravenclaw share Head. Hufflepuff and Ravenclaw share Beyond self. The diagonals, Gryffindor to Ravenclaw and Slytherin to Hufflepuff, are opposite on both axes."
+        >
+          <defs>
+            {EDGES.map(({ a, b }) => {
+              const t = trim(a, b, 22);
+              return (
+                <linearGradient key={`${a}${b}`} id={`sq-${a}${b}`} gradientUnits="userSpaceOnUse" x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}>
+                  <stop offset="0" style={{ stopColor: `var(--${a})` }} />
+                  <stop offset="1" style={{ stopColor: `var(--${b})` }} />
+                </linearGradient>
+              );
+            })}
+          </defs>
+
+          {EDGES.map(({ cls, a, b, diag }) => {
+            const t = trim(a, b, diag ? 30 : 22);
+            return <line key={`${a}${b}`} className={cls} {...t} stroke={`url(#sq-${a}${b})`} pathLength={diag ? undefined : 1} />;
+          })}
+
+          <g className="sq-labels l-top">
+            <text className="sq-lab" x="280" y="80" textAnchor="middle">
+              RIVALS
+            </text>
+            <text className="sq-sub" x="280" y="120" textAnchor="middle">
+              share Self
+            </text>
+          </g>
+          <g className="sq-labels l-bottom">
+            <text className="sq-lab" x="280" y="348" textAnchor="middle">
+              STEADY ALLIES
+            </text>
+            <text className="sq-sub" x="280" y="388" textAnchor="middle">
+              share Beyond self
+            </text>
+          </g>
+          <g className="sq-labels">
+            <text className="sq-lab" x="90" y="230" textAnchor="middle" transform="rotate(-90 90 230)">
+              HEART ALLIES
+            </text>
+            <text className="sq-sub" x="132" y="230" textAnchor="middle" transform="rotate(-90 132 230)">
+              share Heart
+            </text>
+            <text className="sq-lab" x="470" y="230" textAnchor="middle" transform="rotate(90 470 230)">
+              HEAD ALLIES
+            </text>
+            <text className="sq-sub" x="428" y="230" textAnchor="middle" transform="rotate(90 428 230)">
+              share Head
+            </text>
+          </g>
+          <g className="sq-labels l-center">
+            <rect className="sq-centerbox" x="200" y="208" width="160" height="44" rx="22" />
+            <text className="sq-lab" x="280" y="227" textAnchor="middle">
+              DIAGONALS
+            </text>
+            <text className="sq-sub" x="280" y="243" textAnchor="middle">
+              opposite on both axes
+            </text>
+          </g>
+
+          {(Object.keys(NODES) as NodeKey[]).map((k) => {
+            const { x, y } = NODES[k];
+            const top = y < 200;
+            return (
+              <g key={k}>
+                <circle cx={x} cy={y} r="16" fill="none" style={{ stroke: `var(--${k})`, strokeOpacity: 0.35 }} />
+                <circle className="sq-node" cx={x} cy={y} r="6" style={{ fill: `var(--${k})`, filter: `drop-shadow(0 0 8px var(--${k}))` }} />
+                <text className="sq-name" x={x} y={top ? y - 34 : y + 54} textAnchor="middle" style={{ fill: `var(--${k})` }}>
+                  {NAMES[k]}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+        <p className="rs-square-caption">
+          Neighbors share one axis and get along. The dashed diagonals share nothing, which is where the friction lives.
+        </p>
+      </Reveal>
+      <div className="rs-points" data-focus={focus ?? undefined}>
+        {points.map((p, i) => (
+          <Reveal
+            key={p.focus}
+            delay={i * 90}
+            className="rs-point"
+            data-on={focus === p.focus ? "" : undefined}
+            tabIndex={0}
+            onMouseEnter={() => setFocus(p.focus)}
+            onMouseLeave={() => setFocus(null)}
+            onFocus={() => setFocus(p.focus)}
+            onBlur={() => setFocus(null)}
+          >
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </Reveal>
+        ))}
+      </div>
+    </div>
   );
 }

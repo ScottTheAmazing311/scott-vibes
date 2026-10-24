@@ -1,21 +1,23 @@
 import type { House } from "@/lib/resorted/houses";
 
 /**
- * The per-house driver tree: a pill root splitting into Healthy and Unchecked
- * branches. Unchecked items that hurt other people carry a filled square,
- * because every house harms others when unchecked, not only itself.
+ * The driver splitting into what it produces healthy and unchecked. The
+ * square marks the unchecked items that hurt other people, so it's visible
+ * that every house harms others, not only itself.
  */
 export default function DriverTree({ house }: { house: House }) {
   return (
     <div className="rs-tree">
       <div className="rs-tree-root">
-        <span className="rs-tree-eyebrow">Driver</span>
-        {house.driver}
+        <span className="rs-label">Driver</span>
+        <span className="rs-tree-name">{house.driver}</span>
       </div>
-      <div className="rs-tree-stem" aria-hidden="true" />
+      <svg className="rs-tree-fork" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M50 0 C50 22 25 16 25 40 M50 0 C50 22 75 16 75 40" vectorEffect="non-scaling-stroke" />
+      </svg>
       <div className="rs-tree-branches">
         <div className="rs-branch rs-branch-plus">
-          <div className="rs-branch-head">Healthy</div>
+          <p className="rs-branch-head">Healthy</p>
           <ul>
             {house.healthy.map((item) => (
               <li key={item}>{item}</li>
@@ -23,7 +25,7 @@ export default function DriverTree({ house }: { house: House }) {
           </ul>
         </div>
         <div className="rs-branch rs-branch-minus">
-          <div className="rs-branch-head">Unchecked</div>
+          <p className="rs-branch-head">Unchecked</p>
           <ul>
             {house.unchecked.map((item) => (
               <li key={item.text}>

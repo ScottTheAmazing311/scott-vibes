@@ -1,36 +1,40 @@
 import Bars from "@/components/resorted/Bars";
 import CanonGrid from "@/components/resorted/CanonGrid";
 import Chip from "@/components/resorted/Chip";
-import DriverMap from "@/components/resorted/DriverMap";
+import Compass from "@/components/resorted/Compass";
 import GlanceTable from "@/components/resorted/GlanceTable";
 import Glyph from "@/components/resorted/Glyph";
-import HouseRow from "@/components/resorted/HouseRow";
-import HouseSection from "@/components/resorted/HouseSection";
+import HouseChapter from "@/components/resorted/HouseChapter";
+import { hv } from "@/components/resorted/hv";
 import MonopolyTable from "@/components/resorted/MonopolyTable";
+import { PairGlyph, VsDots } from "@/components/resorted/PairGlyph";
+import QuadSwitch from "@/components/resorted/QuadSwitch";
 import Quiz from "@/components/resorted/Quiz";
 import RelationshipSquare from "@/components/resorted/RelationshipSquare";
 import Reveal from "@/components/resorted/Reveal";
+import Rooms from "@/components/resorted/Rooms";
+import TopBar from "@/components/resorted/TopBar";
 import { canon, capacities, collisions, pairs, scenarios } from "@/lib/resorted/content";
 import { houses } from "@/lib/resorted/houses";
-import { readingOrder, type Key } from "@/lib/resorted/model";
+import { mapOrder, readingOrder, type Key } from "@/lib/resorted/model";
 import { blends } from "@/lib/resorted/quiz-data";
 
 const navLinks = [
-  ["#idea", "Idea"],
-  ["#map", "Map"],
-  ["#tiebreaker", "Tiebreaker"],
-  ["#houses", "Houses"],
-  ["#monopoly", "Monopoly"],
-  ["#pairs", "Pairs"],
-  ["#canon", "Canon"],
-  ["#faq", "FAQ"],
-] as const;
+  { href: "#idea", label: "Idea" },
+  { href: "#map", label: "Map" },
+  { href: "#tiebreaker", label: "Tiebreaker" },
+  { href: "#houses", label: "Houses" },
+  { href: "#monopoly", label: "Monopoly" },
+  { href: "#pairs", label: "Pairs" },
+  { href: "#canon", label: "Canon" },
+  { href: "#faq", label: "FAQ" },
+];
 
-const originalDeal = [
-  { k: "g" as Key, traits: "brave, daring, chivalrous", reads: "all compliments", villain: false },
-  { k: "r" as Key, traits: "wit, learning, wisdom", reads: "all compliments", villain: false },
-  { k: "h" as Key, traits: "loyal, patient, hard-working", reads: "quiet compliments", villain: false },
-  { k: "s" as Key, traits: "cunning, ambitious, any means necessary", reads: "a villain’s résumé", villain: true },
+const originalDeal: { k: Key; traits: string; reads: string; rigged?: boolean }[] = [
+  { k: "g", traits: "brave, daring, chivalrous", reads: "all compliments" },
+  { k: "r", traits: "wit, learning, wisdom", reads: "all compliments" },
+  { k: "h", traits: "loyal, patient, hard-working", reads: "quiet compliments" },
+  { k: "s", traits: "cunning, ambitious, any means necessary", reads: "a villain’s résumé", rigged: true },
 ];
 
 const principles = [
@@ -40,23 +44,30 @@ const principles = [
   { title: "Sort by tiebreaker", text: "Everyone uses all four. Your house is the one that wins when they collide." },
 ];
 
-const axesCards = [
-  { title: "Heart", text: "Decides by instinct and feeling. Trusts the gut or the people in the room.", chips: ["g", "h"] as Key[] },
-  { title: "Head", text: "Decides by analysis. Wants it to make sense before acting on it.", chips: ["r", "s"] as Key[] },
-  { title: "Self", text: "Answers to their own conviction or their own goals.", chips: ["g", "s"] as Key[] },
-  { title: "Beyond self", text: "Answers to something bigger: a code or a community.", chips: ["r", "h"] as Key[] },
+const spectra: { a: { title: string; text: string; chips: Key[] }; b: { title: string; text: string; chips: Key[] } }[] = [
+  {
+    a: { title: "Heart", text: "Decides by instinct and feeling. Trusts the gut or the people in the room.", chips: ["g", "h"] },
+    b: { title: "Head", text: "Decides by analysis. Wants it to make sense before acting on it.", chips: ["r", "s"] },
+  },
+  {
+    a: { title: "Self", text: "Answers to their own conviction or their own goals.", chips: ["g", "s"] },
+    b: { title: "Beyond self", text: "Answers to something bigger: a code or a community.", chips: ["r", "h"] },
+  },
 ];
 
 const squarePoints = [
   {
+    focus: "rivals" as const,
     title: "Why Gryffindor and Slytherin are the rivalry",
     text: "They’re the two houses that answer to themselves, so they compete for the same thing: who leads. The only difference is method, gut versus plan.",
   },
   {
+    focus: "background" as const,
     title: "Why Ravenclaw and Hufflepuff sit in the background",
     text: "Both defer to something outside themselves, a code or a community. They rarely grab the spotlight, because the spotlight isn’t what they answer to.",
   },
   {
+    focus: "diagonals" as const,
     title: "Why the diagonals clash",
     text: "Gryffindor and Ravenclaw, and Hufflepuff and Slytherin, are opposite on both axes. They share nothing, which makes them the hardest pairs and the best teachers for each other.",
   },
@@ -109,11 +120,15 @@ const faq = [
   },
 ];
 
-function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
+function Head({ kicker, children, lede }: { kicker: string; children: React.ReactNode; lede?: string }) {
   return (
-    <Reveal>
-      <p className="rs-eyebrow">{eyebrow}</p>
-      <h2 className="rs-h2">{title}</h2>
+    <Reveal className="rs-section-head">
+      <span className="rs-kicker">
+        <Glyph active="all" size={10} />
+        {kicker}
+      </span>
+      <h2 className="rs-h2">{children}</h2>
+      {lede && <p className="rs-lede">{lede}</p>}
     </Reveal>
   );
 }
@@ -121,32 +136,18 @@ function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
 export default function ResortedPage() {
   return (
     <>
-      <header className="rs-topbar">
-        <div className="rs-wrap rs-topbar-in">
-          <a href="#top" className="rs-wordmark">
-            <Glyph active="all" size={16} />
-            <span>RE-SORTED</span>
-          </a>
-          <nav className="rs-nav" aria-label="Sections">
-            {navLinks.map(([href, label]) => (
-              <a key={href} href={href}>
-                {label}
-              </a>
-            ))}
-            <a href="#quiz" className="rs-nav-cta">
-              Take the quiz
-            </a>
-          </nav>
-        </div>
-      </header>
+      <Rooms />
+      <TopBar links={navLinks} />
 
       <main id="top">
         {/* Hero */}
-        <section className="rs-wrap rs-hero">
-          <div className="rs-hero-grid">
+        <section className="rs-hero" data-room="none">
+          <div className="rs-wrap rs-hero-grid">
             <Reveal>
-              <p className="rs-eyebrow">An unofficial re-sorting of the four houses</p>
-              <h1 className="rs-h1">Every house runs on one driver.</h1>
+              <span className="rs-kicker">An unofficial re-sorting of the four houses</span>
+              <h1 className="rs-h1">
+                Every house runs on <em>one</em> driver.
+              </h1>
               <p className="rs-lede">
                 Courage, intelligence, loyalty and ambition are things anyone can have. This framework sorts people by what they consult
                 first when a decision gets hard. Every driver produces heroes and villains, so every house is equally worth wanting and
@@ -160,7 +161,7 @@ export default function ResortedPage() {
                   Read the framework
                 </a>
               </div>
-              <p className="rs-statline">
+              <p className="rs-stats">
                 <span>
                   <b>4</b> drivers
                 </span>
@@ -175,24 +176,25 @@ export default function ResortedPage() {
                 </span>
               </p>
             </Reveal>
-            <Reveal delay={120}>
-              <DriverMap />
+            <Reveal delay={160}>
+              <Compass />
+              <p className="rs-compass-caption">Every hard decision sends you to one of four questions first. That question is your house.</p>
             </Reveal>
           </div>
         </section>
 
         {/* The problem */}
-        <section id="idea" className="rs-section">
+        <section id="idea" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="The problem" title="Why the original four don’t work" />
-            <div className="rs-cols">
-              <Reveal>
-                <p style={{ marginBottom: 16 }}>
+            <Head kicker="The problem">Why the original four don’t work</Head>
+            <div className="rs-split">
+              <Reveal className="rs-prose">
+                <p>
                   The classic house traits aren’t a fair fight. Gryffindor gets bravery, daring and chivalry, which are all compliments.
                   Slytherin gets cunning and ambition, which is the vocabulary you’d use to describe the devil. With the deck stacked
                   like that, everyone wants the same house and nobody wants the other one.
                 </p>
-                <p style={{ marginBottom: 16 }}>
+                <p>
                   The traits also fall apart as sorting rules. Courage can’t define a house, because anyone can be brave. Cedric Diggory
                   was brave, and he was a Hufflepuff. Seamus Finnigan was sorted for bravery and is mostly remembered for blowing things
                   up. Intelligence can’t define a house either: Hermione, Snape and Dumbledore were all brilliant, and none of them were
@@ -204,232 +206,221 @@ export default function ResortedPage() {
                   driver, and to choose drivers that produce real virtues and real vices from the same source.
                 </p>
               </Reveal>
-              <Reveal delay={100}>
-                <p className="rs-eyebrow" style={{ marginBottom: 10 }}>
+              <Reveal delay={120}>
+                <span className="rs-label" style={{ display: "block", marginBottom: 16 }}>
                   The original deal
-                </p>
-                <table className="rs-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">House</th>
-                      <th scope="col">Classic traits</th>
-                      <th scope="col">Reads as</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {originalDeal.map((row) => (
-                      <tr key={row.k}>
-                        <td className="rs-deal-house" style={{ color: `var(--${row.k})` }}>
-                          {houses[row.k].name}
-                        </td>
-                        <td>{row.traits}</td>
-                        <td>{row.villain ? <b>{row.reads}</b> : row.reads}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                </span>
+                <div className="rs-deal" role="table" aria-label="The original deal">
+                  <div className="sr-only" role="row">
+                    <span role="columnheader">House</span>
+                    <span role="columnheader">Classic traits</span>
+                    <span role="columnheader">Reads as</span>
+                  </div>
+                  {originalDeal.map((row) => (
+                    <div key={row.k} className="rs-deal-row" role="row" style={hv(row.k)} data-rigged={row.rigged ? "" : undefined}>
+                      <span className="rs-deal-name" role="cell">
+                        {houses[row.k].name}
+                      </span>
+                      <span className="rs-deal-traits" role="cell">
+                        {row.traits}
+                      </span>
+                      <span className="rs-deal-reads" role="cell">
+                        {row.reads}
+                      </span>
+                    </div>
+                  ))}
+                </div>
                 <p className="rs-deal-note">
                   Three houses get padded lists of virtues and one gets a warning label. The re-sort gives every house one neutral driver
                   that cuts both ways.
                 </p>
               </Reveal>
             </div>
-            <Reveal>
-              <div className="rs-principles">
-                {principles.map((p) => (
-                  <div key={p.title} className="rs-principle">
-                    <h3>{p.title}</h3>
-                    <p>{p.text}</p>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <Reveal>
-              <h3 className="rs-subhead">Same virtue, four drivers</h3>
-              <p className="rs-lede" style={{ fontSize: 17, color: "var(--muted)" }}>
-                Every classic house trait shows up in every house. The driver changes what it looks like.
-              </p>
-            </Reveal>
-            <div className="rs-grid-2" style={{ marginTop: 10 }}>
-              {capacities.map((cap, i) => (
-                <Reveal key={cap.title} delay={(i % 2) * 90} className="rs-card">
-                  <h3 className="rs-h3">{cap.title}</h3>
-                  {readingOrder.map((k) => (
-                    <HouseRow key={k} k={k}>
-                      {cap[k]}
-                    </HouseRow>
-                  ))}
+
+            <div className="rs-principles">
+              {principles.map((p, i) => (
+                <Reveal key={p.title} className="rs-principle" delay={i * 90}>
+                  <Glyph active={mapOrder.slice(0, i + 1)} size={16} />
+                  <h3>{p.title}</h3>
+                  <p>{p.text}</p>
                 </Reveal>
               ))}
+            </div>
+
+            <div className="rs-sub">
+              <Reveal className="rs-sub-head">
+                <h3 className="rs-h3">Same virtue, four drivers</h3>
+                <p className="rs-sublede">Every classic house trait shows up in every house. The driver changes what it looks like.</p>
+              </Reveal>
+              <Reveal>
+                <QuadSwitch
+                  label="Virtues"
+                  prompt="Pick a virtue"
+                  items={capacities.map((c) => ({ title: c.title, values: { g: c.g, r: c.r, h: c.h, s: c.s } }))}
+                />
+              </Reveal>
             </div>
           </div>
         </section>
 
         {/* The structure */}
-        <section id="map" className="rs-section">
+        <section id="map" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="The structure" title="Two questions sit underneath the four houses" />
-            <Reveal>
-              <p className="rs-lede">
-                Do you decide with your head or your heart? And do you answer to yourself, or to something beyond yourself? Plot the four
-                drivers on those two axes and they land one per corner. The houses stop being a list and become a map.
-              </p>
-            </Reveal>
-            <Reveal>
-              <div className="rs-axes">
-                {axesCards.map((a) => (
-                  <div key={a.title} className="rs-card rs-axis-card">
-                    <h3>{a.title}</h3>
-                    <p>{a.text}</p>
-                    <div className="rs-chiprow">
-                      {a.chips.map((k) => (
-                        <Chip key={k} k={k}>
-                          {houses[k].name}
-                        </Chip>
-                      ))}
+            <Head
+              kicker="The structure"
+              lede="Do you decide with your head or your heart? And do you answer to yourself, or to something beyond yourself? Plot the four drivers on those two axes and they land one per corner. The houses stop being a list and become a map."
+            >
+              Two questions sit underneath the four houses
+            </Head>
+
+            <div className="rs-spectra">
+              {spectra.map((row, i) => (
+                <Reveal key={row.a.title} className="rs-spectrum" delay={i * 100}>
+                  {[row.a, row.b].map((end) => (
+                    <div key={end.title} className="rs-spec-end">
+                      <h3>{end.title}</h3>
+                      <p>{end.text}</p>
+                      <div className="rs-chiprow">
+                        {end.chips.map((k) => (
+                          <Chip key={k} k={k}>
+                            {houses[k].name}
+                          </Chip>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-            <div className="rs-cols">
-              <Reveal>
-                <RelationshipSquare />
-                <p className="rs-map-caption">
-                  Neighbors share one axis and get along. The dashed diagonals share nothing, which is where the friction lives.
+                  ))}
+                </Reveal>
+              ))}
+            </div>
+
+            <div className="rs-sub">
+              <RelationshipSquare points={squarePoints} />
+            </div>
+
+            <div className="rs-sub">
+              <Reveal className="rs-sub-head">
+                <h3 className="rs-h3">Four serious ethical traditions</h3>
+                <p className="rs-sublede">
+                  Each driver lines up with a real school of moral thought. That’s the strongest case that no house is the default good
+                  one: each tradition is respectable, and each has a famous way of going wrong.
                 </p>
               </Reveal>
-              <Reveal delay={100} className="rs-sq-points">
-                {squarePoints.map((p) => (
-                  <div key={p.title}>
-                    <h3>{p.title}</h3>
-                    <p>{p.text}</p>
-                  </div>
-                ))}
-              </Reveal>
-            </div>
-            <Reveal>
-              <h3 className="rs-subhead">Four serious ethical traditions</h3>
-              <p className="rs-lede" style={{ fontSize: 17, color: "var(--muted)" }}>
-                Each driver lines up with a real school of moral thought. That’s the strongest case that no house is the default good
-                one: each tradition is respectable, and each has a famous way of going wrong.
-              </p>
-            </Reveal>
-            <div className="rs-grid-4" style={{ marginTop: 10 }}>
-              {traditions.map((t, i) => (
-                <Reveal key={t.k} delay={i * 70}>
-                  <div className="rs-tradition" style={{ "--house": `var(--${t.k})` } as React.CSSProperties}>
-                    <span className="rs-trad-house">{houses[t.k].name}</span>
+              <div className="rs-trads">
+                {traditions.map((t, i) => (
+                  <Reveal key={t.k} className="rs-trad" delay={i * 90} style={hv(t.k)}>
+                    <span className="rs-hl">
+                      <Glyph active={[t.k]} size={11} />
+                      {houses[t.k].name}
+                    </span>
                     <h3>{t.name}</h3>
                     <p>{t.text}</p>
                     <p className="rs-trad-fail">
-                      <b>Fails as</b> {t.fails}
+                      <span className="rs-label">Fails as</span>
+                      {t.fails}
                     </p>
-                  </div>
-                </Reveal>
-              ))}
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* How sorting works */}
-        <section id="tiebreaker" className="rs-section">
+        <section id="tiebreaker" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="How sorting works" title="Everyone runs all four drivers" />
-            <div className="rs-cols">
+            <Head kicker="How sorting works">Everyone runs all four drivers</Head>
+            <div className="rs-split">
               <Reveal>
-                <p className="rs-lede">
+                <p className="rs-lede" style={{ marginTop: 0 }}>
                   Nobody is purely bold or purely strategic. Most everyday choices don’t force a ranking, because the bold move, the
                   right move, the kind move and the smart move are often the same move. A house only shows up when drivers collide. Your
                   house is the driver that wins the tie.
                 </p>
-                <p className="rs-pullnote" style={{ marginTop: 26 }}>
+                <p className="rs-pull">
                   Dumbledore once wondered aloud to Snape whether they sort too soon. This framework agrees. Watch someone when two
                   drivers point in different directions and you’ll see their house.
                 </p>
               </Reveal>
-              <Reveal delay={100} className="rs-card">
-                <p className="rs-eyebrow" style={{ marginBottom: 16 }}>
-                  An example profile
-                </p>
+              <Reveal className="rs-profile" delay={120}>
+                <span className="rs-label">An example profile</span>
                 <Bars
                   data={[
-                    { k: "g", value: 38, display: "38" },
-                    { k: "h", value: 29, display: "29" },
-                    { k: "s", value: 19, display: "19" },
-                    { k: "r", value: 14, display: "14" },
+                    { k: "g", value: 38 },
+                    { k: "h", value: 29 },
+                    { k: "s", value: 19 },
+                    { k: "r", value: 14 },
                   ]}
-                  big
                 />
-                <p style={{ fontSize: 15, color: "var(--muted)", marginTop: 16 }}>
+                <p className="rs-profile-note">
                   This person is a Gryffindor with a strong Hufflepuff streak. They still play strategically and still have principles;
                   those just lose most tiebreakers.
                 </p>
               </Reveal>
             </div>
-            <Reveal>
-              <h3 className="rs-subhead">The six collisions that reveal a house</h3>
-            </Reveal>
-            <div className="rs-grid-2" style={{ marginTop: 18 }}>
-              {collisions.map((c, i) => (
-                <Reveal key={`${c.a}${c.b}`} delay={(i % 2) * 90}>
-                  <div className="rs-card rs-collision">
-                    <div className="rs-col-vs">
-                      <Glyph active={[c.a, c.b]} size={16} />
+
+            <div className="rs-sub">
+              <Reveal className="rs-sub-head">
+                <h3 className="rs-h3">The six collisions that reveal a house</h3>
+              </Reveal>
+              <div className="rs-collisions">
+                {collisions.map((c, i) => (
+                  <Reveal key={`${c.a}${c.b}`} className="rs-collision" delay={i * 60}>
+                    <span className="rs-collision-vs">
+                      <VsDots a={c.a} b={c.b} />
                       <span>
-                        <span style={{ color: `var(--${c.a})` }}>{houses[c.a].driver}</span> vs.{" "}
+                        <span style={{ color: `var(--${c.a})` }}>{houses[c.a].driver}</span> <span className="vs">vs.</span>{" "}
                         <span style={{ color: `var(--${c.b})` }}>{houses[c.b].driver}</span>
                       </span>
-                    </div>
+                    </span>
                     <p>{c.text}</p>
-                  </div>
-                </Reveal>
-              ))}
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* The four houses */}
         <section id="houses" className="rs-section" style={{ paddingBottom: 0 }}>
-          <div className="rs-wrap">
-            <SectionHead eyebrow="The four houses" title="Each house, in full" />
-            <Reveal>
-              <p className="rs-lede">
-                Every house gets the same treatment: the driver, what it produces when it’s healthy and when it’s unchecked, how to spot
-                one, how it behaves under stress, and a hero and a villain who run on the same engine.
-              </p>
+          <div className="rs-wrap" data-room="none">
+            <Head
+              kicker="The four houses"
+              lede="Every house gets the same treatment: the driver, what it produces when it’s healthy and when it’s unchecked, how to spot one, how it behaves under stress, and a hero and a villain who run on the same engine."
+            >
+              Each house, in full
+            </Head>
+            <Reveal className="rs-doors">
+              {readingOrder.map((k) => (
+                <a key={k} href={`#${houses[k].id}`} className="rs-door" style={hv(k)}>
+                  <span className="rs-door-glyph">
+                    <Glyph active={[k]} size={18} />
+                  </span>
+                  <span className="rs-door-name">{houses[k].name}</span>
+                  <span className="rs-door-meta">
+                    <span>{houses[k].driver}</span>
+                    <span aria-hidden="true">→</span>
+                  </span>
+                </a>
+              ))}
             </Reveal>
             <Reveal>
-              <div style={{ marginTop: 26 }}>
-                <GlanceTable />
-              </div>
-              <div className="rs-jumplinks">
-                {readingOrder.map((k) => (
-                  <a key={k} href={`#${houses[k].id}`} className="rs-jumplink" style={{ "--house": `var(--${k})` } as React.CSSProperties}>
-                    <Glyph active={[k]} size={14} />
-                    {houses[k].name} →
-                  </a>
-                ))}
-              </div>
+              <GlanceTable />
             </Reveal>
           </div>
-          <div style={{ marginTop: 56 }}>
-            {readingOrder.map((k) => (
-              <HouseSection key={k} k={k} />
-            ))}
-          </div>
+          {readingOrder.map((k) => (
+            <HouseChapter key={k} k={k} />
+          ))}
         </section>
 
         {/* Monopoly */}
-        <section id="monopoly" className="rs-section">
+        <section id="monopoly" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="The test case" title="The Monopoly test" />
-            <Reveal>
-              <p className="rs-lede">
-                Put one of each house at a Monopoly table and the drivers show up within the hour. A board game works because it has
-                everything at once: rules to follow or bend, money to grab, alliances to make, and friends to keep. Pick a round.
-              </p>
-            </Reveal>
+            <Head
+              kicker="The test case"
+              lede="Put one of each house at a Monopoly table and the drivers show up within the hour. A board game works because it has everything at once: rules to follow or bend, money to grab, alliances to make, and friends to keep. Pick a round."
+            >
+              The Monopoly test
+            </Head>
             <Reveal>
               <MonopolyTable />
             </Reveal>
@@ -437,55 +428,47 @@ export default function ResortedPage() {
         </section>
 
         {/* Drivers in the wild */}
-        <section id="wild" className="rs-section">
+        <section id="wild" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="Higher stakes" title="The drivers in the wild" />
+            <Head
+              kicker="Higher stakes"
+              lede="Each house’s first instinct in four situations. None of these answers is the right one, and each of them can go wrong."
+            >
+              The drivers in the wild
+            </Head>
             <Reveal>
-              <p className="rs-lede">
-                Each house’s first instinct in four situations. None of these answers is the right one, and each of them can go wrong.
-              </p>
+              <QuadSwitch
+                variant="sentence"
+                label="Situations"
+                prompt="Pick a situation"
+                items={scenarios.map((s) => ({ title: s.title, values: { g: s.g, r: s.r, h: s.h, s: s.s } }))}
+              />
             </Reveal>
-            <div className="rs-grid-2" style={{ marginTop: 18 }}>
-              {scenarios.map((sc, i) => (
-                <Reveal key={sc.title} delay={(i % 2) * 90} className="rs-card">
-                  <h3 className="rs-h3">{sc.title}</h3>
-                  {readingOrder.map((k) => (
-                    <HouseRow key={k} k={k}>
-                      {sc[k]}
-                    </HouseRow>
-                  ))}
-                </Reveal>
-              ))}
-            </div>
           </div>
         </section>
 
         {/* Pairs */}
-        <section id="pairs" className="rs-section">
+        <section id="pairs" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="Relationships" title="How the houses get along" />
-            <Reveal>
-              <p className="rs-lede">
-                Neighbors on the map share an axis and make natural allies. Diagonal houses share nothing, which makes them the hardest
-                pairs and the most useful to each other. Your growth edge is always across the diagonal.
-              </p>
-            </Reveal>
-            <div className="rs-grid-2" style={{ marginTop: 18 }}>
+            <Head
+              kicker="Relationships"
+              lede="Neighbors on the map share an axis and make natural allies. Diagonal houses share nothing, which makes them the hardest pairs and the most useful to each other. Your growth edge is always across the diagonal."
+            >
+              How the houses get along
+            </Head>
+            <div className="rs-pairs">
               {pairs.map((p, i) => (
-                <Reveal key={`${p.a}${p.b}`} delay={(i % 2) * 90}>
-                  <div className={`rs-card rs-pair${p.diagonal ? " rs-pair-diag" : ""}`}>
-                    <div className="rs-pair-head">
-                      <Glyph active={[p.a, p.b]} size={18} />
-                      <h3>
-                        <span style={{ color: `var(--${p.a})` }}>{houses[p.a].name}</span> +{" "}
-                        <span style={{ color: `var(--${p.b})` }}>{houses[p.b].name}</span>
-                      </h3>
-                    </div>
-                    <span className="rs-pair-kind">
-                      {p.kind} · {p.share}
-                    </span>
-                    <p>{p.text}</p>
-                  </div>
+                <Reveal key={`${p.a}${p.b}`} className="rs-pair" delay={(i % 3) * 90} data-diagonal={p.diagonal ? "" : undefined}>
+                  <PairGlyph a={p.a} b={p.b} diagonal={p.diagonal} />
+                  <h3>
+                    <span style={{ color: `var(--${p.a})` }}>{houses[p.a].name}</span>
+                    <span className="plus">+</span>
+                    <span style={{ color: `var(--${p.b})` }}>{houses[p.b].name}</span>
+                  </h3>
+                  <span className="rs-label">
+                    {p.kind} · {p.share}
+                  </span>
+                  <p>{p.text}</p>
                 </Reveal>
               ))}
             </div>
@@ -493,28 +476,25 @@ export default function ResortedPage() {
         </section>
 
         {/* Canon */}
-        <section id="canon" className="rs-section">
+        <section id="canon" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="Applied" title="Hogwarts, re-sorted" />
-            <Reveal>
-              <p className="rs-lede">
-                Run the books’ characters through the drivers and a lot of people move. These are arguments, not rulings, and disagreeing
-                about them is half the fun.
-              </p>
-            </Reveal>
-            <Reveal>
-              <CanonGrid />
-            </Reveal>
+            <Head
+              kicker="Applied"
+              lede="Run the books’ characters through the drivers and a lot of people move. These are arguments, not rulings, and disagreeing about them is half the fun."
+            >
+              Hogwarts, <em>re-sorted</em>
+            </Head>
+            <CanonGrid />
           </div>
         </section>
 
         {/* FAQ */}
-        <section id="faq" className="rs-section">
+        <section id="faq" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="Objections" title="Questions and edge cases" />
+            <Head kicker="Objections">Questions and edge cases</Head>
             <div className="rs-faq">
               {faq.map((item, i) => (
-                <Reveal key={item.q} delay={(i % 2) * 70} className="rs-faq-item">
+                <Reveal key={item.q} className="rs-faq-item" delay={(i % 2) * 80}>
                   <h3>{item.q}</h3>
                   <p>{item.a}</p>
                 </Reveal>
@@ -524,26 +504,41 @@ export default function ResortedPage() {
         </section>
 
         {/* Quiz */}
-        <section id="quiz" className="rs-section">
+        <section id="quiz" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <SectionHead eyebrow="28 questions · about 6 minutes" title="The sorting quiz" />
-            <Reveal>
-              <p className="rs-lede">
-                Find your dominant and secondary drivers. Tap the answer that sounds most like you, then tap a second one if it also
-                fits. Your first choice is worth 3 points and your second is worth 1.
-              </p>
-            </Reveal>
-            <Quiz />
+            <Quiz
+              intro={
+                <>
+                  <span className="rs-kicker">
+                    <Glyph active="all" size={10} />
+                    28 questions · about 6 minutes
+                  </span>
+                  <h2 className="rs-h2">
+                    The sorting <em>quiz</em>
+                  </h2>
+                  <p className="rs-lede">
+                    Find your dominant and secondary drivers. Tap the answer that sounds most like you, then tap a second one if it also
+                    fits. Your first choice is worth 3 points and your second is worth 1.
+                  </p>
+                </>
+              }
+            />
           </div>
         </section>
       </main>
 
-      <footer className="rs-footer">
+      <footer className="rs-footer" data-room="none">
         <div className="rs-wrap rs-footer-in">
-          <p>
-            <b>Re-Sorted</b> is an unofficial fan framework for talking about characters and people. It isn’t affiliated with the Harry
-            Potter books, the films, or their publishers.
-          </p>
+          <div>
+            <span className="rs-footer-mark">
+              <Glyph active="all" size={34} />
+              Re-Sorted
+            </span>
+            <p>
+              <b>Re-Sorted</b> is an unofficial fan framework for talking about characters and people. It isn’t affiliated with the Harry
+              Potter books, the films, or their publishers.
+            </p>
+          </div>
           <a href="#top">Back to top ↑</a>
         </div>
       </footer>

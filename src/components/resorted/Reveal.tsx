@@ -2,21 +2,26 @@
 
 import { useEffect, useRef } from "react";
 
+type Tag = "div" | "section" | "article" | "li";
+
 /**
- * Fades content up as it scrolls into view. Pure progressive enhancement:
- * without JS or with reduced motion, everything is simply visible (see CSS).
+ * Fades content up as it scrolls into view and adds .is-in, which other
+ * pieces key off (bar fills, square edges, canon movers). Without JS or with
+ * reduced motion, everything is simply visible.
  */
 export default function Reveal({
   children,
   className = "",
   delay = 0,
   as: Tag = "div",
+  style,
+  ...rest
 }: {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  as?: "div" | "section" | "article" | "li";
-}) {
+  as?: Tag;
+} & Omit<React.HTMLAttributes<HTMLElement>, "className" | "children">) {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -31,15 +36,17 @@ export default function Reveal({
           }
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
+  const merged = delay ? ({ ...style, "--rsd": `${delay}ms` } as React.CSSProperties) : style;
+
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <Tag ref={ref as any} className={`rs-reveal ${className}`} style={delay ? ({ "--rsd": `${delay}ms` } as React.CSSProperties) : undefined}>
+    <Tag ref={ref as any} className={`rs-reveal ${className}`} style={merged} {...rest}>
       {children}
     </Tag>
   );

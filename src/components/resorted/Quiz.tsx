@@ -19,9 +19,12 @@ import {
 } from "@/lib/resorted/scoring";
 import Bars from "./Bars";
 import Chip from "./Chip";
+import Compass from "./Compass";
 import Glyph from "./Glyph";
+import { hv } from "./hv";
 
 const STORAGE_KEY = "resorted-last-result";
+const ROOM_HEX: Record<Key | "none", string> = { none: "#6f7890", g: "#f0694f", r: "#86a5ff", h: "#ecbf57", s: "#55cf97" };
 const TOTAL = questions.length;
 
 type Saved = { sc: Scores; fc: Scores; t: number };
@@ -35,17 +38,15 @@ function shuffle<T>(input: T[]): T[] {
   return arr;
 }
 
-function freshAnswers(): Answer[] {
-  return Array.from({ length: TOTAL }, () => ({ first: null, second: null }));
-}
+const freshAnswers = (): Answer[] => Array.from({ length: TOTAL }, () => ({ first: null, second: null }));
+const shuffledOrder = () => questions.map((q) => shuffle(Object.keys(q.options) as Key[]));
 
 function loadSaved(): Saved | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Saved;
-    if (!parsed || typeof parsed !== "object" || !parsed.sc) return null;
-    return parsed;
+    return parsed && typeof parsed === "object" && parsed.sc && parsed.fc ? parsed : null;
   } catch {
     return null;
   }
@@ -57,25 +58,23 @@ function persistResult(res: { sc: Scores; fc: Scores }): Saved | null {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
     return record;
   } catch {
-    // storage unavailable: the result still renders
     return null;
   }
 }
 
-export default function Quiz() {
-  // Deterministic order for the server render; shuffled per-question on mount and on retake.
+export default function Quiz({ intro }: { intro: React.ReactNode }) {
+  // Reading order for the server render; shuffled per question on mount and on every retake.
   const [order, setOrder] = useState<Key[][]>(() => questions.map(() => readingOrder));
   const [answers, setAnswers] = useState<Answer[]>(freshAnswers);
   const [idx, setIdx] = useState(0);
-  const [view, setView] = useState<"quiz" | "result">("quiz");
   const [result, setResult] = useState<{ sc: Scores; fc: Scores } | null>(null);
   const [saved, setSaved] = useState<Saved | null>(null);
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idxRef = useRef(0);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setOrder(questions.map((q) => shuffle(Object.keys(q.options) as Key[])));
+    setOrder(shuffledOrder());
     setSaved(loadSaved());
   }, []);
 
@@ -96,6 +95,11 @@ export default function Quiz() {
   const current = answers[idx];
   const q = questions[idx];
 
+  function scrollToTop() {
+    const el = rootRef.current?.closest("section") ?? rootRef.current;
+    el?.scrollIntoView({ block: "start" });
+  }
+
   function goTo(next: number) {
     cancelAdvance();
     setIdx(next);
@@ -105,10 +109,9 @@ export default function Quiz() {
     cancelAdvance();
     const res = score(finalAnswers);
     setResult(res);
-    setView("result");
     const record = persistResult(res);
     if (record) setSaved(record);
-    panelRef.current?.scrollIntoView({ block: "start" });
+    scrollToTop();
   }
 
   function advance() {
@@ -122,7 +125,6 @@ export default function Quiz() {
     const a = next[idx];
     let scheduleAdvance = false;
     if (a.first === k) {
-      // unpick first, promote second
       a.first = a.second;
       a.second = null;
     } else if (a.second === k) {
@@ -138,7 +140,7 @@ export default function Quiz() {
       const at = idx;
       advanceTimer.current = setTimeout(() => {
         advanceTimer.current = null;
-        if (idxRef.current !== at) return; // user navigated away: cancel
+        if (idxRef.current !== at) return;
         if (at < TOTAL - 1) setIdx(at + 1);
         else finish(next);
       }, 420);
@@ -147,67 +149,80 @@ export default function Quiz() {
 
   function retake() {
     cancelAdvance();
-    setOrder(questions.map((qq) => shuffle(Object.keys(qq.options) as Key[])));
+    setOrder(shuffledOrder());
     setAnswers(freshAnswers());
     setIdx(0);
     setResult(null);
-    setView("quiz");
-    panelRef.current?.scrollIntoView({ block: "start" });
+    scrollToTop();
   }
 
   function showSaved() {
     if (!saved) return;
     setResult({ sc: saved.sc, fc: saved.fc });
-    setView("result");
+    scrollToTop();
   }
 
   const savedRanked = useMemo(() => (saved ? rank(saved.sc, saved.fc) : null), [saved]);
 
-  const hint =
-    !current.first
-      ? "Tap the answer that sounds most like you."
-      : !current.second
-        ? "Got it. Tap a second answer if one also fits, or move on."
-        : "First and second choice saved.";
+  const hint = !current.first
+    ? "Tap the answer that sounds most like you."
+    : !current.second
+      ? "Got it. Tap a second answer if one also fits, or move on."
+      : "First and second choice saved.";
 
-  const primaryLabel =
-    idx === TOTAL - 1 ? "See my result →" : current.first && !current.second ? "Skip 2nd choice →" : "Next →";
+  const primaryLabel = idx === TOTAL - 1 ? "See my result →" : current.first && !current.second ? "Skip 2nd choice →" : "Next →";
 
   return (
-    <div ref={panelRef} style={{ scrollMarginTop: 76 }}>
-      {view === "quiz" ? (
-        <div className="rs-quiz-panel">
-          <div className="rs-quiz-head">
+    <div ref={rootRef} className="rs-quiz" data-view={result ? "result" : "quiz"}>
+      <div className="rs-quiz-intro">
+        {intro}
+        {!result && saved && savedRanked && (
+          <p className="rs-last">
+            Your last result:
+            <Chip k={savedRanked[0]}>{houses[savedRanked[0]].name}</Chip>
+            <Chip k={savedRanked[1]}>{houses[savedRanked[1]].name}</Chip>
+            <button className="rs-textbtn" onClick={showSaved}>
+              Show it
+            </button>
+          </p>
+        )}
+      </div>
+
+      {result ? (
+        <QuizResult key={`${result.sc.g}-${result.sc.r}-${result.sc.h}-${result.sc.s}`} sc={result.sc} fc={result.fc} onRetake={retake} />
+      ) : (
+        <div className="rs-stage">
+          <div className="rs-stage-head">
             <span>
               Question <b>{idx + 1}</b> of {TOTAL}
             </span>
-            <span className="rs-num">{answered} answered</span>
+            <span>
+              <b>{answered}</b> answered
+            </span>
           </div>
-          <div className="rs-progress" aria-hidden="true">
-            <div className="rs-progress-fill" style={{ transform: `scaleX(${(idx + 1) / TOTAL})` }} />
+          <div className="rs-ticks" aria-hidden="true">
+            {answers.map((a, i) => (
+              <i key={i} data-s={i === idx ? "now" : a.first ? "done" : undefined} />
+            ))}
           </div>
-          <div aria-live="polite">
-            <p className="rs-quiz-prompt">{q.prompt}</p>
+
+          <div key={idx} className="rs-qbody" aria-live="polite">
+            <p className="rs-prompt">{q.prompt}</p>
             <div className="rs-options">
               {order[idx].map((k, i) => {
                 const pickNo = current.first === k ? 1 : current.second === k ? 2 : 0;
                 return (
-                  <button
-                    key={k}
-                    className="rs-option"
-                    aria-pressed={pickNo > 0}
-                    data-pick={pickNo || undefined}
-                    onClick={() => pick(k)}
-                  >
-                    <span className="rs-opt-badge">{pickNo === 1 ? "1st" : pickNo === 2 ? "2nd" : "ABCD"[i]}</span>
+                  <button key={k} className="rs-option" aria-pressed={pickNo > 0} data-pick={pickNo || undefined} onClick={() => pick(k)}>
+                    <span className="rs-badge">{pickNo === 1 ? "1st" : pickNo === 2 ? "2nd" : "ABCD"[i]}</span>
                     <span>{q.options[k]}</span>
                   </button>
                 );
               })}
             </div>
-            <p className="rs-quiz-hint">{hint}</p>
+            <p className="rs-hint">{hint}</p>
           </div>
-          <div className="rs-quiz-nav">
+
+          <div className="rs-stage-nav">
             <button className="rs-btn rs-btn-ghost" disabled={idx === 0} onClick={() => goTo(idx - 1)}>
               ← Back
             </button>
@@ -215,19 +230,7 @@ export default function Quiz() {
               {primaryLabel}
             </button>
           </div>
-          {saved && savedRanked && (
-            <p className="rs-lastresult">
-              Your last result:
-              <Chip k={savedRanked[0]}>{houses[savedRanked[0]].name}</Chip>
-              <Chip k={savedRanked[1]}>{houses[savedRanked[1]].name}</Chip>
-              <button className="rs-linkbtn" onClick={showSaved}>
-                Show it
-              </button>
-            </p>
-          )}
         </div>
-      ) : (
-        result && <QuizResult sc={result.sc} fc={result.fc} onRetake={retake} />
       )}
     </div>
   );
@@ -247,6 +250,20 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
   const blindIsEdge = blind === diagonal[dom];
   const [copied, setCopied] = useState(false);
   const copyRef = useRef<HTMLTextAreaElement>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // The room takes on the dominant house's light while the result is showing.
+  useEffect(() => {
+    const section = resultRef.current?.closest<HTMLElement>("[data-room]");
+    const root = document.querySelector<HTMLElement>(".rs");
+    if (!section || !root) return;
+    section.dataset.room = dom;
+    root.style.setProperty("--room", ROOM_HEX[dom]);
+    return () => {
+      section.dataset.room = "none";
+      root.style.setProperty("--room", ROOM_HEX.none);
+    };
+  }, [dom]);
 
   const copyText = `My Re-Sorted result: ${houses[dom].name} (${houses[dom].driverLong}) with a ${houses[sec].name} streak. Blend: ${blend.name}. ${ranked
     .map((k) => `${houses[k].name} ${pct[k]}%`)
@@ -265,30 +282,52 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
           document.execCommand("copy");
           setCopied(true);
         } catch {
-          // leave the textarea selected so the user can copy manually
+          // the textarea stays selected for a manual copy
         }
       }
     }
     setTimeout(() => setCopied(false), 2200);
   }
 
+  const name = houses[dom].name;
+
   return (
-    <div className="rs-quiz-panel rs-result">
-      <div className="rs-result-head">
-        <div className="rs-result-dom" style={{ "--house": `var(--${dom})` } as React.CSSProperties}>
-          <span className="rs-eyebrow">Your dominant house</span>
-          <div className="rs-result-domname">{houses[dom].name}</div>
-          <p className="rs-house-driverline">
+    <div ref={resultRef} className="rs-result">
+      <div className="rs-result-top">
+        <div className="rs-result-main" style={hv(dom)}>
+          <span className="rs-label rs-enter">Your dominant house</span>
+          <h3 className="rs-result-name" aria-label={name}>
+            {name.split("").map((ch, i) => (
+              <span key={i} className="rs-letter" style={{ "--i": i } as React.CSSProperties} aria-hidden="true">
+                {ch}
+              </span>
+            ))}
+          </h3>
+          <p className="rs-chapter-driver rs-enter" style={{ "--i": 8 } as React.CSSProperties}>
             <b>{houses[dom].driverLong}</b> · {pct[dom]}%
           </p>
-          <p className="rs-result-q">“{houses[dom].firstQuestion}”</p>
+          <p className="rs-result-q rs-enter" style={{ "--i": 9 } as React.CSSProperties}>
+            “{houses[dom].firstQuestion}”
+          </p>
+          <div className="rs-result-sec rs-enter" style={hv(sec, { "--i": 11 })}>
+            <span className="rs-label">Secondary</span>
+            <span className="rs-result-secname">{houses[sec].name}</span>
+            <span className="rs-chapter-driver">
+              <b>{houses[sec].driverLong}</b> · {pct[sec]}%
+            </span>
+          </div>
         </div>
-        <div className="rs-result-secondary" style={{ "--house": `var(--${sec})` } as React.CSSProperties}>
-          <span className="rs-eyebrow">Secondary</span>
-          <span className="rs-sec-name">{houses[sec].name}</span>
-          <span className="rs-house-driverline" style={{ margin: 0 }}>
-            <b>{houses[sec].driverLong}</b> · {pct[sec]}%
-          </span>
+        <div className="rs-result-map rs-enter" style={{ "--i": 4 } as React.CSSProperties}>
+          <span className="rs-label">Where you land on the map</span>
+          <Compass mode="result" target={pos} />
+          <p className="rs-readout">
+            <span>
+              heart <b>{halves.heart}</b> / head <b>{halves.head}</b>
+            </span>
+            <span>
+              self <b>{halves.self}</b> / beyond <b>{halves.beyond}</b>
+            </span>
+          </p>
         </div>
       </div>
 
@@ -300,68 +339,53 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
       )}
 
       <div className="rs-blend">
-        <span className="rs-eyebrow">
-          Your blend · {houses[dom].name} / {houses[sec].name}
-        </span>
-        <div className="rs-blend-name">{blend.name}</div>
-        <p>{blend.description}</p>
+        <div>
+          <span className="rs-label">
+            Your blend · {houses[dom].name} / {houses[sec].name}
+          </span>
+          <p className="rs-blend-name">{blend.name}</p>
+          <p className="rs-blend-desc">{blend.description}</p>
+        </div>
         <dl>
-          <dt>Strength</dt>
-          <dd>{blend.strength}</dd>
-          <dt>Watch for</dt>
-          <dd>{blend.watchFor}</dd>
+          <div>
+            <dt className="rs-label">Strength</dt>
+            <dd>{blend.strength}</dd>
+          </div>
+          <div>
+            <dt className="rs-label">Watch for</dt>
+            <dd>{blend.watchFor}</dd>
+          </div>
         </dl>
         <p className="rs-relation">{relation}</p>
       </div>
 
-      <div className="rs-result-cols">
+      <div className="rs-result-grid">
         <div>
-          <p className="rs-eyebrow" style={{ marginBottom: 14 }}>
-            All four drivers
-          </p>
-          <Bars data={ranked.map((k) => ({ k, value: sc[k], display: `${pct[k]}%` }))} big />
+          <span className="rs-label">All four drivers</span>
+          <Bars data={ranked.map((k) => ({ k, value: sc[k], display: `${pct[k]}%` }))} animate />
           <p className="rs-raw">
             Raw points: {ranked.map((k) => sc[k]).join(" / ")}. First choices: {ranked.map((k) => fc[k]).join(" / ")}.
           </p>
         </div>
-        <div>
-          <p className="rs-eyebrow" style={{ marginBottom: 14 }}>
-            Where you land on the map
-          </p>
-          <div className="rs-minimap">
-            {(["g", "s", "h", "r"] as Key[]).map((k) => (
-              <div key={k} className="rs-minimap-cell" style={{ "--house": `var(--${k})` } as React.CSSProperties}>
-                <span>{houses[k].name}</span>
-              </div>
-            ))}
-            <div className="rs-minimap-cross" aria-hidden="true" />
-            <div className="rs-minimap-dot" style={{ left: `${pos.left}%`, top: `${pos.top}%` }} aria-hidden="true" />
+        <div className="rs-result-cards">
+          <div className="rs-growth" style={hv(dom, { "--edge": `var(--${edge})` })}>
+            <div className="rs-growth-head">
+              <Glyph active={[dom, edge]} size={14} />
+              Growth edge · borrow from {houses[edge].name}
+            </div>
+            <p style={{ marginTop: 14 }}>{houses[dom].growth}</p>
           </div>
-          <p className="rs-readout">
-            heart <b>{halves.heart}</b> / head <b>{halves.head}</b>
-            <br />
-            self <b>{halves.self}</b> / beyond <b>{halves.beyond}</b>
-          </p>
+          <div className="rs-note">
+            <span className="rs-label">Blind spot · lowest driver is {houses[blind].driver}</span>
+            <p>
+              {blindIsEdge && "Your lowest driver is also the one across your diagonal, so this is the clearest growth edge you have. "}
+              {houses[blind].low}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="rs-growth" style={{ "--edge": `var(--${edge})` } as React.CSSProperties}>
-        <div className="rs-growth-head">
-          <Glyph active={[dom, edge]} size={16} />
-          Growth edge · borrow from {houses[edge].name}
-        </div>
-        <p>{houses[dom].growth}</p>
-      </div>
-
-      <div className="rs-misread">
-        <span className="rs-mis-head">Blind spot · lowest driver is {houses[blind].driver}</span>
-        <p>
-          {blindIsEdge && "Your lowest driver is also the one across your diagonal, so this is the clearest growth edge you have. "}
-          {houses[blind].low}
-        </p>
-      </div>
-
-      <div className="rs-result-actions">
+      <div className="rs-actions">
         <button className="rs-btn rs-btn-primary" onClick={copy}>
           {copied ? "Copied" : "Copy my result"}
         </button>
