@@ -26,10 +26,10 @@ const description =
   "The four houses, re-sorted by what drives a decision. With a 28-question quiz.";
 
 export const metadata: Metadata = {
-  title: { absolute: "Re-Sorted · Every house runs on one driver" },
+  title: { absolute: "Re-Sorted · Improved wizard house sorting" },
   description,
   openGraph: {
-    title: "Re-Sorted · Every house runs on one driver",
+    title: "Re-Sorted · Improved wizard house sorting",
     description,
     url: "/resorted",
     type: "website",

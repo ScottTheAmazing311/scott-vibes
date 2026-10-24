@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Re-Sorted: every house runs on one driver";
+export const alt = "Re-Sorted: improved wizard house sorting";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -23,7 +23,7 @@ async function googleFont(family: string, text: string) {
 }
 
 export default async function Image() {
-  const headline = "Every house runs on one driver.";
+  const headline = "Improved wizard house sorting";
   const serifText = headline + QUADS.map((q) => q.name).join("");
   const [serif, mono] = await Promise.all([
     googleFont("Bodoni+Moda:ital,opsz,wght@1,6..96,500", serifText),

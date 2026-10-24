@@ -135,7 +135,7 @@ export default function ResortedPage() {
           <div className="rs-wrap rs-hero-grid">
             <Reveal>
               <h1 className="rs-h1">
-                Every house runs on <em>one</em> driver.
+                Improved wizard house <em>sorting</em>
               </h1>
               <p className="rs-lede">Anyone can be brave or clever. Your house is what you check first when a decision gets hard.</p>
               <div className="rs-ctas">
