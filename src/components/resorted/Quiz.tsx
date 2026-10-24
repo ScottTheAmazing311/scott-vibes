@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { houses } from "@/lib/resorted/houses";
 import { readingOrder, type Key } from "@/lib/resorted/model";
-import { blends, questions, relations } from "@/lib/resorted/quiz-data";
+import { blends, questions, quickQuestions, relations, type Question } from "@/lib/resorted/quiz-data";
 import {
   blindSpot,
   growthEdge,
@@ -25,7 +25,12 @@ import { hv } from "./hv";
 
 const STORAGE_KEY = "resorted-last-result";
 const ROOM_HEX: Record<Key | "none", string> = { none: "#6f7890", g: "#f0694f", r: "#86a5ff", h: "#ecbf57", s: "#55cf97" };
-const TOTAL = questions.length;
+type Mode = "full" | "quick";
+const SETS: Record<Mode, Question[]> = { full: questions, quick: quickQuestions };
+const LEDE: Record<Mode, string> = {
+  full: "28 questions. Pick the answer most like you, and a second if it also fits. First picks count 3 points, second picks 1.",
+  quick: "12 questions, one tap each. Simpler wording, good for kids.",
+};
 const QUIZ_URL = "https://www.scottvibes.com/resorted#quiz";
 // Emoji only in the shared text, where SVG can't go.
 const SHARE_EMOJI: Record<Key, string> = { g: "🦁", r: "🦅", h: "🦡", s: "🐍" };
@@ -42,8 +47,8 @@ function shuffle<T>(input: T[]): T[] {
   return arr;
 }
 
-const freshAnswers = (): Answer[] => Array.from({ length: TOTAL }, () => ({ first: null, second: null }));
-const shuffledOrder = () => questions.map((q) => shuffle(Object.keys(q.options) as Key[]));
+const freshAnswers = (set: Question[]): Answer[] => set.map(() => ({ first: null, second: null }));
+const shuffledOrder = (set: Question[]) => set.map((q) => shuffle(Object.keys(q.options) as Key[]));
 
 function loadSaved(): Saved | null {
   try {
@@ -66,10 +71,14 @@ function persistResult(res: { sc: Scores; fc: Scores }): Saved | null {
   }
 }
 
-export default function Quiz({ intro }: { intro: React.ReactNode }) {
+export default function Quiz({ title }: { title: React.ReactNode }) {
+  const [mode, setMode] = useState<Mode>("full");
+  const set = SETS[mode];
+  const total = set.length;
+  const single = mode === "quick";
   // Reading order for the server render; shuffled per question on mount and on every retake.
   const [order, setOrder] = useState<Key[][]>(() => questions.map(() => readingOrder));
-  const [answers, setAnswers] = useState<Answer[]>(freshAnswers);
+  const [answers, setAnswers] = useState<Answer[]>(() => freshAnswers(questions));
   const [idx, setIdx] = useState(0);
   const [result, setResult] = useState<{ sc: Scores; fc: Scores } | null>(null);
   const [saved, setSaved] = useState<Saved | null>(null);
@@ -78,7 +87,7 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setOrder(shuffledOrder());
+    setOrder(shuffledOrder(questions));
     setSaved(loadSaved());
   }, []);
 
@@ -96,7 +105,8 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
   useEffect(() => cancelAdvance, [cancelAdvance]);
 
   const current = answers[idx];
-  const q = questions[idx];
+  const q = set[idx];
+  const answered = answers.filter((a) => a.first).length;
 
   function scrollToTop() {
     const el = rootRef.current?.closest("section") ?? rootRef.current;
@@ -118,7 +128,7 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
   }
 
   function advance() {
-    if (idx < TOTAL - 1) goTo(idx + 1);
+    if (idx < total - 1) goTo(idx + 1);
     else finish(answers);
   }
 
@@ -127,7 +137,10 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
     const next = answers.map((a, i) => (i === idx ? { ...a } : a));
     const a = next[idx];
     let scheduleAdvance = false;
-    if (a.first === k) {
+    if (single) {
+      a.first = a.first === k ? null : k;
+      scheduleAdvance = a.first !== null;
+    } else if (a.first === k) {
       a.first = a.second;
       a.second = null;
     } else if (a.second === k) {
@@ -144,19 +157,20 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
       advanceTimer.current = setTimeout(() => {
         advanceTimer.current = null;
         if (idxRef.current !== at) return;
-        if (at < TOTAL - 1) setIdx(at + 1);
+        if (at < total - 1) setIdx(at + 1);
         else finish(next);
       }, 420);
     }
   }
 
-  function retake() {
+  function start(m: Mode, scroll = true) {
     cancelAdvance();
-    setOrder(shuffledOrder());
-    setAnswers(freshAnswers());
+    setMode(m);
+    setOrder(shuffledOrder(SETS[m]));
+    setAnswers(freshAnswers(SETS[m]));
     setIdx(0);
     setResult(null);
-    scrollToTop();
+    if (scroll) scrollToTop();
   }
 
   function showSaved() {
@@ -167,18 +181,25 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
 
   const savedRanked = useMemo(() => (saved ? rank(saved.sc, saved.fc) : null), [saved]);
 
-  const hint = !current.first
-    ? "Pick the answer most like you."
-    : !current.second
-      ? "Pick a second if one also fits."
-      : "";
+  const hint = !current.first ? "Pick the answer most like you." : !single && !current.second ? "Pick a second if one also fits." : "";
 
-  const primaryLabel = idx === TOTAL - 1 ? "See result" : "Next";
+  const primaryLabel = idx === total - 1 ? "See result" : "Next";
 
   return (
     <div ref={rootRef} className="rs-quiz" data-view={result ? "result" : "quiz"}>
       <div className="rs-quiz-intro">
-        {intro}
+        {title}
+        <p className="rs-lede">{LEDE[mode]}</p>
+        {!result && answered === 0 && (
+          <div className="rs-seg rs-mode" role="group" aria-label="Quiz length">
+            {(["full", "quick"] as const).map((m) => (
+              <button key={m} aria-pressed={mode === m} onClick={() => mode !== m && start(m, false)}>
+                <span className="n">{SETS[m].length}</span>
+                {m === "full" ? "Full quiz" : "Quick quiz"}
+              </button>
+            ))}
+          </div>
+        )}
         {!result && saved && savedRanked && (
           <p className="rs-last">
             Your last result:
@@ -192,15 +213,20 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
       </div>
 
       {result ? (
-        <QuizResult key={`${result.sc.g}-${result.sc.r}-${result.sc.h}-${result.sc.s}`} sc={result.sc} fc={result.fc} onRetake={retake} />
+        <QuizResult key={`${result.sc.g}-${result.sc.r}-${result.sc.h}-${result.sc.s}`} sc={result.sc}
+          fc={result.fc}
+          onRetake={() => start(mode)}
+          other={single ? "Take the full quiz" : "Try the quick quiz"}
+          onOther={() => start(single ? "full" : "quick")}
+        />
       ) : (
         <div className="rs-stage">
           <div className="rs-stage-head">
             <span>
-              Question <b>{idx + 1}</b> of {TOTAL}
+              Question <b>{idx + 1}</b> of {total}
             </span>
           </div>
-          <div className="rs-ticks" aria-hidden="true">
+          <div className="rs-ticks" aria-hidden="true" style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}>
             {answers.map((a, i) => (
               <i key={i} data-s={i === idx ? "now" : a.first ? "done" : undefined} />
             ))}
@@ -213,7 +239,7 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
                 const pickNo = current.first === k ? 1 : current.second === k ? 2 : 0;
                 return (
                   <button key={k} className="rs-option" aria-pressed={pickNo > 0} data-pick={pickNo || undefined} onClick={() => pick(k)}>
-                    <span className="rs-badge">{pickNo === 1 ? "1st" : pickNo === 2 ? "2nd" : "ABCD"[i]}</span>
+                    <span className="rs-badge">{single || !pickNo ? "ABCD"[i] : pickNo === 1 ? "1st" : "2nd"}</span>
                     <span>{q.options[k]}</span>
                   </button>
                 );
@@ -236,7 +262,19 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
   );
 }
 
-function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: () => void }) {
+function QuizResult({
+  sc,
+  fc,
+  onRetake,
+  other,
+  onOther,
+}: {
+  sc: Scores;
+  fc: Scores;
+  onRetake: () => void;
+  other: string;
+  onOther: () => void;
+}) {
   const ranked = rank(sc, fc);
   const pct = percents(sc);
   const [dom, sec] = ranked;
@@ -396,6 +434,9 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
         </a>
         <button className="rs-btn rs-btn-ghost" onClick={onRetake}>
           Retake
+        </button>
+        <button className="rs-btn rs-btn-ghost" onClick={onOther}>
+          {other}
         </button>
       </div>
       <textarea ref={copyRef} className="rs-copyarea" readOnly aria-hidden="true" tabIndex={-1} />

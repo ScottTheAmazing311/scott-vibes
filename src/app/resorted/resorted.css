@@ -1933,7 +1933,8 @@ html.no-js .rs-square .sq-diag {
   color: var(--moon);
 }
 
-.rs-seg button[aria-selected="true"] {
+.rs-seg button[aria-selected="true"],
+.rs-seg button[aria-pressed="true"] {
   background: var(--moon);
   color: var(--night);
 }
@@ -2388,6 +2389,10 @@ html.no-js .rs-mover-dot {
   }
 }
 
+.rs-mode {
+  margin-top: 28px;
+}
+
 .rs-last {
   display: flex;
   flex-wrap: wrap;
@@ -2429,7 +2434,6 @@ html.no-js .rs-mover-dot {
 
 .rs-ticks {
   display: grid;
-  grid-template-columns: repeat(28, minmax(0, 1fr));
   gap: 3px;
   margin-top: 16px;
 }

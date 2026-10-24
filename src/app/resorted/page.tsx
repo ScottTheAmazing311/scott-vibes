@@ -425,15 +425,10 @@ export default function ResortedPage() {
         <section id="quiz" className="rs-section" data-room="none">
           <div className="rs-wrap">
             <Quiz
-              intro={
-                <>
-                  <h2 className="rs-h2">
-                    The sorting <em>quiz</em>
-                  </h2>
-                  <p className="rs-lede">
-                    28 questions. Pick the answer most like you, and a second if it also fits. First picks count 3 points, second picks 1.
-                  </p>
-                </>
+              title={
+                <h2 className="rs-h2">
+                  The sorting <em>quiz</em>
+                </h2>
               }
             />
           </div>

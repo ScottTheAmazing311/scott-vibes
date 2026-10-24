@@ -370,3 +370,127 @@ export const questions: Question[] = [
     },
   },
 ];
+
+/** The quick quiz: 12 simpler questions, one pick each. Written so kids can take it too. */
+export const quickQuestions: Question[] = [
+  {
+    id: 101,
+    prompt: "You have to decide something fast. You…",
+    options: {
+      g: "Go with my gut and jump in.",
+      r: "Think about what the right thing is.",
+      h: "Think about how everyone will feel.",
+      s: "Think about what will work best.",
+    },
+  },
+  {
+    id: 102,
+    prompt: "On a group project, you’re the one who…",
+    options: {
+      g: "Gets everyone started.",
+      r: "Makes sure we follow the instructions.",
+      h: "Makes sure everyone gets a turn.",
+      s: "Finds the smartest way to do it.",
+    },
+  },
+  {
+    id: 103,
+    prompt: "A kid is getting teased at recess. You…",
+    options: {
+      g: "Walk right over and tell them to stop.",
+      r: "Tell a teacher. It’s against the rules.",
+      h: "Go sit with the kid who got teased.",
+      s: "Think of a clever way to make it stop.",
+    },
+  },
+  {
+    id: 104,
+    prompt: "Your friend breaks a rule in a game and nobody notices. You…",
+    options: {
+      g: "Don’t care. Let’s keep playing!",
+      r: "Say something. Rules are rules.",
+      h: "Let it go so nobody gets upset.",
+      s: "Keep quiet, but remember it for later.",
+    },
+  },
+  {
+    id: 105,
+    prompt: "What would make you proudest?",
+    options: {
+      g: "Trying something nobody else was brave enough to try.",
+      r: "Being the one everyone trusts to be fair.",
+      h: "Being a really good friend.",
+      s: "Winning because I had the best plan.",
+    },
+  },
+  {
+    id: 106,
+    prompt: "You get a giant building set. You…",
+    options: {
+      g: "Dump it out and start building.",
+      r: "Follow the instructions step by step.",
+      h: "Build it with a friend or my family.",
+      s: "Sort the pieces first so it goes faster.",
+    },
+  },
+  {
+    id: 107,
+    prompt: "Your brother or sister wants the last cookie too. You…",
+    options: {
+      g: "Grab it first!",
+      r: "Split it exactly in half.",
+      h: "Let them have it.",
+      s: "Trade it for something I want more.",
+    },
+  },
+  {
+    id: 108,
+    prompt: "Your team is losing at halftime. You…",
+    options: {
+      g: "Play harder and go for the big shot.",
+      r: "Stick to the plan the coach gave us.",
+      h: "Cheer up the teammates who feel bad.",
+      s: "Figure out what the other team is doing and change our plan.",
+    },
+  },
+  {
+    id: 109,
+    prompt: "What bugs you the most?",
+    options: {
+      g: "Waiting around with nothing to do.",
+      r: "When someone cheats.",
+      h: "When someone gets left out.",
+      s: "When nobody thinks ahead.",
+    },
+  },
+  {
+    id: 110,
+    prompt: "You get $20 for your birthday. You…",
+    options: {
+      g: "Spend it on something fun right away.",
+      r: "Put some in savings, like I always do.",
+      h: "Buy something for someone else too.",
+      s: "Save it for something bigger later.",
+    },
+  },
+  {
+    id: 111,
+    prompt: "Your favorite kind of hero…",
+    options: {
+      g: "Charges in to save the day.",
+      r: "Does the right thing, even when it’s hard.",
+      h: "Never leaves a friend behind.",
+      s: "Outsmarts the bad guy.",
+    },
+  },
+  {
+    id: 112,
+    prompt: "When you mess up, it’s usually because you…",
+    options: {
+      g: "Rushed in without thinking.",
+      r: "Wouldn’t bend when I should have.",
+      h: "Went along with everyone else.",
+      s: "Tried to be too sneaky.",
+    },
+  },
+];
