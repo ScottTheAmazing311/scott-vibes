@@ -34,6 +34,7 @@ export const metadata: Metadata = {
     url: "/resorted",
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function ResortedLayout({ children }: { children: React.ReactNode }) {
