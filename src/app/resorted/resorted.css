@@ -121,18 +121,6 @@ html:has(.rs) body {
   padding-inline: var(--gutter);
 }
 
-.rs-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--moon-3);
-}
-
 .rs-label {
   font-family: var(--mono);
   font-size: 11px;
@@ -480,23 +468,6 @@ html:has(.rs) body {
   margin-top: 40px;
 }
 
-.rs-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  margin-top: 36px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--moon-3);
-}
-
-.rs-stats b {
-  color: var(--moon);
-  font-weight: 500;
-}
-
 /* ------------------------------------------------------------------
    Compass (hero + quiz result)
 ------------------------------------------------------------------ */
@@ -549,14 +520,6 @@ html:has(.rs) body {
   font-size: 19px;
   line-height: 1.1;
   color: var(--moon);
-}
-
-.rs-cl small {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--moon-3);
 }
 
 .rs-sq {
@@ -668,30 +631,6 @@ html:has(.rs) body {
   will-change: transform;
 }
 
-.rs-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 13cqi;
-  min-width: 50px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 1px solid var(--line-2);
-  background: var(--night);
-  transform: translate(-50%, -50%);
-  font-family: var(--mono);
-  font-size: max(8.5px, 1.6cqi);
-  line-height: 1.2;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-align: center;
-  color: var(--moon-3);
-  pointer-events: none;
-}
-
 .rs-quad {
   position: absolute;
   z-index: 2;
@@ -767,32 +706,6 @@ html:has(.rs) body {
   color: var(--house);
 }
 
-.rs-quad-q {
-  margin-top: 1cqi;
-  max-width: 17ch;
-  font-family: var(--display);
-  font-style: italic;
-  font-size: max(12px, 3cqi);
-  line-height: 1.3;
-  color: var(--moon-2);
-}
-
-.rs-compass-result .rs-quad-q {
-  display: none;
-}
-
-.rs-compass-caption {
-  margin: 22px auto 0;
-  max-width: 44ch;
-  padding-left: 40px;
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 18px;
-  line-height: 1.45;
-  text-align: center;
-  color: var(--moon-2);
-}
-
 /* ------------------------------------------------------------------
    The problem
 ------------------------------------------------------------------ */
@@ -841,13 +754,6 @@ html:has(.rs) body {
   text-decoration: underline wavy color-mix(in oklab, var(--house) 55%, transparent);
   text-underline-offset: 6px;
   text-decoration-thickness: 1px;
-}
-
-.rs-deal-note {
-  margin-top: 22px;
-  max-width: 48ch;
-  font-size: 15.5px;
-  color: var(--moon-2);
 }
 
 @media (max-width: 520px) {
@@ -1188,12 +1094,6 @@ html:has(.rs) body {
   font-weight: 500;
   letter-spacing: 0.14em;
   fill: var(--moon);
-}
-
-.rs-square .sq-sub {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  fill: var(--moon-3);
 }
 
 .rs-square .sq-name {
@@ -1972,23 +1872,8 @@ html.no-js .rs-square .sq-diag {
   color: var(--edge);
 }
 
-.rs-growth-lead {
-  margin: 16px 0 10px;
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 23px;
-  line-height: 1.25;
-}
-
-.rs-growth-lead .edge {
-  color: var(--edge);
-}
-
-.rs-growth-lead .self {
-  color: var(--house);
-}
-
-.rs-growth p:not(.rs-growth-lead) {
+.rs-growth p {
+  margin-top: 12px;
   font-size: 15.5px;
   color: var(--moon-2);
 }
@@ -2360,20 +2245,6 @@ html.no-js .rs-square .sq-diag {
   font-size: 25px;
   line-height: 1.1;
   letter-spacing: -0.015em;
-}
-
-.rs-status {
-  display: block;
-  margin-top: 8px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--moon-3);
-}
-
-.rs-person[data-moved] .rs-status {
-  color: var(--house);
 }
 
 .rs-person-path {
@@ -2873,14 +2744,6 @@ html.no-js .rs-mover-dot {
 .rs-result-grid > div > .rs-label {
   display: block;
   margin-bottom: 26px;
-}
-
-.rs-raw {
-  margin-top: 24px;
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 1.7;
-  color: var(--moon-3);
 }
 
 .rs-result-cards {

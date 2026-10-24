@@ -73,39 +73,24 @@ export default function RelationshipSquare({ points }: { points: { focus: Focus;
             <text className="sq-lab" x="280" y="80" textAnchor="middle">
               RIVALS
             </text>
-            <text className="sq-sub" x="280" y="120" textAnchor="middle">
-              share Self
-            </text>
           </g>
           <g className="sq-labels l-bottom">
             <text className="sq-lab" x="280" y="348" textAnchor="middle">
               STEADY ALLIES
-            </text>
-            <text className="sq-sub" x="280" y="388" textAnchor="middle">
-              share Beyond self
             </text>
           </g>
           <g className="sq-labels">
             <text className="sq-lab" x="90" y="230" textAnchor="middle" transform="rotate(-90 90 230)">
               HEART ALLIES
             </text>
-            <text className="sq-sub" x="132" y="230" textAnchor="middle" transform="rotate(-90 132 230)">
-              share Heart
-            </text>
             <text className="sq-lab" x="470" y="230" textAnchor="middle" transform="rotate(90 470 230)">
               HEAD ALLIES
             </text>
-            <text className="sq-sub" x="428" y="230" textAnchor="middle" transform="rotate(90 428 230)">
-              share Head
-            </text>
           </g>
           <g className="sq-labels l-center">
-            <rect className="sq-centerbox" x="200" y="208" width="160" height="44" rx="22" />
-            <text className="sq-lab" x="280" y="227" textAnchor="middle">
+            <rect className="sq-centerbox" x="220" y="215" width="120" height="30" rx="15" />
+            <text className="sq-lab" x="280" y="234" textAnchor="middle">
               DIAGONALS
-            </text>
-            <text className="sq-sub" x="280" y="243" textAnchor="middle">
-              opposite on both axes
             </text>
           </g>
 

@@ -43,7 +43,7 @@ export default function DriverTree({ house }: { house: House }) {
       </div>
       <p className="rs-tree-key">
         <span className="rs-harm" aria-hidden="true" />
-        Hurts other people, not just themselves.
+        Hurts other people
       </p>
     </div>
   );

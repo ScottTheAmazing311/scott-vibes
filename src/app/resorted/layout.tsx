@@ -23,7 +23,7 @@ const mono = Geist_Mono({
 });
 
 const description =
-  "An unofficial re-sorting of the four houses by decision driver instead of virtue. Four drivers, two axes, 21 characters re-sorted, and a 28-question sorting quiz.";
+  "The four houses, re-sorted by what drives a decision. With a 28-question quiz.";
 
 export const metadata: Metadata = {
   title: { absolute: "Re-Sorted · Every house runs on one driver" },

@@ -183,21 +183,17 @@ export default function Compass({ mode = "hero", target }: { mode?: "hero" | "re
       <div className="rs-cl-cols">
         <span className="rs-cl">
           <b>Heart</b>
-          <small>decides by instinct &amp; feeling</small>
         </span>
         <span className="rs-cl">
           <b>Head</b>
-          <small>decides by analysis</small>
         </span>
       </div>
       <div className="rs-cl-rows">
         <span className="rs-cl">
           <b>Self</b>
-          <small>answers to me</small>
         </span>
         <span className="rs-cl">
           <b>Beyond self</b>
-          <small>answers to more</small>
         </span>
       </div>
       <div ref={sqRef} className="rs-sq">
@@ -214,7 +210,6 @@ export default function Compass({ mode = "hero", target }: { mode?: "hero" | "re
             <>
               <span className="rs-quad-name">{house.name}</span>
               <span className="rs-quad-driver">{house.driver}</span>
-              <span className="rs-quad-q">{house.firstQuestion}</span>
             </>
           );
           return mode === "hero" ? (
@@ -227,9 +222,6 @@ export default function Compass({ mode = "hero", target }: { mode?: "hero" | "re
             </div>
           );
         })}
-        <span className="rs-center" aria-hidden="true">
-          a decision
-        </span>
         <div ref={orbRef} className="rs-orb" aria-hidden="true" />
       </div>
     </div>

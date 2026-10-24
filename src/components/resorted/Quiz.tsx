@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { houses } from "@/lib/resorted/houses";
-import { diagonal, readingOrder, type Key } from "@/lib/resorted/model";
+import { readingOrder, type Key } from "@/lib/resorted/model";
 import { blends, questions, relations } from "@/lib/resorted/quiz-data";
 import {
   blindSpot,
@@ -91,7 +91,6 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
 
   useEffect(() => cancelAdvance, [cancelAdvance]);
 
-  const answered = answers.filter((a) => a.first).length;
   const current = answers[idx];
   const q = questions[idx];
 
@@ -165,12 +164,12 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
   const savedRanked = useMemo(() => (saved ? rank(saved.sc, saved.fc) : null), [saved]);
 
   const hint = !current.first
-    ? "Tap the answer that sounds most like you."
+    ? "Pick the answer most like you."
     : !current.second
-      ? "Got it. Tap a second answer if one also fits, or move on."
-      : "First and second choice saved.";
+      ? "Pick a second if one also fits."
+      : "";
 
-  const primaryLabel = idx === TOTAL - 1 ? "See my result →" : current.first && !current.second ? "Skip 2nd choice →" : "Next →";
+  const primaryLabel = idx === TOTAL - 1 ? "See result" : "Next";
 
   return (
     <div ref={rootRef} className="rs-quiz" data-view={result ? "result" : "quiz"}>
@@ -195,9 +194,6 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
           <div className="rs-stage-head">
             <span>
               Question <b>{idx + 1}</b> of {TOTAL}
-            </span>
-            <span>
-              <b>{answered}</b> answered
             </span>
           </div>
           <div className="rs-ticks" aria-hidden="true">
@@ -224,7 +220,7 @@ export default function Quiz({ intro }: { intro: React.ReactNode }) {
 
           <div className="rs-stage-nav">
             <button className="rs-btn rs-btn-ghost" disabled={idx === 0} onClick={() => goTo(idx - 1)}>
-              ← Back
+              Back
             </button>
             <button className="rs-btn rs-btn-primary" disabled={!current.first} onClick={advance}>
               {primaryLabel}
@@ -247,7 +243,6 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
   const halves = readout(sc);
   const edge = growthEdge(ranked);
   const blind = blindSpot(ranked);
-  const blindIsEdge = blind === diagonal[dom];
   const [copied, setCopied] = useState(false);
   const copyRef = useRef<HTMLTextAreaElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -295,7 +290,7 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
     <div ref={resultRef} className="rs-result">
       <div className="rs-result-top">
         <div className="rs-result-main" style={hv(dom)}>
-          <span className="rs-label rs-enter">Your dominant house</span>
+          <span className="rs-label rs-enter">Your house</span>
           <h3 className="rs-result-name" aria-label={name}>
             {name.split("").map((ch, i) => (
               <span key={i} className="rs-letter" style={{ "--i": i } as React.CSSProperties} aria-hidden="true">
@@ -304,7 +299,7 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
             ))}
           </h3>
           <p className="rs-chapter-driver rs-enter" style={{ "--i": 8 } as React.CSSProperties}>
-            <b>{houses[dom].driverLong}</b> · {pct[dom]}%
+            <b>{houses[dom].driver}</b> · {pct[dom]}%
           </p>
           <p className="rs-result-q rs-enter" style={{ "--i": 9 } as React.CSSProperties}>
             “{houses[dom].firstQuestion}”
@@ -313,12 +308,11 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
             <span className="rs-label">Secondary</span>
             <span className="rs-result-secname">{houses[sec].name}</span>
             <span className="rs-chapter-driver">
-              <b>{houses[sec].driverLong}</b> · {pct[sec]}%
+              <b>{houses[sec].driver}</b> · {pct[sec]}%
             </span>
           </div>
         </div>
         <div className="rs-result-map rs-enter" style={{ "--i": 4 } as React.CSSProperties}>
-          <span className="rs-label">Where you land on the map</span>
           <Compass mode="result" target={pos} />
           <p className="rs-readout">
             <span>
@@ -333,16 +327,13 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
 
       {nearTie && (
         <p className="rs-neartie">
-          <b>Near tie.</b> Your top two are within a few points of each other, so they trade the lead depending on the situation. Read
-          both house sections.
+          <b>Near tie.</b> Your top two trade the lead depending on the situation.
         </p>
       )}
 
       <div className="rs-blend">
         <div>
-          <span className="rs-label">
-            Your blend · {houses[dom].name} / {houses[sec].name}
-          </span>
+          <span className="rs-label">Blend</span>
           <p className="rs-blend-name">{blend.name}</p>
           <p className="rs-blend-desc">{blend.description}</p>
         </div>
@@ -361,42 +352,33 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
 
       <div className="rs-result-grid">
         <div>
-          <span className="rs-label">All four drivers</span>
+          <span className="rs-label">All four</span>
           <Bars data={ranked.map((k) => ({ k, value: sc[k], display: `${pct[k]}%` }))} animate />
-          <p className="rs-raw">
-            Raw points: {ranked.map((k) => sc[k]).join(" / ")}. First choices: {ranked.map((k) => fc[k]).join(" / ")}.
-          </p>
         </div>
         <div className="rs-result-cards">
           <div className="rs-growth" style={hv(dom, { "--edge": `var(--${edge})` })}>
             <div className="rs-growth-head">
               <Glyph active={[dom, edge]} size={14} />
-              Growth edge · borrow from {houses[edge].name}
+              Borrow from {houses[edge].name}
             </div>
-            <p style={{ marginTop: 14 }}>{houses[dom].growth}</p>
+            <p>{houses[dom].growth}</p>
           </div>
           <div className="rs-note">
-            <span className="rs-label">Blind spot · lowest driver is {houses[blind].driver}</span>
-            <p>
-              {blindIsEdge && "Your lowest driver is also the one across your diagonal, so this is the clearest growth edge you have. "}
-              {houses[blind].low}
-            </p>
+            <span className="rs-label">Blind spot · {houses[blind].driver}</span>
+            <p>{houses[blind].low}</p>
           </div>
         </div>
       </div>
 
       <div className="rs-actions">
         <button className="rs-btn rs-btn-primary" onClick={copy}>
-          {copied ? "Copied" : "Copy my result"}
+          {copied ? "Copied" : "Copy result"}
         </button>
         <a className="rs-btn rs-btn-ghost" href={`#${houses[dom].id}`}>
           Read about {houses[dom].name}
         </a>
-        <a className="rs-btn rs-btn-ghost" href={`#${houses[sec].id}`}>
-          Read about {houses[sec].name}
-        </a>
         <button className="rs-btn rs-btn-ghost" onClick={onRetake}>
-          Retake the quiz
+          Retake
         </button>
       </div>
       <textarea ref={copyRef} className="rs-copyarea" readOnly aria-hidden="true" tabIndex={-1} />

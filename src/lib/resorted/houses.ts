@@ -15,7 +15,6 @@ export type House = {
   unchecked: UncheckedItem[];
   spot: string;
   stress: string;
-  group: string;
   work: string;
   best: { who: string; text: string };
   worst: { who: string; text: string };
@@ -36,8 +35,8 @@ export const houses: Record<Key, House> = {
     firstQuestion: "What do I believe I can do?",
     axes: "Heart × Self",
     def: [
-      "A Gryffindor’s first move is to trust themselves. They make the call in their gut and act on it, usually before the rest of the room has finished talking. The question they ask first is what they believe they can do, and their answer is almost always more than other people would guess.",
-      "Boldness is a better root than courage because it explains the whole house, not just the highlight reel. The same setting that sends a Gryffindor toward a troll also has them smuggling a baby dragon to the top of a tower at midnight to save their own skins. They leave the Invisibility Cloak behind, get caught, and land in detention. Harry, Ron and Hermione make sense as Gryffindors through that lens. They aren’t always courageous. They are reliably bold, and sometimes recklessly so.",
+      "A Gryffindor trusts their gut and acts on it, usually before the room has finished talking. Ask what they can do and they’ll guess higher than you would.",
+      "Boldness explains more than courage does. It sends Harry at a troll. It also has him hauling a baby dragon up a tower at midnight, leaving the Cloak behind, and landing in detention. The trio isn’t always courageous. They’re always bold.",
     ],
     healthy: ["Courage", "Decisiveness", "Initiative", "Optimism", "Resilience after failure", "Standing up for others"],
     unchecked: [
@@ -48,30 +47,28 @@ export const houses: Record<Key, House> = {
       { text: "Dragging others into risk", hurtsOthers: true },
       { text: "Bullying for sport", hurtsOthers: true },
     ],
-    spot: "Speaks first. Says yes before reading the details. Tells stories that start with “so I just went for it.” Gets visibly restless when planning runs long.",
-    stress: "Accelerates. Moves faster, swings bigger, gets louder. The more a situation calls for patience, the harder it is for them to give it.",
-    group:
-      "At best, a Gryffindor crowd is momentum: the group that starts things and won’t quit. At worst it runs on dares and hero worship, and status goes to whoever does the most reckless thing.",
-    work: "Give them the mission, not the manual. Let them go first, then debrief. Don’t fight their momentum; aim it. Ask for their gut call early, because they’ll act on it anyway.",
+    spot: "Speaks first. Says yes before reading the details. Gets restless when planning runs long.",
+    stress: "Speeds up. The more a situation needs patience, the less they have.",
+    work: "Give them the mission and let them go first. Ask for their gut call early, because they’ll act on it anyway.",
     best: {
       who: "Harry Potter",
-      text: "Can’t stand by while someone is in danger. His habit of rushing in to save people wins the war, more than once.",
+      text: "Can’t stand by while someone is in danger. Rushing in to save people wins the war.",
     },
     worst: {
       who: "Sirius Black, at school",
-      text: "Sends Snape toward a transformed werewolf as a prank. The same nerve that later breaks him out of Azkaban nearly gets a classmate killed.",
+      text: "Sends Snape toward a werewolf as a prank. The nerve that later gets him out of Azkaban nearly gets a classmate killed.",
     },
-    outside: "Captain Ahab is boldness with no brake: total conviction, and a ship at the bottom of the sea.",
-    growth: "Borrow a code. A rule you set in advance is the brake your gut doesn’t have. Before the big swing, ask what your own principles say about it.",
-    misread: "“Gryffindors are the good guys.” Boldness has no built-in direction. The nerve that faces a dragon is the same nerve that hexes a classmate for laughs.",
+    outside: "Captain Ahab: total conviction, and a ship at the bottom of the sea.",
+    growth: "Borrow a code. A rule set in advance is the brake your gut doesn’t have.",
+    misread: "“Gryffindors are the good guys.” Boldness has no direction. The nerve that faces a dragon also hexes a classmate for laughs.",
     sig: {
       best: "Courage",
       flaw: "Recklessness",
       hurts: "Bullying; dragging others into risk",
-      stress: "Accelerates",
+      stress: "Speeds up",
       mono: "Buys everything, ignores the rule break",
     },
-    low: "You may wait too long for certainty. Sometimes the right move is to go before the plan is finished.",
+    low: "You may wait too long for certainty. Sometimes you have to go before the plan is done.",
   },
   r: {
     id: "ravenclaw",
@@ -82,8 +79,8 @@ export const houses: Record<Key, House> = {
     firstQuestion: "What does the code say is right?",
     axes: "Head × Beyond self",
     def: [
-      "A Ravenclaw decides by consulting a system. Rules, methods, principles, a worldview: the code comes first and the decision follows from it. They build study plans and stick to them. They are disciplined, regimented, and hard to talk out of something they’ve reasoned their way into.",
-      "The code doesn’t have to be school rules. It can be professional, ethical, political, religious, or entirely homemade. Luna Lovegood ignores nearly everyone’s rules, but she follows her own worldview with complete integrity and doesn’t care who laughs. That makes her a Ravenclaw, and grades have nothing to do with it. Intelligence is a tool every house uses. A Ravenclaw is defined by needing the world to make sense inside a framework, and by staying loyal to that framework when it costs them.",
+      "A Ravenclaw decides by checking a system. It might be rules, a method or a worldview. They make study plans and keep them, and they’re hard to argue out of a conclusion.",
+      "The code doesn’t have to be the school’s. Luna ignores most people’s rules and follows her own worldview completely, whoever laughs. That makes her a Ravenclaw. Her grades don’t.",
     ],
     healthy: ["Integrity", "Discipline", "Fairness", "Consistency", "Mastery", "Building systems and worlds"],
     unchecked: [
@@ -95,24 +92,21 @@ export const houses: Record<Key, House> = {
       { text: "Condescension", hurtsOthers: true },
       { text: "The letter over the spirit", hurtsOthers: true },
     ],
-    spot: "Has a system for everything: the budget, the packing list, the training plan. Quotes the actual rule. Gets uneasy at “it depends.” Asks what the principle is before deciding what to do.",
-    stress: "Tightens. More procedure, more precision, less give. When the world gets chaotic, they hold on harder to the code.",
-    group:
-      "At best, a Ravenclaw crowd keeps everyone honest with real standards and real rigor. At worst it runs purity tests, splits over doctrine, and looks down on anyone who hasn’t read the source material.",
-    work: "Explain the why, not just the what. Be consistent, and don’t promise what you won’t deliver. If you need them to bend, give them a principle that allows it; pressure alone makes them dig in.",
+    spot: "Has a system for the budget, the packing list and the training plan. Quotes the actual rule. Gets uneasy at “it depends.”",
+    stress: "Tightens. More procedure, less give.",
+    work: "Explain why. Be consistent. If you need them to bend, give them a principle that allows it, because pressure makes them dig in.",
     best: {
       who: "Luna Lovegood",
-      text: "Holds to her own convictions in front of a whole school that mocks her for them, and never trades them for approval.",
+      text: "Keeps her convictions while the whole school mocks her for them.",
     },
     worst: {
       who: "Percy Weasley",
-      text: "Chooses the Ministry’s rules and his own career over his family, and cuts them off for years.",
+      text: "Picks the Ministry and his career over his family, and cuts them off for years.",
     },
     outside:
-      "Atticus Finch and Inspector Javert run on the same driver. One holds to the law when his whole town turns on him. The other hunts a reformed man for decades because the law says so.",
-    growth: "Borrow boldness. Some decisions have no rule that covers them. Make the call anyway, and own it.",
-    misread:
-      "“Ravenclaws are the smart ones.” Smart people are everywhere; Hermione, Snape and Dumbledore were all brilliant. Ravenclaws are the principled ones, whatever their principle happens to be.",
+      "Atticus Finch and Javert share the driver. One holds to the law when his town turns on him. The other hunts a reformed man for decades because the law says to.",
+    growth: "Borrow boldness. When no rule covers it, make the call and own it.",
+    misread: "“Ravenclaws are the smart ones.” Hermione, Snape and Dumbledore were all brilliant. Ravenclaws are the principled ones, whatever the principle.",
     sig: {
       best: "Integrity",
       flaw: "Rigidity",
@@ -120,7 +114,7 @@ export const houses: Record<Key, House> = {
       stress: "Tightens",
       mono: "Insists the turn be replayed",
     },
-    low: "Your principles may bend more than you realize. A few rules set in advance protect you from your own rationalizing.",
+    low: "Your principles may bend more than you think. A few rules set in advance protect you from your own excuses.",
   },
   h: {
     id: "hufflepuff",
@@ -131,8 +125,8 @@ export const houses: Record<Key, House> = {
     firstQuestion: "Who does this affect?",
     axes: "Heart × Beyond self",
     def: [
-      "A Hufflepuff’s decisions run through other people. Before they ask what’s right or what works, they ask who gets hurt, who gets left out, and what this will do to the relationship. Loyalty, fairness and hard work, the classic Hufflepuff traits, are all things relationship-driven people do for their people.",
-      "That orientation makes them the people everyone trusts. It also makes them the easiest house to steer, and the house most likely to go along when their group goes wrong. The usual framing gives Hufflepuff only gentle flaws, like being a pushover. The honest version has teeth: a loyal group can cover for almost anything.",
+      "A Hufflepuff decides through other people. Before asking what’s right or what works, they ask who gets hurt and what it does to the relationship. Loyalty, fairness and hard work are what that looks like.",
+      "It makes them the people everyone trusts. It also makes them easy to steer, and likely to go along when their group goes wrong. A loyal group can cover for almost anything.",
     ],
     healthy: ["Empathy", "Loyalty", "Generosity", "Inclusion", "Trustworthiness", "Forgiveness"],
     unchecked: [
@@ -144,24 +138,20 @@ export const houses: Record<Key, House> = {
       { text: "Tribalism", hurtsOthers: true },
       { text: "Guilt-tripping", hurtsOthers: true },
     ],
-    spot: "Remembers your kids’ names. Notices who hasn’t said anything yet. Says “I’m fine with whatever” and mostly means it. Apologizes for things that aren’t their fault. Is usually the one hosting.",
-    stress: "Tends the group and swallows their own needs, right up until the resentment comes out sideways.",
-    group:
-      "At best, Hufflepuffs build the strongest culture in any building, where nobody gets left behind. At worst they form cliques, close ranks, and protect their own over the truth.",
-    work: "Ask how they’re doing and wait for the real answer. Give them explicit permission to disagree. Never use their loyalty as leverage; they’ll notice eventually, and they won’t forget.",
+    spot: "Remembers your kids’ names. Notices who hasn’t spoken. Says “I’m fine with whatever” and means it. Usually the one hosting.",
+    stress: "Looks after everyone else and swallows their own needs, until the resentment comes out sideways.",
+    work: "Ask how they are and wait for the real answer. Tell them it’s fine to disagree. Never use their loyalty as leverage.",
     best: {
       who: "Cedric Diggory",
-      text: "Repays Harry’s dragon warning with the clue to the golden egg, then tries to hand Harry the win at the end of the maze. His courage runs on fairness to other people.",
+      text: "Repays Harry’s dragon warning with the egg clue, then tries to give Harry the win in the maze.",
     },
     worst: {
       who: "Remus Lupin",
-      text: "Stays quiet while his friends bully a classmate, and hides that Sirius is an Animagus from Dumbledore, all to avoid losing people he loves.",
+      text: "Stays quiet while his friends bully a classmate, and hides Sirius’s secret from Dumbledore, to keep his friends.",
     },
-    outside:
-      "Narcissa Malfoy shows both directions in one person. She backs a monstrous cause for years because it’s her family’s world, then lies to Voldemort’s face to protect her son.",
-    growth: "Borrow strategy. Ask what your kindness is actually achieving, and who benefits when you avoid the fight.",
-    misread:
-      "“Hufflepuffs are the nice ones,” or worse, the leftovers. Their shadow is as real as anyone’s. Closing ranks around a friend who did something wrong is a Hufflepuff move.",
+    outside: "Narcissa Malfoy backs a monstrous cause because it’s her family’s, then lies to Voldemort’s face for her son.",
+    growth: "Borrow strategy. Ask what your kindness is achieving, and who benefits when you avoid the fight.",
+    misread: "“Hufflepuffs are the nice ones.” Closing ranks around a friend who did wrong is a Hufflepuff move too.",
     sig: {
       best: "Loyalty",
       flaw: "Conflict avoidance",
@@ -180,8 +170,8 @@ export const houses: Record<Key, House> = {
     firstQuestion: "What gets me where I’m going?",
     axes: "Head × Self",
     def: [
-      "A Slytherin decides by playing the situation forward. What are the options, where does each one lead, and which gets the result they want? Cunning and ambition are what strategy looks like from the outside, but the driver underneath is neutral. Strategic people are resourceful, inventive and calculated, and they’re at their best when the pressure is highest.",
-      "The same analysis can produce a courageous act or a selfish one. A strategist can calculate their way into a sacrifice, or into a rationalization that makes anything feel justified. That’s why a Slytherin is exactly as good as their goal.",
+      "A Slytherin plays the situation forward. What are the options, where does each lead, and which one wins? Cunning and ambition are how that looks from outside. The driver itself is neutral.",
+      "The same math can produce a sacrifice or an excuse. A Slytherin is exactly as good as their goal.",
     ],
     healthy: ["Resourcefulness", "Foresight", "Calm under pressure", "Innovation", "Negotiation", "Calculated sacrifice"],
     unchecked: [
@@ -192,24 +182,20 @@ export const houses: Record<Key, House> = {
       { text: "Ruthlessness", hurtsOthers: true },
       { text: "Treating people as pieces", hurtsOthers: true },
     ],
-    spot: "Asks “what’s the play?” Always has a plan B. Reads incentives the way other people read faces. Negotiates by reflex. Stays quiet until they move, then moves all at once.",
-    stress: "Gets quiet and calculating. Looks for leverage, cuts losses fast, and sometimes the losses are people.",
-    group:
-      "At best, a Slytherin crowd is the most effective team in a crisis. At worst it turns cutthroat and paranoid, with everyone working an angle on everyone else.",
-    work: "Make the goal clear and shared, so their strategy works for it. Be open about incentives; they’ll find them anyway. Respect competence, and give them hard problems instead of busywork.",
+    spot: "Asks “what’s the play?” Has a plan B. Reads incentives the way other people read faces. Quiet until they move.",
+    stress: "Goes quiet and looks for leverage. Cuts losses fast, and sometimes the losses are people.",
+    work: "Make the goal shared so their plan serves it. Be open about incentives, since they’ll find them anyway. Give them hard problems.",
     best: {
       who: "Regulus Black",
-      text: "Works out the secret behind Voldemort’s power, plans a way to undermine it, and walks knowingly to his own death to carry it out.",
+      text: "Works out Voldemort’s secret, plans to undo it, and walks to his own death to carry it out.",
     },
     worst: {
       who: "Lord Voldemort",
-      text: "The same machinery aimed entirely at himself. Every plan, every alliance and every person is a means to his own survival.",
+      text: "The same machinery aimed at himself. Every person is a means to his survival.",
     },
-    outside:
-      "Odysseus and Littlefinger run on the same engine. One schemes his way home to his family. The other schemes his way up the ladder and lets the kingdom burn to keep climbing.",
-    growth: "Borrow relationships. Ask who pays for the plan, and whether you could explain it to their face.",
-    misread:
-      "“Slytherins are the bad ones.” Strategy doesn’t pick a side. The ones who aim it at something bigger than themselves are some of the bravest people in the story.",
+    outside: "Odysseus and Littlefinger share the engine. One schemes his way home. The other schemes his way up and lets the kingdom burn.",
+    growth: "Borrow relationships. Ask who pays for the plan, and whether you’d explain it to their face.",
+    misread: "“Slytherins are the bad ones.” Strategy doesn’t pick a side, and some of the bravest people in the story are Slytherins.",
     sig: {
       best: "Resourcefulness",
       flaw: "Rationalization",
@@ -217,6 +203,6 @@ export const houses: Record<Key, House> = {
       stress: "Calculates",
       mono: "Keeps the sticky $500 quiet",
     },
-    low: "You may act without playing it forward. Ask where this leads three moves from now.",
+    low: "You may act without thinking ahead. Ask where this leads three moves from now.",
   },
 };

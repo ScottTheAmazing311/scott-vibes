@@ -46,8 +46,7 @@ export default function CanonGrid() {
           {gTotal}
         </span>
         <p>
-          Of the {gTotal} Gryffindors on this list, {gMoved} end up in another house. That’s the padding showing: the original sort put
-          most of the heroes in one place, whatever actually drove them.
+          Gryffindors who move. The books put most of the heroes in one house.
         </p>
       </Reveal>
 
@@ -56,7 +55,7 @@ export default function CanonGrid() {
           All <span className="n">{canon.length}</span>
         </button>
         <button className="rs-filter" aria-pressed={filter === "moved"} onClick={() => setFilter("moved")}>
-          Moved houses <span className="n">{movedCount}</span>
+          Moved <span className="n">{movedCount}</span>
         </button>
         {readingOrder.map((k) => (
           <button key={k} className="rs-filter" aria-pressed={filter === k} onClick={() => setFilter(k)}>
@@ -79,10 +78,7 @@ export default function CanonGrid() {
               data-moved={moved ? "" : undefined}
             >
               <div className="rs-person-top">
-                <div>
-                  <h3>{c.name}</h3>
-                  <span className="rs-status">{moved ? "Moves" : "Stays"}</span>
-                </div>
+                <h3>{c.name}</h3>
                 <Mover from={c.canon} to={c.resorted} />
               </div>
               <div className="rs-person-path">
@@ -93,7 +89,7 @@ export default function CanonGrid() {
                 <span className="sr-only">re-sorted to</span>
                 <span style={{ color: `var(--${c.resorted})` }}>{houses[c.resorted].name}</span>
               </div>
-              {c.secondary && <span className="rs-person-streak">with a {houses[c.secondary].name} streak</span>}
+              {c.secondary && <span className="rs-person-streak">{houses[c.secondary].name} streak</span>}
               <p>{c.why}</p>
             </Reveal>
           );

@@ -14,10 +14,9 @@ import RelationshipSquare from "@/components/resorted/RelationshipSquare";
 import Reveal from "@/components/resorted/Reveal";
 import Rooms from "@/components/resorted/Rooms";
 import TopBar from "@/components/resorted/TopBar";
-import { canon, capacities, collisions, pairs, scenarios } from "@/lib/resorted/content";
+import { capacities, collisions, pairs, scenarios } from "@/lib/resorted/content";
 import { houses } from "@/lib/resorted/houses";
 import { mapOrder, readingOrder, type Key } from "@/lib/resorted/model";
-import { blends } from "@/lib/resorted/quiz-data";
 
 const navLinks = [
   { href: "#idea", label: "Idea" },
@@ -31,102 +30,93 @@ const navLinks = [
 ];
 
 const originalDeal: { k: Key; traits: string; reads: string; rigged?: boolean }[] = [
-  { k: "g", traits: "brave, daring, chivalrous", reads: "all compliments" },
-  { k: "r", traits: "wit, learning, wisdom", reads: "all compliments" },
-  { k: "h", traits: "loyal, patient, hard-working", reads: "quiet compliments" },
-  { k: "s", traits: "cunning, ambitious, any means necessary", reads: "a villain’s résumé", rigged: true },
+  { k: "g", traits: "brave, daring, chivalrous", reads: "compliments" },
+  { k: "r", traits: "witty, learned, wise", reads: "compliments" },
+  { k: "h", traits: "loyal, patient, hard-working", reads: "mild compliments" },
+  { k: "s", traits: "cunning, ambitious", reads: "a rap sheet", rigged: true },
 ];
 
 const principles = [
-  { title: "One driver per house", text: "A motivating force, not a trait. It explains why someone acts, not just how it looks." },
-  { title: "Every driver cuts both ways", text: "The same driver has to produce a hero and a villain, or it’s padding." },
-  { title: "No free passes", text: "Each house is equally compelling to join and equally problematic to be." },
-  { title: "Sort by tiebreaker", text: "Everyone uses all four. Your house is the one that wins when they collide." },
+  { title: "One driver per house", text: "A driver explains why someone acts." },
+  { title: "Every driver cuts both ways", text: "Each one has to produce a hero and a villain." },
+  { title: "No free passes", text: "Every house is as risky as it is appealing." },
+  { title: "Sort by tiebreaker", text: "Everyone uses all four. Your house wins when they collide." },
 ];
 
 const spectra: { a: { title: string; text: string; chips: Key[] }; b: { title: string; text: string; chips: Key[] } }[] = [
   {
-    a: { title: "Heart", text: "Decides by instinct and feeling. Trusts the gut or the people in the room.", chips: ["g", "h"] },
-    b: { title: "Head", text: "Decides by analysis. Wants it to make sense before acting on it.", chips: ["r", "s"] },
+    a: { title: "Heart", text: "Goes with the gut, or with the people in the room.", chips: ["g", "h"] },
+    b: { title: "Head", text: "Needs it to make sense first.", chips: ["r", "s"] },
   },
   {
-    a: { title: "Self", text: "Answers to their own conviction or their own goals.", chips: ["g", "s"] },
-    b: { title: "Beyond self", text: "Answers to something bigger: a code or a community.", chips: ["r", "h"] },
+    a: { title: "Self", text: "Answers to their own conviction or goals.", chips: ["g", "s"] },
+    b: { title: "Beyond self", text: "Answers to a code or a community.", chips: ["r", "h"] },
   },
 ];
 
 const squarePoints = [
   {
     focus: "rivals" as const,
-    title: "Why Gryffindor and Slytherin are the rivalry",
-    text: "They’re the two houses that answer to themselves, so they compete for the same thing: who leads. The only difference is method, gut versus plan.",
+    title: "Gryffindor and Slytherin are the rivalry",
+    text: "Both answer to themselves, so they fight over who leads. One goes by gut, the other by plan.",
   },
   {
     focus: "background" as const,
-    title: "Why Ravenclaw and Hufflepuff sit in the background",
-    text: "Both defer to something outside themselves, a code or a community. They rarely grab the spotlight, because the spotlight isn’t what they answer to.",
+    title: "Ravenclaw and Hufflepuff stay in the background",
+    text: "Both answer to something outside themselves, so they rarely chase the spotlight.",
   },
   {
     focus: "diagonals" as const,
-    title: "Why the diagonals clash",
-    text: "Gryffindor and Ravenclaw, and Hufflepuff and Slytherin, are opposite on both axes. They share nothing, which makes them the hardest pairs and the best teachers for each other.",
+    title: "The diagonals clash",
+    text: "Gryffindor and Ravenclaw, and Hufflepuff and Slytherin, are opposite on both axes. They’re the hardest pairs and have the most to teach each other.",
   },
 ];
 
 const traditions: { k: Key; name: string; text: string; fails: string }[] = [
-  { k: "g", name: "Conviction", text: "Act on what you believe. Character is proven in action, not in theory.", fails: "certainty with nothing to check it." },
-  { k: "s", name: "Outcomes", text: "The right choice is the one that produces the best result.", fails: "the ends justifying the means." },
-  { k: "h", name: "Care", text: "Morality lives in your responsibilities to particular people.", fails: "my people over everyone else." },
-  {
-    k: "r",
-    name: "Duty",
-    text: "Some acts are right or wrong no matter how they turn out.",
-    fails: "Kant’s famous claim that you shouldn’t lie even to a murderer at your door.",
-  },
+  { k: "g", name: "Conviction", text: "Act on what you believe.", fails: "certainty with no check on it." },
+  { k: "s", name: "Outcomes", text: "The right choice gets the best result.", fails: "the ends justifying the means." },
+  { k: "h", name: "Care", text: "Morality lives in what you owe particular people.", fails: "my people over everyone else." },
+  { k: "r", name: "Duty", text: "Some acts are wrong whatever the result.", fails: "Kant refusing to lie to a murderer at the door." },
 ];
 
 const faq = [
   {
     q: "Which house is the best?",
-    a: "None of them, by design. Here’s the test: for every house, you should be able to name someone you’d want in your corner and someone you’d never trust, and both should be sorted correctly. If a house only produces heroes, its traits are padded. If it only produces villains, it’s been rigged.",
+    a: "None. Every house should produce someone you’d want in your corner and someone you’d never trust.",
   },
   {
     q: "Isn’t this just choosing which flaws you like?",
-    a: "Partly, and that’s the point. Choosing a house means choosing which virtues you want and which failures you’re willing to watch for in yourself. The original system let some houses keep only the virtues.",
+    a: "Partly. Picking a house means picking the failures you’ll watch for in yourself.",
   },
   {
     q: "Can your house change?",
-    a: "Your dominant driver tends to stay put, especially under stress, which is when people fall back on it. Your secondary can grow a lot. Neville Longbottom’s boldness barely existed at eleven, and at seventeen he was leading a resistance.",
+    a: "Your dominant driver mostly stays put, especially under stress. Your secondary can grow. Neville was timid at eleven and leading a resistance at seventeen.",
   },
   {
     q: "What if my top two are nearly tied?",
-    a: "That’s common, and it’s useful. A near tie means two drivers trade the lead depending on the situation. The quiz gives you a blend, which often describes a person better than a single house does.",
+    a: "Then the lead trades with the situation. The quiz gives you a blend for that.",
   },
   {
     q: "Where did intelligence go?",
-    a: "Everywhere. It’s a capacity, like courage, and every driver uses it differently. A Ravenclaw goes deep, a Slytherin plays it forward, a Hufflepuff reads people, and a Gryffindor reads the moment.",
+    a: "Every house has it. Ravenclaws go deep, Slytherins think ahead, Hufflepuffs read people and Gryffindors read the moment.",
   },
   {
     q: "Why do so many Gryffindors move?",
-    a: "Because the books used Gryffindor as the home for the good guys. Sorting by driver instead of virtue spreads those people out: the rule-keepers go to Ravenclaw, the loyal ones go to Hufflepuff, and the long-game planners go to Slytherin.",
+    a: "The books put the good guys in Gryffindor. Sorted by driver, the rule-keepers go to Ravenclaw, the loyal ones to Hufflepuff and the planners to Slytherin.",
   },
   {
     q: "Isn’t Ravenclaw just “follows the rules”?",
-    a: "Only if the rules are their code. A Ravenclaw follows whatever system they believe in, and that system can be homemade, unpopular, or in open defiance of the school. What matters is that they’ll follow it when it costs them.",
+    a: "Only their own rules. Luna’s code is homemade. What counts is keeping it when it costs something.",
   },
   {
     q: "Where does the Sorting Hat fit?",
-    a: "The books sort by traits, and traits are outputs. This framework sorts by driver, the input. The Hat also famously listens to what you ask for, and what someone asks for is a pretty good clue to their driver.",
+    a: "The Hat sorts by traits. This sorts by the driver behind them. The Hat also listens to what you ask for, which says a lot about your driver.",
   },
 ];
 
-function Head({ kicker, children, lede }: { kicker: string; children: React.ReactNode; lede?: string }) {
+function Head({ children, lede }: { children: React.ReactNode; lede?: string }) {
   return (
     <Reveal className="rs-section-head">
-      <span className="rs-kicker">
-        <Glyph active="all" size={10} />
-        {kicker}
-      </span>
       <h2 className="rs-h2">{children}</h2>
       {lede && <p className="rs-lede">{lede}</p>}
     </Reveal>
@@ -144,41 +134,18 @@ export default function ResortedPage() {
         <section className="rs-hero" data-room="none">
           <div className="rs-wrap rs-hero-grid">
             <Reveal>
-              <span className="rs-kicker">An unofficial re-sorting of the four houses</span>
               <h1 className="rs-h1">
                 Every house runs on <em>one</em> driver.
               </h1>
-              <p className="rs-lede">
-                Courage, intelligence, loyalty and ambition are things anyone can have. This framework sorts people by what they consult
-                first when a decision gets hard. Every driver produces heroes and villains, so every house is equally worth wanting and
-                equally capable of going wrong.
-              </p>
+              <p className="rs-lede">Anyone can be brave or clever. Your house is what you check first when a decision gets hard.</p>
               <div className="rs-ctas">
                 <a href="#quiz" className="rs-btn rs-btn-primary">
-                  Take the 28-question quiz
-                </a>
-                <a href="#idea" className="rs-btn rs-btn-ghost">
-                  Read the framework
+                  Take the quiz
                 </a>
               </div>
-              <p className="rs-stats">
-                <span>
-                  <b>4</b> drivers
-                </span>
-                <span>
-                  <b>2</b> axes
-                </span>
-                <span>
-                  <b>{canon.length}</b> characters re-sorted
-                </span>
-                <span>
-                  <b>{Object.keys(blends).length}</b> blends
-                </span>
-              </p>
             </Reveal>
             <Reveal delay={160}>
               <Compass />
-              <p className="rs-compass-caption">Every hard decision sends you to one of four questions first. That question is your house.</p>
             </Reveal>
           </div>
         </section>
@@ -186,25 +153,18 @@ export default function ResortedPage() {
         {/* The problem */}
         <section id="idea" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head kicker="The problem">Why the original four don’t work</Head>
+            <Head>Why the original four don’t work</Head>
             <div className="rs-split">
               <Reveal className="rs-prose">
                 <p>
-                  The classic house traits aren’t a fair fight. Gryffindor gets bravery, daring and chivalry, which are all compliments.
-                  Slytherin gets cunning and ambition, which is the vocabulary you’d use to describe the devil. With the deck stacked
-                  like that, everyone wants the same house and nobody wants the other one.
+                  Gryffindor gets brave, daring and chivalrous. Slytherin gets cunning and ambitious. One list is compliments and the other
+                  is a rap sheet, so everyone wants the same house.
                 </p>
                 <p>
-                  The traits also fall apart as sorting rules. Courage can’t define a house, because anyone can be brave. Cedric Diggory
-                  was brave, and he was a Hufflepuff. Seamus Finnigan was sorted for bravery and is mostly remembered for blowing things
-                  up. Intelligence can’t define a house either: Hermione, Snape and Dumbledore were all brilliant, and none of them were
-                  Ravenclaws.
+                  The traits don’t sort people, either. Cedric was brave and a Hufflepuff. Hermione, Snape and Dumbledore were brilliant
+                  and none of them were Ravenclaws.
                 </p>
-                <p>
-                  Courage, intelligence, loyalty and ambition are capacities, and any driver can produce them. What separates people is
-                  the driver underneath: the thing they consult first when a decision gets hard. So the fix is to give each house one
-                  driver, and to choose drivers that produce real virtues and real vices from the same source.
-                </p>
+                <p>So each house gets one driver instead, and every driver produces heroes and villains.</p>
               </Reveal>
               <Reveal delay={120}>
                 <span className="rs-label" style={{ display: "block", marginBottom: 16 }}>
@@ -230,10 +190,6 @@ export default function ResortedPage() {
                     </div>
                   ))}
                 </div>
-                <p className="rs-deal-note">
-                  Three houses get padded lists of virtues and one gets a warning label. The re-sort gives every house one neutral driver
-                  that cuts both ways.
-                </p>
               </Reveal>
             </div>
 
@@ -250,12 +206,11 @@ export default function ResortedPage() {
             <div className="rs-sub">
               <Reveal className="rs-sub-head">
                 <h3 className="rs-h3">Same virtue, four drivers</h3>
-                <p className="rs-sublede">Every classic house trait shows up in every house. The driver changes what it looks like.</p>
               </Reveal>
               <Reveal>
                 <QuadSwitch
                   label="Virtues"
-                  prompt="Pick a virtue"
+                  prompt="Virtue"
                   items={capacities.map((c) => ({ title: c.title, values: { g: c.g, r: c.r, h: c.h, s: c.s } }))}
                 />
               </Reveal>
@@ -266,12 +221,7 @@ export default function ResortedPage() {
         {/* The structure */}
         <section id="map" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head
-              kicker="The structure"
-              lede="Do you decide with your head or your heart? And do you answer to yourself, or to something beyond yourself? Plot the four drivers on those two axes and they land one per corner. The houses stop being a list and become a map."
-            >
-              Two questions sit underneath the four houses
-            </Head>
+            <Head lede="Head or heart? Yourself or something bigger? Each house takes one corner.">Two questions under the four houses</Head>
 
             <div className="rs-spectra">
               {spectra.map((row, i) => (
@@ -299,11 +249,8 @@ export default function ResortedPage() {
 
             <div className="rs-sub">
               <Reveal className="rs-sub-head">
-                <h3 className="rs-h3">Four serious ethical traditions</h3>
-                <p className="rs-sublede">
-                  Each driver lines up with a real school of moral thought. That’s the strongest case that no house is the default good
-                  one: each tradition is respectable, and each has a famous way of going wrong.
-                </p>
+                <h3 className="rs-h3">Four ethical traditions</h3>
+                <p className="rs-sublede">Each driver matches a real school of moral thought, and each school has a known way of failing.</p>
               </Reveal>
               <div className="rs-trads">
                 {traditions.map((t, i) => (
@@ -328,21 +275,17 @@ export default function ResortedPage() {
         {/* How sorting works */}
         <section id="tiebreaker" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head kicker="How sorting works">Everyone runs all four drivers</Head>
+            <Head>Everyone runs all four</Head>
             <div className="rs-split">
               <Reveal>
                 <p className="rs-lede" style={{ marginTop: 0 }}>
-                  Nobody is purely bold or purely strategic. Most everyday choices don’t force a ranking, because the bold move, the
-                  right move, the kind move and the smart move are often the same move. A house only shows up when drivers collide. Your
-                  house is the driver that wins the tie.
+                  Most choices don’t force a ranking. The bold move and the kind move are often the same move. Your house shows up when
+                  they split.
                 </p>
-                <p className="rs-pull">
-                  Dumbledore once wondered aloud to Snape whether they sort too soon. This framework agrees. Watch someone when two
-                  drivers point in different directions and you’ll see their house.
-                </p>
+                <p className="rs-pull">Dumbledore told Snape he wondered if they sort too soon. Sort people when two drivers disagree.</p>
               </Reveal>
               <Reveal className="rs-profile" delay={120}>
-                <span className="rs-label">An example profile</span>
+                <span className="rs-label">Example</span>
                 <Bars
                   data={[
                     { k: "g", value: 38 },
@@ -351,16 +294,13 @@ export default function ResortedPage() {
                     { k: "r", value: 14 },
                   ]}
                 />
-                <p className="rs-profile-note">
-                  This person is a Gryffindor with a strong Hufflepuff streak. They still play strategically and still have principles;
-                  those just lose most tiebreakers.
-                </p>
+                <p className="rs-profile-note">A Gryffindor with a Hufflepuff streak. Strategy and principle are still there. They just lose the tiebreaks.</p>
               </Reveal>
             </div>
 
             <div className="rs-sub">
               <Reveal className="rs-sub-head">
-                <h3 className="rs-h3">The six collisions that reveal a house</h3>
+                <h3 className="rs-h3">Six collisions</h3>
               </Reveal>
               <div className="rs-collisions">
                 {collisions.map((c, i) => (
@@ -383,12 +323,7 @@ export default function ResortedPage() {
         {/* The four houses */}
         <section id="houses" className="rs-section" style={{ paddingBottom: 0 }}>
           <div className="rs-wrap" data-room="none">
-            <Head
-              kicker="The four houses"
-              lede="Every house gets the same treatment: the driver, what it produces when it’s healthy and when it’s unchecked, how to spot one, how it behaves under stress, and a hero and a villain who run on the same engine."
-            >
-              Each house, in full
-            </Head>
+            <Head>The four houses</Head>
             <Reveal className="rs-doors">
               {readingOrder.map((k) => (
                 <a key={k} href={`#${houses[k].id}`} className="rs-door" style={hv(k)}>
@@ -398,7 +333,6 @@ export default function ResortedPage() {
                   <span className="rs-door-name">{houses[k].name}</span>
                   <span className="rs-door-meta">
                     <span>{houses[k].driver}</span>
-                    <span aria-hidden="true">→</span>
                   </span>
                 </a>
               ))}
@@ -415,12 +349,7 @@ export default function ResortedPage() {
         {/* Monopoly */}
         <section id="monopoly" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head
-              kicker="The test case"
-              lede="Put one of each house at a Monopoly table and the drivers show up within the hour. A board game works because it has everything at once: rules to follow or bend, money to grab, alliances to make, and friends to keep. Pick a round."
-            >
-              The Monopoly test
-            </Head>
+            <Head lede="One of each house at a Monopoly table. Pick a round.">The Monopoly test</Head>
             <Reveal>
               <MonopolyTable />
             </Reveal>
@@ -430,17 +359,12 @@ export default function ResortedPage() {
         {/* Drivers in the wild */}
         <section id="wild" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head
-              kicker="Higher stakes"
-              lede="Each house’s first instinct in four situations. None of these answers is the right one, and each of them can go wrong."
-            >
-              The drivers in the wild
-            </Head>
+            <Head lede="Each house’s first instinct. None of them is the right answer.">Higher stakes</Head>
             <Reveal>
               <QuadSwitch
                 variant="sentence"
                 label="Situations"
-                prompt="Pick a situation"
+                prompt="Situation"
                 items={scenarios.map((s) => ({ title: s.title, values: { g: s.g, r: s.r, h: s.h, s: s.s } }))}
               />
             </Reveal>
@@ -450,10 +374,7 @@ export default function ResortedPage() {
         {/* Pairs */}
         <section id="pairs" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head
-              kicker="Relationships"
-              lede="Neighbors on the map share an axis and make natural allies. Diagonal houses share nothing, which makes them the hardest pairs and the most useful to each other. Your growth edge is always across the diagonal."
-            >
+            <Head lede="Neighbors share an axis and get along. Diagonals share nothing and have the most to learn from each other.">
               How the houses get along
             </Head>
             <div className="rs-pairs">
@@ -478,10 +399,7 @@ export default function ResortedPage() {
         {/* Canon */}
         <section id="canon" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head
-              kicker="Applied"
-              lede="Run the books’ characters through the drivers and a lot of people move. These are arguments, not rulings, and disagreeing about them is half the fun."
-            >
+            <Head lede="The books’ characters, sorted by driver. Argue with it.">
               Hogwarts, <em>re-sorted</em>
             </Head>
             <CanonGrid />
@@ -491,7 +409,7 @@ export default function ResortedPage() {
         {/* FAQ */}
         <section id="faq" className="rs-section" data-room="none">
           <div className="rs-wrap">
-            <Head kicker="Objections">Questions and edge cases</Head>
+            <Head>Questions</Head>
             <div className="rs-faq">
               {faq.map((item, i) => (
                 <Reveal key={item.q} className="rs-faq-item" delay={(i % 2) * 80}>
@@ -509,16 +427,11 @@ export default function ResortedPage() {
             <Quiz
               intro={
                 <>
-                  <span className="rs-kicker">
-                    <Glyph active="all" size={10} />
-                    28 questions · about 6 minutes
-                  </span>
                   <h2 className="rs-h2">
                     The sorting <em>quiz</em>
                   </h2>
                   <p className="rs-lede">
-                    Find your dominant and secondary drivers. Tap the answer that sounds most like you, then tap a second one if it also
-                    fits. Your first choice is worth 3 points and your second is worth 1.
+                    28 questions. Pick the answer most like you, and a second if it also fits. First picks count 3 points, second picks 1.
                   </p>
                 </>
               }
@@ -534,12 +447,9 @@ export default function ResortedPage() {
               <Glyph active="all" size={34} />
               Re-Sorted
             </span>
-            <p>
-              <b>Re-Sorted</b> is an unofficial fan framework for talking about characters and people. It isn’t affiliated with the Harry
-              Potter books, the films, or their publishers.
-            </p>
+            <p>An unofficial fan project. Not affiliated with the Harry Potter books, the films, or their publishers.</p>
           </div>
-          <a href="#top">Back to top ↑</a>
+          <a href="#top">Back to top</a>
         </div>
       </footer>
     </>
