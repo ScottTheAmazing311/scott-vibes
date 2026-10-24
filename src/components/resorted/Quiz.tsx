@@ -26,6 +26,10 @@ import { hv } from "./hv";
 const STORAGE_KEY = "resorted-last-result";
 const ROOM_HEX: Record<Key | "none", string> = { none: "#6f7890", g: "#f0694f", r: "#86a5ff", h: "#ecbf57", s: "#55cf97" };
 const TOTAL = questions.length;
+const QUIZ_URL = "https://www.scottvibes.com/resorted#quiz";
+// Emoji only in the shared text, where SVG can't go.
+const SHARE_EMOJI: Record<Key, string> = { g: "🦁", r: "🦅", h: "🦡", s: "🐍" };
+const SHARE_SQUARE: Record<Key, string> = { g: "🟥", r: "🟦", h: "🟨", s: "🟩" };
 
 type Saved = { sc: Scores; fc: Scores; t: number };
 
@@ -260,11 +264,24 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
     };
   }, [dom]);
 
-  const copyText = `My Re-Sorted result: ${houses[dom].name} (${houses[dom].driverLong}) with a ${houses[sec].name} streak. Blend: ${blend.name}. ${ranked
-    .map((k) => `${houses[k].name} ${pct[k]}%`)
-    .join(" · ")}`;
+  const copyText = [
+    `${SHARE_EMOJI[dom]} I got re-sorted into ${houses[dom].name}, with a ${houses[sec].name} streak`,
+    `${blend.name} · ${houses[dom].driverLong}`,
+    "",
+    ...ranked.map((k) => `${SHARE_SQUARE[k].repeat(Math.max(1, Math.round(pct[k] / 10)))} ${houses[k].name} ${pct[k]}%`),
+    "",
+    `Take the quiz: ${QUIZ_URL}`,
+  ].join("\n");
 
-  async function copy() {
+  async function share() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: copyText });
+        return;
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+      }
+    }
     try {
       await navigator.clipboard.writeText(copyText);
       setCopied(true);
@@ -371,8 +388,8 @@ function QuizResult({ sc, fc, onRetake }: { sc: Scores; fc: Scores; onRetake: ()
       </div>
 
       <div className="rs-actions">
-        <button className="rs-btn rs-btn-primary" onClick={copy}>
-          {copied ? "Copied" : "Copy result"}
+        <button className="rs-btn rs-btn-primary" onClick={share}>
+          {copied ? "Copied" : "Share result"}
         </button>
         <a className="rs-btn rs-btn-ghost" href={`#${houses[dom].id}`}>
           Read about {houses[dom].name}
