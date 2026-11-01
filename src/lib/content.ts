@@ -346,6 +346,13 @@ export const sundayLessons: SundayLesson[] = [
     line: "From God to godliness.",
     deck: { dir: "/lessons/isaiah-58-66", count: 29 },
   },
+  {
+    slug: "jeremiah-lamentations",
+    title: "Jeremiah & Lamentations",
+    course: "Old Testament",
+    line: "Fear and suffering.",
+    deck: { dir: "/lessons/jeremiah-lamentations", count: 36 },
+  },
   { slug: "dc-3-5", title: "Doctrine & Covenants 3–5", course: "Doctrine & Covenants", audioId: "1xbPf612XWmN_3OA343znRPw5Syb1UpmX" },
   { slug: "dc-18", title: "Doctrine & Covenants 18", course: "Doctrine & Covenants", audioId: "1WA6qGteEqmnYPfUYNdgT2tdOIN3g2ivb" },
   { slug: "dc-41-44", title: "Doctrine & Covenants 41–44", course: "Doctrine & Covenants", audioId: "1AN7FjpnnOQgCPTMexPvxLztIBxije-ri" },
