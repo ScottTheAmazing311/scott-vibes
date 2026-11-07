@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0a09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Headway">
+<link rel="manifest" href="/headway/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/headway/icon-180.png">
+<link rel="icon" type="image/png" href="/headway/icon-192.png">
+<title>Headway</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@700;800;900&family=Hanken+Grotesk:wght@400;500;700;800&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>window.HEADWAY_HOSTED = true;</script>
+</head>
+<body>
+<style>
+/* Layout: station signage. Left column is the platform (countdown clock, service status, departures);
+   right column is the in-car strip map, the week's service diagram and the line roster. One column + bottom tabs on phones. */
+:root {
+  color-scheme: dark;
+  --ground: #0a0a09;
+  --sign: #121211;
+  --sign-2: #1a1a18;
+  --line: #2b2b28;
+  --rule: #f3f3ef;
+  --ink: #f6f6f2;
+  --dim: #a4a39c;
+  --faint: #6c6b65;
+  --panel: #f2f1eb;
+  --panel-ink: #151514;
+  --panel-dim: #76746c;
+  --panel-past: #cbc9c0;
+  --led: #ffad1f;
+  --led-glow: rgba(255, 173, 31, .5);
+  --led-off: rgba(255, 173, 31, .075);
+  --st-good: #1f8a3e;
+  --st-delay: #c8102e;
+  --st-crowd: #c45a00;
+  --st-open: #0039a6;
+  --st-allday: #4d4c47;
+  --f-sign: "Helvetica Neue", Helvetica, "Hanken Grotesk", sans-serif;
+  --f-led: "Doto", "Courier New", monospace;
+}
+html, body { background: var(--ground); color: var(--ink); }
+body { font: 400 15px/1.4 var(--f-sign); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--led); outline-offset: 2px; }
+
+.app { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 6px 104px; }
+
+/* ---- station sign header ---- */
+.station { padding-block: 10px 20px; }
+.stripe { height: 2px; background: var(--rule); margin-bottom: 14px; }
+.st-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.eyebrow { font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 9px; }
+h1 { margin: 0; font: 700 clamp(30px, 6.6vw, 46px)/1.02 var(--f-sign); letter-spacing: -.03em; text-wrap: balance; }
+.st-actions { display: flex; gap: 8px; flex: none; }
+.icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: var(--ink); background: var(--sign); transition: background .15s, color .15s; }
+.icon-btn:hover { border-color: var(--faint); }
+.icon-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.st-lines { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; min-height: 34px; }
+.bullets { display: flex; gap: 7px; flex-wrap: wrap; }
+.bullets button { border-radius: 50%; transition: opacity .2s, transform .2s; }
+.bullets button:hover { transform: translateY(-1px); }
+.bullets.filtering button:not([aria-pressed="true"]) { opacity: .25; }
+.allday { font: 700 11px/1 var(--f-sign); letter-spacing: .1em; text-transform: uppercase; border: 1px solid var(--line); border-radius: 999px; padding: 9px 12px; }
+.allday:hover { border-color: var(--faint); }
+.conn { margin-top: 14px; font-size: 13px; color: var(--dim); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.conn .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #3fbf5a; box-shadow: 0 0 0 3px rgba(63, 191, 90, .18); }
+.conn .sample-tag { font: 800 10px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--ground); background: var(--led); padding: 5px 7px; border-radius: 3px; }
+.conn .warn { color: #ffcf6b; }
+.conn .link { text-decoration: underline; text-underline-offset: 3px; color: var(--ink); }
+.btn-connect { display: inline-block; background: var(--ink); color: var(--ground); font-weight: 700; border-radius: 999px; padding: 8px 14px; font-size: 13px; text-decoration: none; }
+
+/* ---- bullets ---- */
+.bullet { --s: 28px; width: var(--s); height: var(--s); display: inline-grid; place-items: center; flex: none; border-radius: 50%; background: var(--b); color: var(--bf); font: 700 calc(var(--s) * .64)/1 var(--f-sign); letter-spacing: -.03em; text-shadow: none; text-transform: none; }
+.bullet i { font-style: normal; display: block; transform: translateY(.03em); }
+.bullet.diamond { width: calc(var(--s) * .76); height: calc(var(--s) * .76); margin: calc(var(--s) * .12); border-radius: 2px; transform: rotate(45deg); }
+.bullet.diamond i { transform: rotate(-45deg); }
+.bullet.sm { --s: 22px; }
+.bullet.lg { --s: 40px; }
+.bullet.xl { --s: 52px; }
+
+/* ---- countdown clock ---- */
+.led { position: relative; background: #050504 radial-gradient(circle, var(--led-off) 0 1.05px, transparent 1.35px) 0 0 / 5px 5px; border: 1px solid #262624; border-radius: 8px; box-shadow: inset 0 0 0 5px #11110f, inset 0 0 34px rgba(0, 0, 0, .9); padding: 16px 16px 12px; font-family: var(--f-led); color: var(--led); text-shadow: 0 0 6px var(--led-glow); text-transform: uppercase; }
+.led::before, .led::after { content: ""; position: absolute; top: -12px; width: 2px; height: 12px; background: #2b2b28; }
+.led::before { left: 22%; } .led::after { right: 22%; }
+.led-row { display: grid; grid-template-columns: 14px 24px minmax(0, 1fr) auto; gap: 10px; align-items: center; font-weight: 800; font-size: clamp(17px, 4.7vw, 21px); line-height: 1.25; padding-block: 4px; }
+.led-row.empty { grid-template-columns: 1fr; }
+.led-dest { white-space: nowrap; overflow: hidden; letter-spacing: .02em; }
+.led-min { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.led-foot { display: flex; gap: 14px; align-items: center; border-top: 1px dashed rgba(255, 173, 31, .2); margin-top: 8px; padding-top: 9px; font-size: 15px; font-weight: 700; }
+.ticker { overflow: hidden; white-space: nowrap; min-width: 0; flex: 1; }
+.ticker span { display: inline-block; padding-left: 100%; animation: tick 18s linear infinite; }
+@keyframes tick { to { transform: translateX(-100%); } }
+.led-clock { font-variant-numeric: tabular-nums; flex: none; }
+.led-clock b { font-weight: inherit; animation: colon 1s steps(2) infinite; }
+@keyframes colon { 50% { opacity: .2; } }
+.led.flash .led-row:first-child { animation: blink .5s steps(2) 10; }
+@keyframes blink { 50% { opacity: .12; } }
+
+/* ---- service status ---- */
+.status { margin-top: 16px; border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; gap: 1px; background: var(--panel-past); }
+.notice { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--panel); color: var(--panel-ink); padding: 11px 13px; }
+.notice .kind { display: flex; gap: 7px; align-items: center; font: 800 10.5px/1.5 var(--f-sign); letter-spacing: .1em; text-transform: uppercase; }
+.notice .sym { width: 10px; height: 10px; border-radius: 50%; background: var(--k); flex: none; }
+.notice.delay .sym, .notice.crowd .sym { border-radius: 1px; transform: rotate(45deg) scale(.9); }
+.notice p { margin: 0; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
+.notice.good { --k: var(--st-good); } .notice.delay { --k: var(--st-delay); } .notice.crowd { --k: var(--st-crowd); } .notice.open { --k: var(--st-open); } .notice.allday { --k: var(--st-allday); }
+.notice .kind { color: var(--k); }
+
+/* ---- departures ---- */
+.board-head { display: flex; justify-content: space-between; font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); padding: 24px 2px 10px; border-bottom: 1px solid var(--line); }
+.departures { list-style: none; margin: 0; padding: 0; }
+.dep { position: relative; border-bottom: 1px solid var(--line); }
+.dep-btn { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; width: 100%; text-align: left; padding: 14px 4px; }
+.dep-btn:hover .dep-title { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.dep .bullet { --s: 34px; }
+.dep-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font: 700 18px/1.2 var(--f-sign); letter-spacing: -.012em; overflow-wrap: anywhere; }
+.dep-sub { display: block; color: var(--dim); font-size: 13px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dep-eta { text-align: right; min-width: 58px; }
+.dep-eta b { display: block; font: 700 30px/1 var(--f-sign); letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+.dep-eta small { display: block; font: 700 9.5px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-top: 6px; }
+.dep.live { background: var(--sign-2); }
+.tag-live { display: block; font: 800 12px/1 var(--f-led); color: var(--led); text-shadow: 0 0 5px var(--led-glow); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+.dep-prog { position: absolute; left: 0; bottom: -1px; height: 2px; width: calc(var(--p) * 100%); background: var(--rule); }
+.dep.skip .dep-title { text-decoration: line-through; text-decoration-thickness: 2px; color: var(--faint); }
+.dep.skip .bullet { opacity: .4; }
+.tag-skip { display: block; font: 700 10px/1 var(--f-sign); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-bottom: 5px; }
+.dep.past { opacity: .45; }
+.dep-div { padding: 22px 4px 9px; font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); border-bottom: 1px solid var(--line); list-style: none; }
+.dep-empty { padding: 28px 4px; color: var(--dim); list-style: none; border-bottom: 1px solid var(--line); }
+.dep-empty b { display: block; color: var(--ink); font-size: 18px; margin-bottom: 4px; }
+.earlier { margin-top: 14px; font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); padding: 8px 4px; }
+.earlier:hover { color: var(--ink); }
+
+/* ---- views + tabs ---- */
+.view { display: none; }
+.view.is-active { display: block; }
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(10, 10, 9, .94); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--line); padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 0; font: 700 10.5px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); text-decoration: none; }
+.tab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tab[aria-current="page"] { color: var(--ink); }
+.sec-title { font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin: 0 0 12px; }
+.side-view { padding-top: 4px; }
+
+/* ---- strip map ---- */
+.days { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 14px; scrollbar-width: none; }
+.days::-webkit-scrollbar { display: none; }
+.daychip { flex: none; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 48px; padding: 8px 6px 9px; border: 1px solid var(--line); border-radius: 999px; font: 700 10px/1 var(--f-sign); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.daychip b { font-size: 17px; letter-spacing: -.02em; color: var(--ink); }
+.daychip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ground); }
+.daychip[aria-pressed="true"] b { color: var(--ground); }
+.strip { background: var(--panel); color: var(--panel-ink); border-radius: 10px; padding: 18px 16px 12px; }
+.strip-head { display: flex; gap: 12px; align-items: center; padding-bottom: 14px; border-bottom: 2px solid var(--panel-ink); margin-bottom: 8px; }
+.strip-head .bullets { flex: none; gap: 4px; }
+.toward { font: 700 21px/1.12 var(--f-sign); letter-spacing: -.02em; min-width: 0; overflow-wrap: anywhere; }
+.toward small { display: block; font-size: 12.5px; color: var(--panel-dim); margin-top: 4px; font-weight: 500; letter-spacing: 0; }
+.stops { list-style: none; margin: 0; padding: 0; }
+.stop, .gap, .cap { display: grid; grid-template-columns: 56px 30px minmax(0, 1fr); column-gap: 10px; position: relative; }
+.rail { position: relative; }
+.rail::before, .rail::after { content: ""; position: absolute; left: 50%; width: 8px; margin-left: -4px; }
+.stop .rail::before { top: 0; height: 21px; background: var(--cin, transparent); }
+.stop .rail::after { top: 21px; bottom: 0; background: var(--cout, transparent); }
+.gap .rail::before { top: 0; bottom: 0; background: var(--cin); }
+.cap .rail::before { top: 50%; bottom: 0; background: var(--cout, transparent); }
+.cap.end .rail::before { top: 0; bottom: 50%; background: var(--cin, transparent); }
+.dot { position: absolute; left: 50%; top: 21px; width: 17px; height: 17px; transform: translate(-50%, -50%); border-radius: 50%; background: #fff; border: 3px solid var(--panel-ink); z-index: 1; }
+.stop.transfer .dot { height: calc(17px + (var(--n) - 1) * 50px); border-radius: 9px; transform: translate(-50%, -8.5px); }
+.stop.here .dot { background: var(--led); animation: pulse 1.8s ease-out infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 173, 31, .7); } 100% { box-shadow: 0 0 0 12px rgba(255, 173, 31, 0); } }
+.train { position: absolute; left: 50%; width: 14px; height: 26px; transform: translate(-50%, -50%); border-radius: 6px; background: var(--panel-ink); box-shadow: 0 0 0 3px var(--panel); z-index: 2; }
+.train::before { content: ""; position: absolute; left: 3px; right: 3px; top: 4px; height: 5px; border-radius: 2px; background: var(--led); box-shadow: 0 0 6px var(--led); }
+.stime { text-align: right; padding-top: 11px; font: 700 15px/1.2 var(--f-sign); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.stime small { display: block; font-size: 10px; letter-spacing: .1em; color: var(--panel-dim); }
+.stime .now-pill { display: inline-block; margin-top: 5px; background: var(--panel-ink); color: var(--panel); font: 800 9.5px/1 var(--f-sign); letter-spacing: .12em; padding: 4px 5px; border-radius: 3px; }
+.st-items { display: flex; flex-direction: column; padding-bottom: 10px; }
+.st-item { min-height: 50px; display: flex; gap: 9px; align-items: flex-start; padding-top: 9px; text-align: left; width: 100%; }
+.st-item .bullet { --s: 24px; margin-top: 0; }
+.st-item .bullet.diamond { margin: 3px; }
+.st-item b { display: block; font: 700 16.5px/1.2 var(--f-sign); letter-spacing: -.012em; overflow-wrap: anywhere; }
+.st-item small { display: block; font-size: 12.5px; color: var(--panel-dim); margin-top: 2px; }
+.st-item:hover b { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.st-item.skip b { text-decoration: line-through; color: var(--panel-dim); }
+.stop.past .st-items, .stop.past .stime { opacity: .42; }
+.gap-label { align-self: center; font: 700 10.5px/1.3 var(--f-sign); letter-spacing: .1em; text-transform: uppercase; color: var(--panel-dim); }
+.cap-label { align-self: center; font-size: 13px; color: var(--panel-dim); padding: 14px 0; }
+.cap-label b { color: var(--panel-ink); }
+.strip-empty { padding: 26px 4px 18px; }
+.strip-empty b { display: block; font-size: 20px; letter-spacing: -.02em; }
+.strip-empty p { margin: 6px 0 0; color: var(--panel-dim); }
+.strip-foot { display: flex; gap: 14px; flex-wrap: wrap; border-top: 1px solid var(--panel-past); margin-top: 6px; padding-top: 10px; font-size: 12px; color: var(--panel-dim); }
+.strip-foot span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 2.5px solid var(--panel-ink); }
+.legend-pill { width: 12px; height: 22px; border-radius: 7px; background: #fff; border: 2.5px solid var(--panel-ink); }
+.legend-dia { width: 10px; height: 10px; background: var(--panel-ink); transform: rotate(45deg); margin: 2px; }
+
+/* ---- week diagram ---- */
+.wk-axis, .wk-row { display: grid; grid-template-columns: 50px minmax(0, 1fr) 26px; gap: 12px; align-items: center; }
+.wk-axis { font: 700 10px/1 var(--f-sign); color: var(--faint); letter-spacing: .04em; padding-bottom: 8px; }
+.ticks { position: relative; height: 12px; }
+.ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.ticks span:first-child { transform: none; }
+.wk-row { width: 100%; padding: 10px 0; border-top: 1px solid var(--line); text-align: left; }
+.wk-row:hover .wk-day small { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.wk-day b { display: block; font: 700 11px/1 var(--f-sign); letter-spacing: .14em; color: var(--dim); }
+.wk-day small { display: block; font: 700 22px/1 var(--f-sign); letter-spacing: -.03em; margin-top: 4px; }
+.wk-day.today b { color: var(--led); }
+.wk-track { position: relative; height: 44px; }
+.wk-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top: -1px; background: var(--line); }
+.hr { position: absolute; top: 8px; bottom: 8px; width: 1px; background: rgba(255, 255, 255, .05); }
+.seg { position: absolute; top: 50%; height: 10px; margin-top: -5px; border-radius: 5px; min-width: 7px; box-shadow: 0 0 0 2px var(--ground); }
+.seg.skip { opacity: .3; }
+.wk-now { position: absolute; top: 3px; bottom: 3px; width: 2px; margin-left: -1px; background: var(--led); box-shadow: 0 0 6px var(--led-glow); }
+.wk-allday { position: absolute; left: 0; top: 0; font: 700 9.5px/1 var(--f-sign); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.wk-n { font: 700 15px/1 var(--f-sign); color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
+.wk-note { color: var(--dim); font-size: 13px; margin: 14px 0 0; }
+
+/* ---- lines roster ---- */
+.hint { color: var(--dim); font-size: 14px; margin: 0 0 18px; max-width: 60ch; }
+.ln { border-top: 1px solid var(--line); padding: 14px 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; }
+.ln.is-hidden .bullet { opacity: .3; }
+.ln-bullet { grid-row: span 3; padding-top: 2px; }
+.ln-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.ln-name { background: transparent; border: 0; border-bottom: 1px solid transparent; font: 700 18px/1.2 var(--f-sign); letter-spacing: -.012em; padding: 2px 0; min-width: 0; flex: 1 1 160px; }
+.ln-name:hover, .ln-name:focus { border-bottom-color: var(--faint); outline: none; }
+.ln-count { color: var(--dim); font-size: 12.5px; white-space: nowrap; }
+.ln-rule { color: var(--dim); font-size: 13.5px; }
+.ln-kw { width: 100%; background: var(--sign); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: 14px; }
+.ln-ctl { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+.ln-letter-wrap { display: inline-flex; align-items: center; gap: 6px; color: var(--dim); font-size: 12.5px; }
+.ln-letter { width: 38px; text-align: center; background: var(--sign); border: 1px solid var(--line); border-radius: 6px; padding: 6px 4px; font-weight: 700; text-transform: uppercase; }
+.swatches { display: flex; gap: 5px; flex-wrap: wrap; }
+.sw { width: 20px; height: 20px; border-radius: 50%; background: var(--b); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+.sw[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--ink); }
+.txt-btn { font: 700 11px/1 var(--f-sign); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding: 6px 2px; }
+.txt-btn:hover { color: var(--ink); }
+.add-line { margin-top: 6px; border: 1px dashed var(--faint); border-radius: 8px; padding: 12px 14px; width: 100%; text-align: left; color: var(--dim); font-weight: 700; }
+.add-line:hover { color: var(--ink); border-color: var(--ink); }
+.settings { margin-top: 30px; }
+.toggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.toggle span small { display: block; color: var(--dim); font-size: 12.5px; margin-top: 2px; }
+.toggle input { width: 20px; height: 20px; accent-color: var(--led); flex: none; }
+
+/* ---- sheets ---- */
+.sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, .62); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.sheet-card { width: 100%; max-width: 560px; max-height: calc(100% - 32px); overflow: auto; background: var(--sign); border: 1px solid var(--line); border-bottom: 0; border-radius: 16px 16px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); animation: rise .3s cubic-bezier(.2, .8, .2, 1); }
+@keyframes rise { from { transform: translateY(40px); opacity: 0; } }
+@media (min-width: 700px) { .sheet { align-items: center; } .sheet-card { border-radius: 14px; border-bottom: 1px solid var(--line); } }
+.sign { background: #000; padding: 12px 20px 20px; }
+.sign .stripe { margin-bottom: 16px; }
+.sign-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: var(--dim); font-size: 13px; font-weight: 700; }
+.sign h2 { margin: 0; font: 700 clamp(26px, 6vw, 34px)/1.05 var(--f-sign); letter-spacing: -.025em; overflow-wrap: anywhere; text-wrap: balance; }
+.sign p { margin: 8px 0 0; color: var(--dim); }
+.sheet-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.eta-box { display: flex; align-items: baseline; gap: 10px; font-family: var(--f-led); color: var(--led); text-shadow: 0 0 6px var(--led-glow); text-transform: uppercase; font-weight: 800; font-size: 22px; }
+.facts { margin: 0; display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px 14px; }
+.facts dt { font: 700 10.5px/1.7 var(--f-sign); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+.riders { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.riders small { color: var(--dim); margin-left: 6px; }
+.notes { white-space: pre-wrap; color: var(--dim); font-size: 14px; max-height: 180px; overflow: auto; }
+.skipnote { margin: 0; color: var(--dim); font-size: 14px; }
+.sheet-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 11px 16px; font-weight: 700; font-size: 14px; text-decoration: none; }
+.btn:hover { border-color: var(--faint); }
+.btn.primary { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.btn.ghost { border-color: transparent; color: var(--dim); }
+.btn[disabled] { opacity: .5; cursor: progress; }
+.field { display: flex; flex-direction: column; gap: 7px; }
+.field > label, .field > span { font: 700 10.5px/1 var(--f-sign); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+.input { background: #000; border: 1px solid var(--line); border-radius: 8px; padding: 12px 13px; font-size: 16px; width: 100%; }
+.input:focus { border-color: var(--ink); outline: none; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip span { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.chip input:checked + span { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.chip input:focus-visible + span { outline: 2px solid var(--led); outline-offset: 2px; }
+.row2 { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 14px; }
+.check { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+.check input { width: 18px; height: 18px; accent-color: var(--led); }
+.rides { display: flex; gap: 10px; align-items: center; color: var(--dim); font-size: 14px; }
+.form-msg { margin: 0; font-size: 14px; color: #ffcf6b; min-height: 1em; }
+.list-allday { list-style: none; margin: 0; padding: 0; }
+.list-allday li { padding: 10px 0; border-top: 1px solid var(--line); }
+.list-allday small { color: var(--dim); display: block; }
+
+/* ---- platform display ---- */
+.platform { position: fixed; inset: 0; z-index: 60; background: #000; display: flex; flex-direction: column; justify-content: center; padding: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); }
+.pf-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; max-width: 1100px; width: 100%; margin: 0 auto 26px; }
+.pf-top h2 { margin: 0; font: 700 clamp(26px, 4.4vw, 52px)/1 var(--f-sign); letter-spacing: -.03em; }
+.pf-clock { font: 800 clamp(30px, 6vw, 72px)/1 var(--f-led); color: var(--led); text-shadow: 0 0 10px var(--led-glow); font-variant-numeric: tabular-nums; }
+.pf-clock b { font-weight: inherit; animation: colon 1s steps(2) infinite; }
+.platform .stripe { max-width: 1100px; width: 100%; margin: 0 auto 18px; }
+.platform .led { max-width: 1100px; width: 100%; margin: 0 auto; padding: 22px 26px 16px; }
+.platform .led-row { font-size: clamp(22px, 4.4vw, 54px); grid-template-columns: clamp(18px, 2.6vw, 34px) clamp(28px, 4.6vw, 56px) minmax(0, 1fr) auto; gap: clamp(10px, 1.6vw, 22px); padding-block: 8px; }
+.platform .led .bullet { --s: clamp(28px, 4.6vw, 56px); }
+.platform .led-foot { font-size: clamp(16px, 2.4vw, 28px); }
+.pf-exit { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); color: var(--faint); font: 700 11px/1 var(--f-sign); letter-spacing: .14em; text-transform: uppercase; padding: 10px; }
+.pf-exit:hover { color: var(--ink); }
+
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 70; background: var(--ink); color: var(--ground); font-weight: 700; font-size: 14px; padding: 11px 16px; border-radius: 999px; max-width: calc(100% - 32px); }
+
+@media (min-width: 960px) {
+  .app { padding-bottom: 56px; }
+  .grid { display: grid; grid-template-columns: minmax(380px, 450px) minmax(0, 1fr); gap: 44px; align-items: start; }
+  #v-board { display: block; }
+  .view.side-default { display: block; }
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); display: flex; gap: 26px; background: var(--ground); border: 0; border-bottom: 1px solid var(--line); padding: 4px 0 14px; margin-bottom: 18px; -webkit-backdrop-filter: none; backdrop-filter: none; z-index: 5; }
+  .tab { flex-direction: row; gap: 8px; }
+  .tab svg { width: 18px; height: 18px; }
+  .tab[data-v="board"] { display: none; }
+  .tab.desk-current { color: var(--ink); }
+  .toast { bottom: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker span { animation: none; padding-left: 0; }
+  .stop.here .dot, .led.flash .led-row, .led-clock b, .pf-clock b, .sheet-card { animation: none; }
+}
+</style>
+
+<div class="app">
+  <header class="station">
+    <div class="stripe"></div>
+    <div class="st-top">
+      <div>
+        <div class="eyebrow" id="eyebrow">Headway</div>
+        <h1 id="dayTitle">Today</h1>
+      </div>
+      <div class="st-actions">
+        <button class="icon-btn" id="soundBtn" aria-pressed="false" title="Chime when a meeting is about to start" aria-label="Arrival chime">
+          <svg viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>
+        </button>
+        <button class="icon-btn" id="platformBtn" title="Platform display: a full-screen countdown clock" aria-label="Platform display">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11" rx="1.5"/><path d="M7 9.5h6M7 12h9M8 20h8M12 16v4"/></svg>
+        </button>
+        <button class="icon-btn" id="addBtn" title="Add a stop" aria-label="Add a stop">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="st-lines">
+      <div class="bullets" id="lineFilter" role="group" aria-label="Filter by line"></div>
+      <button class="allday" id="alldayBtn" hidden></button>
+    </div>
+    <div class="conn" id="conn" role="status"></div>
+  </header>
+
+  <main class="grid">
+    <section class="view" id="v-board" aria-label="Board">
+      <div class="led" id="led" role="status" aria-label="Countdown clock">
+        <div id="ledRows"></div>
+        <div class="led-foot"><div class="ticker"><span id="ticker"></span></div><span class="led-clock" id="ledClock"></span></div>
+      </div>
+      <div class="status" id="status" aria-label="Service status"></div>
+      <div class="board-head"><span>Departures</span><span>Time</span></div>
+      <ol class="departures" id="departures"></ol>
+      <button class="earlier" id="earlierBtn" hidden></button>
+    </section>
+
+    <div class="side">
+      <nav class="tabs" id="tabs" aria-label="Views">
+        <a class="tab" data-v="board" href="#board"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h7M7 13h10M7 17h5"/></svg>Board</a>
+        <a class="tab" data-v="line" href="#line"><svg viewBox="0 0 24 24"><path d="M12 2v20"/><circle cx="12" cy="6" r="2.4"/><circle cx="12" cy="13" r="2.4"/><circle cx="12" cy="19.5" r="1.6"/></svg>Line</a>
+        <a class="tab" data-v="week" href="#week"><svg viewBox="0 0 24 24"><path d="M3 6h7M13 6h8M3 12h4M10 12h11M3 18h10M16 18h5"/></svg>Week</a>
+        <a class="tab" data-v="lines" href="#lines"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="3.4"/><circle cx="17" cy="8" r="3.4"/><path d="M7 13.2l3.4 3.4L7 20l-3.4-3.4z"/><circle cx="17" cy="16.6" r="3.4"/></svg>Lines</a>
+      </nav>
+      <section class="view side-view" id="v-line" aria-label="Line"></section>
+      <section class="view side-view" id="v-week" aria-label="Week"></section>
+      <section class="view side-view" id="v-lines" aria-label="Lines"></section>
+    </div>
+  </main>
+</div>
+
+<div class="sheet" id="sheet" hidden><div class="sheet-card" id="sheetCard" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div></div>
+
+<div class="platform" id="platform" hidden>
+  <button class="pf-exit" id="pfExit">Exit platform display</button>
+  <div class="stripe"></div>
+  <div class="pf-top"><h2 id="pfTitle">Next departures</h2><span class="pf-clock" id="pfClock"></span></div>
+  <div class="led" id="pfLed"><div id="pfRows"></div><div class="led-foot"><div class="ticker"><span id="pfTicker"></span></div></div></div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+'use strict';
+
+const SERVER = 'Google Calendar';
+// On scottvibes.com/headway the page signs in with Google itself; inside claude.ai it uses the viewer's connector.
+const HOSTED = !!window.HEADWAY_HOSTED;
+// MTA trunk-line colors (published by the MTA), with the letter color each uses on a bullet.
+const MTA = {
+  blue: ['#0039A6', '#fff', 'Eighth Avenue blue'], orange: ['#FF6319', '#fff', 'Sixth Avenue orange'],
+  lime: ['#6CBE45', '#fff', 'Crosstown lime'], gray: ['#A7A9AC', '#fff', 'Canarsie gray'],
+  brown: ['#996633', '#fff', 'Nassau brown'], yellow: ['#FCCC0A', '#111', 'Broadway yellow'],
+  red: ['#EE352E', '#fff', 'Seventh Avenue red'], green: ['#00933C', '#fff', 'Lexington green'],
+  purple: ['#B933AD', '#fff', 'Flushing purple'], shuttle: ['#808183', '#fff', 'Shuttle gray'],
+};
+const BASE_LINES = [
+  { id: 'external', letter: 'E', color: 'blue',    name: 'Clients & outside', rule: 'Someone from outside your company is invited' },
+  { id: 'one',      letter: '1', color: 'red',     name: 'One-on-ones',       rule: 'Just you and one other person' },
+  { id: 'regular',  letter: '4', color: 'green',   name: 'Regulars',          rule: 'Recurring meetings with your team' },
+  { id: 'meet',     letter: 'M', color: 'orange',  name: 'Meetings',          rule: 'Other meetings with your team' },
+  { id: 'focus',    letter: 'Q', color: 'yellow',  name: 'Quiet time',        rule: 'Focus time, or “focus”, “deep work” or “heads down” in the title' },
+  { id: 'personal', letter: '7', color: 'purple',  name: 'Personal',          rule: 'Events with no guests' },
+  { id: 'ooo',      letter: 'S', color: 'shuttle', name: 'Out of office',     rule: 'Out-of-office blocks' },
+];
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const p2 = n => String(n).padStart(2, '0');
+const sod = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const isoLocal = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}:00`;
+const ymd = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const tFmt = d => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const tParts = d => { const s = tFmt(d); const m = s.match(/^(.*?)\s*([AaPp]\.?\s?[Mm]\.?)$/); return m ? [m[1], m[2].replace(/\./g, '').toUpperCase()] : [s, '']; };
+const wd = (d, f = 'long') => d.toLocaleDateString([], { weekday: f });
+const md = d => d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+const durTxt = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)}h${m % 60 ? ' ' + (m % 60) + 'm' : ''}`;
+const domainOf = e => (e || '').split('@')[1]?.toLowerCase() || '';
+const nameFromEmail = e => (e || '').split('@')[0].split(/[._-]/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') || e || 'Guest';
+const safeUrl = u => (typeof u === 'string' && /^https:\/\//i.test(u.trim())) ? u.trim() : '';
+const mins = ms => Math.ceil(ms / 60000);
+
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem('headway.v1')) || {}; } catch { return {}; } },
+  set(v) { try { localStorage.setItem('headway.v1', JSON.stringify(v)); } catch {} },
+};
+const prefs = Object.assign({ lineEdits: {}, custom: [], hidden: [], calendars: ['primary'], sound: false, voice: false, showDeclined: true }, store.get());
+const save = () => store.set(prefs);
+
+const S = {
+  status: 'sample',      // sample | ask | connecting | live | unavailable
+  err: null, mcp: null, cals: [], raw: {}, me: null, domain: 'example.com', updatedAt: null,
+  watches: {}, events: [], filter: null, day: 0, view: 'board', showEarlier: false,
+  dayKey: sod(new Date()).getTime(), sampleKey: 0, sampleList: null, flashUntil: 0,
+};
+
+// ---------- lines ----------
+const lines = () => [...prefs.custom, ...BASE_LINES.map(l => ({ ...l, ...(prefs.lineEdits[l.id] || {}) }))];
+const lineById = id => lines().find(l => l.id === id) || { id: 'meet', letter: '?', color: 'shuttle', name: 'Unassigned' };
+const isHidden = e => prefs.hidden.includes(e.line);
+const isDiamond = e => e.organizerMe && e.others.length > 0;
+const colorOf = e => (MTA[lineById(e.line).color] || MTA.shuttle)[0];
+
+function bullet(line, o = {}) {
+  const [bg, fg] = MTA[line.color] || MTA.shuttle;
+  return `<span class="bullet${o.diamond ? ' diamond' : ''}${o.size ? ' ' + o.size : ''}" style="--b:${bg};--bf:${fg}" title="${esc(line.name)}${o.diamond ? ' · you organized this' : ''}"><i>${esc(line.letter)}</i></span>`;
+}
+
+function classify(e) {
+  const t = e.title.toLowerCase();
+  for (const c of prefs.custom) if ((c.keywords || []).some(k => k && t.includes(k.toLowerCase()))) return c.id;
+  if (e.type === 'OUT_OF_OFFICE') return 'ooo';
+  if (e.type === 'FOCUS_TIME' || /\b(focus|deep work|heads[- ]?down|no meetings)\b/.test(t)) return 'focus';
+  if (!e.others.length) return 'personal';
+  if (S.domain && e.others.some(a => a.email && domainOf(a.email) !== S.domain && !/calendar\.google\.com$/.test(domainOf(a.email)))) return 'external';
+  if (e.others.length === 1) return 'one';
+  if (e.recurring) return 'regular';
+  return 'meet';
+}
+
+// ---------- calendar data ----------
+function textOf(html) {
+  if (!html) return '';
+  try {
+    const doc = new DOMParser().parseFromString(String(html).replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n'), 'text/html');
+    return (doc.body.textContent || '').replace(/[─━]{3,}/g, '').replace(/\n{3,}/g, '\n\n').trim().slice(0, 1200);
+  } catch { return ''; }
+}
+function joinLink(ev) {
+  const cd = ev.conferenceData || {};
+  const vid = cd.videoEntryPoint?.uri || (cd.entryPoints || []).find(p => p.entryPointType === 'video')?.uri;
+  const cands = [vid, ev.hangoutLink, ev.location];
+  const m = String(ev.description || '').match(/https:\/\/[^\s"'<>]*(zoom\.us|meet\.google\.com|teams\.microsoft\.com|webex\.com)[^\s"'<>]*/i);
+  if (m) cands.push(m[0]);
+  return cands.map(safeUrl).find(Boolean) || '';
+}
+function whereOf(e) {
+  const loc = e.location || '';
+  const host = (safeUrl(loc) || e.link || '').toLowerCase();
+  const kind = /zoom\.us/.test(host) ? 'Zoom' : /meet\.google/.test(host) ? 'Google Meet' : /teams\.microsoft/.test(host) ? 'Teams' : /webex/.test(host) ? 'Webex' : '';
+  if (loc && !safeUrl(loc)) return loc.split('\n')[0].slice(0, 80);
+  return kind || (loc ? 'Online' : '');
+}
+function norm(ev, cal) {
+  if (!ev || ev.status === 'cancelled' || !ev.start) return null;
+  const allDay = !ev.start.dateTime;
+  const start = allDay ? ymd(ev.start.date) : new Date(ev.start.dateTime);
+  const end = allDay ? ymd(ev.end?.date || ev.start.date) : new Date(ev.end?.dateTime || ev.start.dateTime);
+  if (isNaN(start) || isNaN(end)) return null;
+  const att = (ev.attendees || []).filter(a => !a.resource).map(a => ({ name: a.displayName || nameFromEmail(a.email), email: a.email || '', status: a.responseStatus || '', self: !!a.self, org: !!a.organizer }));
+  const me = att.find(a => a.self);
+  return {
+    id: String(ev.id), cal, title: (ev.summary || '(No title)').trim(), start, end, allDay,
+    location: ev.location || '', link: joinLink(ev), html: safeUrl(ev.htmlLink), desc: textOf(ev.description),
+    attendees: att, others: att.filter(a => !a.self), recurring: !!ev.recurringEventId, type: ev.eventType || 'DEFAULT',
+    organizerMe: !!ev.organizer?.self || (!ev.organizer && !att.length), declined: me?.status === 'declined',
+  };
+}
+
+function sample() {
+  const key = sod(new Date()).getTime();
+  if (S.sampleKey === key && S.sampleList) return S.sampleList;
+  let n = 0;
+  const now = Date.now();
+  const rel = m => new Date(Math.round((now + m * 60000) / 300000) * 300000);
+  const at = (d, h, m = 0) => { const x = addDays(sod(new Date()), d); x.setHours(h, m, 0, 0); return x; };
+  const me = { name: 'You', email: 'you@example.com', self: true, status: 'accepted' };
+  const p = (name, dom = 'example.com') => ({ name, email: name.split(' ')[0].toLowerCase() + '@' + dom, status: 'accepted' });
+  const mk = (title, start, len, o = {}) => {
+    const others = o.att || [];
+    const self = { ...me, status: o.dec ? 'declined' : 'accepted' };
+    return { id: 'sample-' + (++n), cal: 'primary', title, start, end: new Date(start.getTime() + len * 60000), allDay: !!o.allDay,
+      location: o.loc || '', link: o.link || '', html: '', desc: o.desc || '', attendees: others.length ? [self, ...others] : [],
+      others, recurring: !!o.rec, type: o.type || 'DEFAULT', organizerMe: !!o.org || !others.length, declined: !!o.dec, sample: true };
+  };
+  const team = [p('Dana Ortiz'), p('Ravi Patel'), p('Jo Chen')];
+  S.sampleList = [
+    mk('Inbox and coffee', rel(-95), 30),
+    mk('Pipeline review', rel(-40), 50, { att: [p('Kim Alvarez', 'northwind.co'), p('Sam Lee')], org: true, link: 'https://meet.google.com/', desc: 'Walk through the three open proposals and agree next steps.' }),
+    mk('Product sync', rel(5), 25, { att: team, rec: true, loc: 'Room 4B' }),
+    mk('1:1 with Dana', rel(45), 30, { att: [p('Dana Ortiz')], org: true, rec: true }),
+    mk('Vendor demo', rel(85), 30, { att: [p('Alex Moore', 'acme.io'), p('Sam Lee')], dec: true }),
+    mk('Lunch with Priya', rel(120), 60, { loc: 'Corner Deli' }),
+    mk('Heads down: Q1 plan', rel(190), 90),
+    mk('Northwind kickoff', rel(290), 45, { att: [p('Kim Alvarez', 'northwind.co'), p('Ravi Patel')], org: true, link: 'https://meet.google.com/' }),
+    mk('Gym', rel(345), 60),
+    mk('Weekly planning', at(1, 9), 45, { att: team, rec: true }),
+    mk('Focus block', at(1, 10, 30), 120),
+    mk('Quarterly review: Acme', at(1, 14), 60, { att: [p('Alex Moore', 'acme.io')], org: true }),
+    mk('Team offsite', at(2, 0), 24 * 60, { allDay: true }),
+    mk('Flight to Denver', at(3, 7), 180, { type: 'OUT_OF_OFFICE' }),
+    mk('1:1 with Jo', at(3, 13), 30, { att: [p('Jo Chen')], rec: true }),
+    mk('Design review', at(3, 15), 60, { att: team.slice(0, 2) }),
+    mk('Pipeline review', at(4, 9, 30), 50, { att: [p('Kim Alvarez', 'northwind.co')], org: true }),
+    mk('Dentist', at(4, 16), 60),
+    mk('Weekly planning', at(5, 9), 45, { att: team, rec: true }),
+    mk('Client lunch', at(5, 12), 75, { att: [p('Kim Alvarez', 'northwind.co')] }),
+    mk('Run club', at(6, 8), 60),
+  ];
+  S.sampleKey = key;
+  return S.sampleList;
+}
+
+function rebuild() {
+  let list = [];
+  if (S.status === 'live') {
+    if (S.me) S.domain = domainOf(S.me);
+    const seen = new Set();
+    for (const [cal, evs] of Object.entries(S.raw)) for (const ev of evs || []) {
+      const e = norm(ev, cal); if (!e) continue;
+      const k = e.id + '|' + e.start.getTime(); if (seen.has(k)) continue;
+      seen.add(k); list.push(e);
+    }
+  } else { S.domain = 'example.com'; list = sample(); }
+  for (const e of list) e.line = classify(e);
+  S.events = list.sort((a, b) => a.start - b.start || a.end - b.end);
+}
+
+// what counts as "on the schedule"
+const visible = e => !isHidden(e) && (prefs.showDeclined || !e.declined) && (!S.filter || e.line === S.filter);
+const riding = e => !e.allDay && !e.declined && !isHidden(e);
+const dayTimed = day => { const a = sod(day), b = addDays(a, 1); return S.events.filter(e => !e.allDay && e.start < b && e.end > a); };
+const dayAll = day => { const a = sod(day), b = addDays(a, 1); return S.events.filter(e => e.allDay && e.start < b && e.end > a && !isHidden(e)); };
+
+// ---------- service status ----------
+function notices(now) {
+  const today = sod(now);
+  const evs = dayTimed(today).filter(riding);
+  const out = [];
+  for (const e of dayAll(today)) out.push({ kind: 'allday', label: 'All day', text: e.title });
+  const live = evs.filter(e => e.end > now);
+  for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+    const a = live[i], b = live[j];
+    if (b.start < a.end && b.end > a.start) out.push({ kind: 'delay', label: 'Delays', text: `${a.title} overlaps ${b.title} at ${tFmt(b.start > a.start ? b.start : a.start)}.` });
+  }
+  let run = [];
+  const flush = () => { if (run.length >= 3 && run[run.length - 1].end > now) out.push({ kind: 'crowd', label: 'Crowding', text: `No breaks from ${tFmt(run[0].start)} to ${tFmt(run[run.length - 1].end)}: ${run.length} in a row.` }); run = []; };
+  for (const e of evs) {
+    const last = run[run.length - 1];
+    if (last && e.start - last.end <= 5 * 60000 && e.start >= last.start) run.push(e); else { flush(); run = [e]; }
+  }
+  flush();
+  // longest free stretch left in the working day
+  const dayEnd = new Date(today); dayEnd.setHours(18, 0, 0, 0);
+  let cursor = new Date(Math.max(now, new Date(today).setHours(8, 0, 0, 0)));
+  let best = null;
+  for (const e of [...live, { start: dayEnd, end: dayEnd }]) {
+    if (e.start > cursor && e.start <= dayEnd) { const g = e.start - cursor; if (g >= 60 * 60000 && (!best || g > best[1] - best[0])) best = [new Date(cursor), new Date(e.start)]; }
+    if (e.end > cursor) cursor = new Date(e.end);
+  }
+  if (best) out.push({ kind: 'open', label: 'Open track', text: `Free ${tFmt(best[0])} to ${tFmt(best[1])}.` });
+  if (!out.some(n => n.kind === 'delay' || n.kind === 'crowd')) {
+    out.unshift({ kind: 'good', label: 'Good service', text: live.length ? 'No conflicts on the rest of today.' : 'Nothing left on today’s schedule.' });
+  }
+  return out;
+}
+
+// ---------- rendering: header ----------
+function renderHeader(now) {
+  const weekend = [0, 6].includes(now.getDay());
+  const late = now.getHours() < 5;
+  $('#eyebrow').textContent = `Headway · ${late ? 'Late-night' : weekend ? 'Weekend' : 'Weekday'} service`;
+  $('#dayTitle').textContent = `${wd(now)}–${md(now)}`;
+
+  const inService = new Set(dayTimed(now).filter(e => !isHidden(e) && !e.declined).map(e => e.line));
+  if (S.filter) inService.add(S.filter);
+  const f = $('#lineFilter');
+  f.classList.toggle('filtering', !!S.filter);
+  f.innerHTML = lines().filter(l => inService.has(l.id)).map(l =>
+    `<button data-filter="${esc(l.id)}" aria-pressed="${S.filter === l.id}" aria-label="Show only ${esc(l.name)}">${bullet(l)}</button>`).join('');
+
+  const ad = dayAll(now);
+  const ab = $('#alldayBtn');
+  ab.hidden = !ad.length;
+  ab.textContent = `◆ ${ad.length} all-day`;
+
+  const c = $('#conn');
+  const err = S.err ? `<span class="warn">${esc(S.err.msg)}</span>${S.err.action ? ` <button class="link" data-act="${esc(S.err.action)}">${esc(S.err.actionLabel)}</button>` : ''}` : '';
+  if (S.status === 'live') {
+    const at = S.updatedAt ? tFmt(new Date(S.updatedAt)) : '';
+    c.innerHTML = `<span class="live-dot"></span><span>Live from Google Calendar${at ? ` · updated ${esc(at)}` : ''}</span><button class="link" data-act="refresh">Refresh</button>${err ? ' ' + err : ''}`;
+  } else if (S.status === 'connecting') {
+    c.innerHTML = `<span class="sample-tag">Sample day</span><span>Connecting to Google Calendar…</span>`;
+  } else if (S.status === 'ask') {
+    c.innerHTML = `<span class="sample-tag">Sample day</span><button class="btn-connect" data-act="connect">Show my calendar</button>${err}`;
+  } else if (S.status === 'signin') {
+    c.innerHTML = `<span class="sample-tag">Sample day</span><a class="btn-connect" href="/api/headway/login">Sign in with Google</a>${err ? ' ' + err : ''}`;
+  } else if (S.status === 'unavailable') {
+    c.innerHTML = `<span class="sample-tag">Sample day</span><span>Open Headway in Claude to run it on your Google Calendar.</span>`;
+  } else {
+    c.innerHTML = `<span class="sample-tag">Sample day</span>${err}`;
+  }
+}
+
+// ---------- rendering: countdown clock ----------
+function ledRows(now, count) {
+  const next = S.events.filter(e => riding(e) && e.end > now).slice(0, count);
+  if (!next.length) return `<div class="led-row empty"><span class="led-dest">No scheduled service</span></div>`;
+  return next.map((e, i) => {
+    const m = mins(e.start - now);
+    const eta = e.start <= now ? 'Now' : m < 100 ? `${m} min` : sameDay(e.start, now) ? tParts(e.start)[0] : wd(e.start, 'short');
+    return `<div class="led-row"><span>${i + 1}</span>${bullet(lineById(e.line), { diamond: isDiamond(e), size: 'sm' })}<span class="led-dest">${esc(e.title)}</span><span class="led-min">${esc(eta)}</span></div>`;
+  }).join('');
+}
+let tickerMsgs = [], tickerIdx = 0;
+function buildTicker(now) {
+  const msgs = [];
+  const next = S.events.filter(e => riding(e) && e.end > now);
+  const cur = next.find(e => e.start <= now);
+  const up = next.find(e => e.start > now);
+  if (cur) msgs.push(`Now boarding: ${cur.title}. ${mins(cur.end - now)} min left.`);
+  if (up) { const w = whereOf(up); msgs.push(`Next stop: ${up.title}${w ? ' · ' + w : ''} · ${sameDay(up.start, now) ? '' : wd(up.start, 'short') + ' '}${tFmt(up.start)}`); }
+  for (const n of notices(now)) if (n.kind !== 'good') msgs.push(`${n.label}: ${n.text}`);
+  if (msgs.length < 3) msgs.push('Good service on all lines.');
+  tickerMsgs = msgs;
+}
+function setTicker(el, text) {
+  if (el.textContent === text) return;
+  el.textContent = text;
+  el.style.animationDuration = `${Math.max(12, text.length * 0.32)}s`;
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  el.style.animationDuration = `${Math.max(12, text.length * 0.32)}s`;
+}
+function renderLED(now) {
+  $('#ledRows').innerHTML = ledRows(now, 2);
+  $('#led').classList.toggle('flash', Date.now() < S.flashUntil);
+  buildTicker(now);
+  if (!$('#ticker').textContent) setTicker($('#ticker'), tickerMsgs[0] || '');
+}
+$('#ticker').addEventListener('animationiteration', () => {
+  tickerIdx = (tickerIdx + 1) % Math.max(1, tickerMsgs.length);
+  setTicker($('#ticker'), tickerMsgs[tickerIdx] || '');
+});
+
+// ---------- rendering: board ----------
+function etaOf(e, now) {
+  if (e.start <= now && e.end > now) return { n: mins(e.end - now), unit: 'min left', live: true };
+  const m = mins(e.start - now);
+  if (m < 100) return { n: m, unit: 'min' };
+  if (m < 24 * 60) return { n: `${Math.floor(m / 60)}:${p2(m % 60)}`, unit: 'hr' };
+  return { n: wd(e.start, 'short'), unit: tFmt(e.start) };
+}
+function depRow(e, now, past) {
+  const l = lineById(e.line);
+  const et = past ? { n: tParts(e.start)[0], unit: tParts(e.start)[1] || 'done' } : etaOf(e, now);
+  const w = whereOf(e);
+  const prog = et.live ? Math.min(1, Math.max(0, (now - e.start) / (e.end - e.start))) : 0;
+  return `<li class="dep${et.live ? ' live' : ''}${e.declined ? ' skip' : ''}${past ? ' past' : ''}">
+    <button class="dep-btn" data-open="${esc(e.id)}|${e.start.getTime()}">
+      ${bullet(l, { diamond: isDiamond(e) })}
+      <span>
+        ${et.live ? '<span class="tag-live">Now boarding</span>' : ''}${e.declined ? '<span class="tag-skip">Skip-stop · declined</span>' : ''}
+        <span class="dep-title">${esc(e.title)}</span>
+        <span class="dep-sub">${w ? esc(w) + ' · ' : ''}${esc(tFmt(e.start))}–${esc(tFmt(e.end))}</span>
+      </span>
+      <span class="dep-eta"><b>${esc(et.n)}</b><small>${esc(et.unit)}</small></span>
+    </button>${et.live ? `<span class="dep-prog" style="--p:${prog.toFixed(3)}"></span>` : ''}
+  </li>`;
+}
+function renderBoard(now) {
+  const today = dayTimed(now).filter(visible);
+  const upcoming = today.filter(e => e.end > now);
+  const earlier = today.filter(e => e.end <= now);
+  let html = upcoming.map(e => depRow(e, now)).join('');
+  if (upcoming.length < 4) {
+    for (let d = 1; d < 7; d++) {
+      const day = addDays(sod(now), d);
+      const evs = dayTimed(day).filter(visible).filter(e => e.start >= day).slice(0, 5);
+      if (!evs.length) continue;
+      if (!upcoming.length) html += `<li class="dep-empty"><b>Service has ended for today.</b>Next trains are below.</li>`;
+      html += `<li class="dep-div">${esc(d === 1 ? 'Tomorrow' : wd(day))} · ${esc(md(day))}</li>` + evs.map(e => depRow(e, now)).join('');
+      break;
+    }
+  }
+  if (!html) html = `<li class="dep-empty"><b>No service scheduled.</b>Nothing on your calendar for the next seven days${S.filter ? ' on this line' : ''}.</li>`;
+  if (S.showEarlier && earlier.length) html += `<li class="dep-div">Earlier today</li>` + earlier.map(e => depRow(e, now, true)).join('');
+  $('#departures').innerHTML = html;
+  const eb = $('#earlierBtn');
+  eb.hidden = !earlier.length;
+  eb.textContent = S.showEarlier ? 'Hide earlier stops' : `Earlier today · ${earlier.length} stop${earlier.length === 1 ? '' : 's'}`;
+  $('#status').innerHTML = notices(now).map(n => `<div class="notice ${n.kind}"><span class="kind"><span class="sym"></span>${esc(n.label)}</span><p>${esc(n.text)}</p></div>`).join('');
+}
+
+// ---------- rendering: strip map ----------
+function cluster(evs) {
+  const out = [];
+  for (const e of evs) {
+    const c = out[out.length - 1];
+    if (c && e.start < c.end) { c.items.push(e); if (e.end > c.end) c.end = e.end; }
+    else out.push({ items: [e], start: e.start, end: e.end });
+  }
+  return out;
+}
+function renderLine(now) {
+  const el = $('#v-line');
+  const base = sod(now);
+  const day = addDays(base, S.day);
+  const chips = Array.from({ length: 7 }, (_, i) => {
+    const d = addDays(base, i);
+    return `<button class="daychip" data-day="${i}" aria-pressed="${i === S.day}">${esc(i === 0 ? 'Today' : wd(d, 'short'))}<b>${d.getDate()}</b></button>`;
+  }).join('');
+  const evs = dayTimed(day).filter(visible);
+  const isToday = S.day === 0;
+  const PAST = 'var(--panel-past)';
+  let body;
+  if (!evs.length) {
+    body = `<div class="strip-empty"><b>No trains scheduled</b><p>Nothing on the calendar for ${esc(wd(day))}${S.filter ? ' on this line' : ''}.</p></div>`;
+  } else {
+    const cls = cluster(evs);
+    const col = c => colorOf(c.items.find(i => !i.declined) || c.items[0]);
+    const rows = [];
+    if (isToday && now < cls[0].start) {
+      rows.push(`<li class="cap" style="--cout:${col(cls[0])}"><span></span><span class="rail"><span class="train" style="top:50%"></span></span><span class="cap-label"><b>You are here.</b> First stop in ${esc(durTxt(mins(cls[0].start - now)))}.</span></li>`);
+    }
+    cls.forEach((c, i) => {
+      const prev = cls[i - 1], next = cls[i + 1];
+      if (prev) {
+        const g = mins(c.start - prev.end);
+        if (g >= 20) {
+          const passed = isToday && c.start <= now;
+          const inGap = isToday && now >= prev.end && now < c.start;
+          const h = Math.round(Math.min(132, 26 + g * 0.55));
+          rows.push(`<li class="gap" style="height:${h}px;--cin:${passed ? PAST : col(c)}"><span></span><span class="rail">${inGap ? `<span class="train" style="top:${(((now - prev.end) / (c.start - prev.end)) * 100).toFixed(1)}%"></span>` : ''}</span><span class="gap-label">${g >= 30 ? 'Open track · ' + esc(durTxt(g)) : ''}</span></li>`);
+        }
+      }
+      const here = isToday && c.start <= now && now < c.end;
+      const past = isToday && c.end <= now;
+      const approach = isToday && prev && now >= prev.end && now < c.start && mins(c.start - prev.end) < 20;
+      const cin = i ? (isToday && c.start <= now ? PAST : col(c)) : 'transparent';
+      const cout = next ? (isToday && next.start <= now ? PAST : col(next)) : 'transparent';
+      const [tm, ap] = tParts(c.start);
+      const items = c.items.map(e => {
+        const w = whereOf(e);
+        return `<button class="st-item${e.declined ? ' skip' : ''}" data-open="${esc(e.id)}|${e.start.getTime()}">${bullet(lineById(e.line), { diamond: isDiamond(e) })}<span><b>${esc(e.title)}</b><small>${esc(tFmt(e.start))}–${esc(tFmt(e.end))}${w ? ' · ' + esc(w) : ''}${e.declined ? ' · skip-stop' : ''}</small></span></button>`;
+      }).join('');
+      rows.push(`<li class="stop${c.items.length > 1 ? ' transfer' : ''}${here ? ' here' : ''}${past ? ' past' : ''}" style="--cin:${cin};--cout:${cout};--n:${c.items.length}">
+        <span class="stime">${esc(tm)}<small>${esc(ap)}</small>${here ? '<span class="now-pill">NOW</span>' : ''}</span>
+        <span class="rail"><span class="dot"></span>${approach ? '<span class="train" style="top:4px"></span>' : ''}</span>
+        <span class="st-items">${items}</span></li>`);
+    });
+    const last = cls[cls.length - 1];
+    if (isToday && now >= last.end) {
+      rows.push(`<li class="cap end" style="--cin:${PAST}"><span></span><span class="rail"><span class="train" style="top:50%"></span></span><span class="cap-label"><b>Last stop passed.</b> That’s the day.</span></li>`);
+    }
+    const lastStop = [...evs].reverse().find(e => !e.declined) || evs[evs.length - 1];
+    const ids = [...new Set(evs.map(e => e.line))];
+    const transfers = cls.filter(c => c.items.length > 1).length;
+    body = `<div class="strip-head"><div class="bullets">${lines().filter(l => ids.includes(l.id)).slice(0, 5).map(l => bullet(l, { size: 'sm' })).join('')}</div>
+        <div class="toward">To ${esc(lastStop.title)}<small>${evs.length} stop${evs.length === 1 ? '' : 's'} · ${esc(tFmt(evs[0].start))} to ${esc(tFmt(last.end))}${transfers ? ` · ${transfers} transfer${transfers === 1 ? '' : 's'}` : ''}</small></div></div>
+      <ol class="stops">${rows.join('')}</ol>
+      <div class="strip-foot"><span><i class="legend-dot"></i>Stop</span><span><i class="legend-pill"></i>Transfer: overlapping events</span><span><i class="legend-dia"></i>You organized it</span></div>`;
+  }
+  el.innerHTML = `<h2 class="sec-title">${esc(wd(day))} · ${esc(md(day))}</h2><div class="days" role="group" aria-label="Day">${chips}</div><div class="strip">${body}</div>`;
+}
+
+// ---------- rendering: week ----------
+function renderWeek(now) {
+  const base = sod(now);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(base, i));
+  const all = days.flatMap(d => dayTimed(d).filter(visible));
+  let lo = 8, hi = 18;
+  for (const e of all) {
+    lo = Math.min(lo, Math.max(0, e.start < sod(e.start) ? 0 : e.start.getHours()));
+    hi = Math.max(hi, sameDay(e.end, e.start) ? Math.ceil(e.end.getHours() + e.end.getMinutes() / 60) : 24);
+  }
+  lo = Math.max(0, lo); hi = Math.min(24, Math.max(hi, lo + 8));
+  const span = (hi - lo) * 3600000;
+  const pos = (d, day) => Math.min(100, Math.max(0, ((d - day) - lo * 3600000) / span * 100));
+  const ticks = [];
+  for (let h = lo; h <= hi; h += (hi - lo > 12 ? 3 : 2)) {
+    ticks.push(`<span style="left:${((h - lo) / (hi - lo) * 100).toFixed(2)}%">${h % 12 || 12}${h < 12 || h === 24 ? 'a' : 'p'}</span>`);
+  }
+  const hrs = [];
+  for (let h = lo + 1; h < hi; h++) hrs.push(`<i class="hr" style="left:${((h - lo) / (hi - lo) * 100).toFixed(2)}%"></i>`);
+  const rows = days.map((day, i) => {
+    const evs = dayTimed(day).filter(visible);
+    const lanes = [];
+    const segs = evs.map(e => {
+      let lane = lanes.findIndex(end => end <= e.start);
+      if (lane < 0) { lane = lanes.length; lanes.push(e.end); } else lanes[lane] = e.end;
+      return { e, lane };
+    });
+    const nl = Math.max(1, lanes.length);
+    const segHtml = segs.map(({ e, lane }) => {
+      const l = pos(e.start < day ? day : e.start, day), r = pos(e.end, day);
+      const off = (lane - (nl - 1) / 2) * 12;
+      return `<i class="seg${e.declined ? ' skip' : ''}" title="${esc(e.title)} · ${esc(tFmt(e.start))}" style="left:${l.toFixed(2)}%;width:${Math.max(0, r - l).toFixed(2)}%;transform:translateY(${off}px);background:${colorOf(e)}"></i>`;
+    }).join('');
+    const ad = dayAll(day);
+    const nowLine = i === 0 && now.getHours() >= lo && now.getHours() < hi ? `<i class="wk-now" style="left:${pos(now, day).toFixed(2)}%"></i>` : '';
+    return `<button class="wk-row" data-day="${i}" aria-label="${esc(wd(day))}: ${evs.length} events. Open the line for this day.">
+      <span class="wk-day${i === 0 ? ' today' : ''}"><b>${esc(i === 0 ? 'Today' : wd(day, 'short'))}</b><small>${day.getDate()}</small></span>
+      <span class="wk-track">${hrs.join('')}${ad.length ? `<span class="wk-allday">◆ ${esc(ad.map(a => a.title).join(', '))}</span>` : ''}${segHtml}${nowLine}</span>
+      <span class="wk-n">${evs.filter(e => !e.declined).length}</span></button>`;
+  }).join('');
+  const count = all.filter(e => !e.declined).length;
+  const hours = Math.round(all.filter(e => !e.declined).reduce((s, e) => s + (e.end - e.start), 0) / 3600000);
+  $('#v-week').innerHTML = `<h2 class="sec-title">Next seven days · ${count} trips · ${hours} h booked</h2>
+    <div class="wk-axis"><span></span><span class="ticks">${ticks.join('')}</span><span></span></div>${rows}
+    <p class="wk-note">Each bar is an event in its line’s color. Tap a day to ride its line.</p>`;
+}
+
+// ---------- rendering: lines roster ----------
+function renderLines() {
+  const base = sod(new Date());
+  const weekEvs = S.events.filter(e => !e.allDay && e.start >= base && e.start < addDays(base, 7) && !e.declined);
+  const rows = lines().map(l => {
+    const n = weekEvs.filter(e => e.line === l.id).length;
+    const hidden = prefs.hidden.includes(l.id);
+    const sw = Object.entries(MTA).map(([k, v]) => `<button class="sw" data-color="${k}" style="--b:${v[0]}" aria-pressed="${l.color === k}" aria-label="${esc(v[2])}" title="${esc(v[2])}"></button>`).join('');
+    return `<div class="ln${hidden ? ' is-hidden' : ''}" data-line="${esc(l.id)}">
+      <div class="ln-bullet">${bullet(l, { size: 'lg' })}</div>
+      <div class="ln-head"><input class="ln-name" id="name-${esc(l.id)}" value="${esc(l.name)}" aria-label="Line name" maxlength="40"><span class="ln-count">${n} this week</span></div>
+      <div class="ln-rule">${l.custom ? `<input class="ln-kw" id="kw-${esc(l.id)}" value="${esc((l.keywords || []).join(', '))}" placeholder="Title keywords, separated by commas" aria-label="Keywords">` : esc(l.rule)}</div>
+      <div class="ln-ctl"><label class="ln-letter-wrap">Bullet <input class="ln-letter" id="letter-${esc(l.id)}" value="${esc(l.letter)}" maxlength="1" aria-label="Bullet letter"></label>
+        <div class="swatches" role="group" aria-label="Line color">${sw}</div>
+        <button class="txt-btn" data-hide>${hidden ? 'Show' : 'Hide'}</button>${l.custom ? '<button class="txt-btn" data-del>Remove</button>' : ''}</div>
+    </div>`;
+  }).join('');
+  const calRows = S.status === 'live' && S.cals.length ? `<h2 class="sec-title" style="margin-top:30px">Calendars on this route</h2>
+    <label class="toggle"><span>Your calendar<small>${esc(S.me || 'Primary')}</small></span><input type="checkbox" data-cal="primary" ${prefs.calendars.includes('primary') ? 'checked' : ''}></label>
+    ${S.cals.filter(c => c.id !== S.me && c.id !== 'primary').map(c => `<label class="toggle"><span>${esc(c.summary || c.id)}${c.description ? `<small>${esc(c.description)}</small>` : ''}</span><input type="checkbox" data-cal="${esc(c.id)}" ${prefs.calendars.includes(c.id) ? 'checked' : ''}></label>`).join('')}` : '';
+  $('#v-lines').innerHTML = `<h2 class="sec-title">Lines</h2>
+    <p class="hint">Every event rides one line. Headway picks it from who is invited and what the event is called. Rename or recolor a line, or add one that catches a keyword. A diamond bullet means you organized the meeting.</p>
+    ${rows}<button class="add-line" id="addLine">+ Add a line for a keyword</button>
+    ${calRows}
+    <div class="settings"><h2 class="sec-title">On the platform</h2>
+      <label class="toggle"><span>Arrival chime<small>Two-tone chime a minute before each event and when it starts.</small></span><input type="checkbox" data-pref="sound" ${prefs.sound ? 'checked' : ''}></label>
+      <label class="toggle"><span>Station announcements<small>Reads out the next event a minute before it starts.</small></span><input type="checkbox" data-pref="voice" ${prefs.voice ? 'checked' : ''}></label>
+      <label class="toggle"><span>Show declined events<small>Shown as skip-stops, struck through.</small></span><input type="checkbox" data-pref="showDeclined" ${prefs.showDeclined ? 'checked' : ''}></label>
+      ${HOSTED && S.status === 'live' ? `<div class="toggle"><span>Signed in with Google<small>${esc(S.me || '')}</small></span><a class="txt-btn" href="/api/headway/logout">Sign out</a></div>` : ''}
+    </div>`;
+}
+
+// ---------- sheets ----------
+let lastFocus = null;
+function openSheet(html) {
+  lastFocus = document.activeElement;
+  $('#sheetCard').innerHTML = html;
+  $('#sheet').hidden = false;
+  ($('#sheetCard').querySelector('[autofocus]') || $('#sheetCard').querySelector('button, a, input'))?.focus();
+}
+function closeSheet() { $('#sheet').hidden = true; $('#sheetCard').innerHTML = ''; lastFocus?.focus?.(); }
+$('#sheet').addEventListener('click', ev => { if (ev.target === $('#sheet') || ev.target.closest('[data-close]')) closeSheet(); });
+document.addEventListener('keydown', ev => {
+  if (ev.key !== 'Escape') return;
+  if (!$('#platform').hidden) closePlatform(); else if (!$('#sheet').hidden) closeSheet();
+});
+
+const STATUS_WORD = { accepted: 'going', declined: 'declined', tentative: 'maybe', needsAction: 'no reply' };
+function openStop(key) {
+  const [id, t] = key.split('|');
+  const e = S.events.find(x => x.id === id && String(x.start.getTime()) === t);
+  if (!e) return;
+  const now = new Date();
+  const l = lineById(e.line);
+  const et = etaOf(e, now);
+  const ended = e.end <= now;
+  const w = e.location && !safeUrl(e.location) ? e.location : whereOf(e);
+  const riders = e.others.slice(0, 30);
+  openSheet(`
+    <div class="sign"><div class="stripe"></div>
+      <div class="sign-row">${bullet(l, { size: 'lg', diamond: isDiamond(e) })}<span>${esc(l.name)}${isDiamond(e) ? ' · you organized it' : ''}</span></div>
+      <h2 id="sheetTitle">${esc(e.title)}</h2>
+      <p>${esc(wd(e.start))}, ${esc(md(e.start))} · ${e.allDay ? 'All day' : esc(tFmt(e.start)) + '–' + esc(tFmt(e.end))}</p>
+    </div>
+    <div class="sheet-body">
+      ${e.allDay ? '' : `<div class="eta-box">${ended ? 'Departed' : et.live ? `Boarding · ${esc(et.n)} min left` : esc(et.unit === 'min' ? `Arrives in ${et.n} min` : et.unit === 'hr' ? `Arrives in ${et.n} hr` : `Arrives ${et.n} ${et.unit}`)}</div>`}
+      ${e.declined ? '<p class="skipnote">You declined this one, so it shows as a skip-stop.</p>' : ''}
+      <dl class="facts">
+        ${w ? `<dt>Platform</dt><dd>${esc(w)}</dd>` : ''}
+        ${riders.length ? `<dt>Riding with</dt><dd><ul class="riders">${riders.map(a => `<li>${esc(a.name)}<small>${esc(STATUS_WORD[a.status] || '')}${a.org ? ' · organizer' : ''}</small></li>`).join('')}</ul>${e.others.length > riders.length ? `<small>and ${e.others.length - riders.length} more</small>` : ''}</dd>` : ''}
+        ${e.desc ? `<dt>Notes</dt><dd class="notes">${esc(e.desc)}</dd>` : ''}
+        ${e.cal !== 'primary' ? `<dt>Calendar</dt><dd>${esc(e.cal)}</dd>` : ''}
+      </dl>
+      <div class="sheet-actions">
+        ${e.link ? `<a class="btn primary" href="${esc(e.link)}" target="_blank" rel="noopener">Join call ↗</a>` : ''}
+        ${e.html ? `<a class="btn" href="${esc(e.html)}" target="_blank" rel="noopener">Open in Google Calendar ↗</a>` : ''}
+        <button class="btn ghost" data-close>Close</button>
+      </div>
+    </div>`);
+}
+function openAllDay() {
+  const now = new Date();
+  const ad = dayAll(now);
+  openSheet(`<div class="sign"><div class="stripe"></div><h2 id="sheetTitle">All day today</h2></div>
+    <div class="sheet-body"><ul class="list-allday">${ad.map(e => `<li>${esc(e.title)}<small>${esc(md(e.start))}${(e.end - e.start) > 864e5 ? ' to ' + esc(md(addDays(e.end, -1))) : ''}</small></li>`).join('')}</ul>
+    <div class="sheet-actions"><button class="btn ghost" data-close>Close</button></div></div>`);
+}
+
+function openAdd() {
+  const now = new Date();
+  const start = new Date(Math.ceil((now.getTime() + 5 * 60000) / 1800000) * 1800000);
+  const base = sod(now);
+  const dayIdx = Math.round((sod(start) - base) / 864e5);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(base, i)).map((d, i) =>
+    `<label class="chip"><input type="radio" name="addDay" value="${i}" ${i === dayIdx ? 'checked' : ''}><span>${esc(i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : wd(d, 'short') + ' ' + d.getDate())}</span></label>`).join('');
+  const lens = [15, 30, 45, 60, 90].map(m => `<label class="chip"><input type="radio" name="addLen" value="${m}" ${m === 30 ? 'checked' : ''}><span>${m < 60 ? m + ' min' : m / 60 + ' hr'}</span></label>`).join('');
+  openSheet(`<form id="addForm" novalidate>
+    <div class="sign"><div class="stripe"></div><h2 id="sheetTitle">Add a stop</h2><p>${S.status === 'live' ? 'Goes straight onto your Google Calendar. No one is invited.' : 'This is the sample day, so the stop stays on this page.'}</p></div>
+    <div class="sheet-body">
+      <div class="field"><label for="addTitle">What</label><input class="input" id="addTitle" maxlength="200" placeholder="Coffee with Jordan" autocomplete="off" autofocus></div>
+      <div class="rides" id="addRides"></div>
+      <div class="field"><span>Day</span><div class="chips">${days}</div></div>
+      <div class="row2">
+        <div class="field"><label for="addTime">Starts</label><input class="input" type="time" id="addTime" value="${p2(start.getHours())}:${p2(start.getMinutes())}"></div>
+        <div class="field"><span>Length</span><div class="chips">${lens}</div></div>
+      </div>
+      ${S.status === 'live' ? '<label class="check"><input type="checkbox" id="addMeet"> Add a Google Meet link</label>' : ''}
+      <div class="sheet-actions"><button class="btn primary" type="submit" id="addGo">Add to calendar</button><button class="btn ghost" type="button" data-close>Cancel</button></div>
+      <p class="form-msg" id="addMsg" role="status"></p>
+    </div></form>`);
+  const rides = () => {
+    const t = $('#addTitle').value.trim();
+    const fake = { title: t || 'x', others: [], type: 'DEFAULT' };
+    const l = lineById(classify(fake));
+    $('#addRides').innerHTML = `${bullet(l, { size: 'sm' })}<span>${t ? 'Rides' : 'Will ride'} the ${esc(l.name)} line</span>`;
+  };
+  rides();
+  $('#addTitle').addEventListener('input', rides);
+  $('#addForm').addEventListener('submit', submitAdd);
+}
+async function submitAdd(ev) {
+  ev.preventDefault();
+  const msg = $('#addMsg'), go = $('#addGo');
+  const title = $('#addTitle').value.trim();
+  if (!title) { msg.textContent = 'Give the stop a name first.'; $('#addTitle').focus(); return; }
+  const di = Number(document.querySelector('input[name=addDay]:checked')?.value || 0);
+  const len = Number(document.querySelector('input[name=addLen]:checked')?.value || 30);
+  const [hh, mm] = ($('#addTime').value || '09:00').split(':').map(Number);
+  const start = addDays(sod(new Date()), di); start.setHours(hh, mm, 0, 0);
+  const end = new Date(start.getTime() + len * 60000);
+  if (S.status === 'live' && HOSTED) {
+    go.disabled = true; go.textContent = 'Adding…'; msg.textContent = '';
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const body = { summary: title, start: { dateTime: isoLocal(start), timeZone: tz }, end: { dateTime: isoLocal(end), timeZone: tz } };
+    if ($('#addMeet')?.checked) body.conferenceData = { createRequest: { requestId: 'hw-' + Date.now(), conferenceSolutionKey: { type: 'hangoutsMeet' } } };
+    try {
+      await G.api('/calendars/primary/events?conferenceDataVersion=1&sendUpdates=none', { method: 'POST', body: JSON.stringify(body) });
+      closeSheet(); toast(`Added ${title} · ${wd(start, 'short')} ${tFmt(start)}`);
+      gLoad();
+    } catch (err) {
+      go.disabled = false; go.textContent = 'Add to calendar';
+      msg.textContent = err?.code === 'signed_out' ? 'You’ve been signed out. Sign in with Google again, then add the stop.'
+        : err?.code === 'network' ? 'Couldn’t reach Google. The stop may have been added, so check your calendar before trying again.'
+        : `Google Calendar said no: ${err?.message || 'unknown error'}`;
+    }
+    return;
+  }
+  if (S.status !== 'live') {
+    sample().push({ id: 'sample-add-' + Date.now(), cal: 'primary', title, start, end, allDay: false, location: '', link: '', html: '', desc: '', attendees: [], others: [], recurring: false, type: 'DEFAULT', organizerMe: true, declined: false, sample: true });
+    rebuild(); renderAll(); closeSheet(); toast('Added to the sample day');
+    return;
+  }
+  go.disabled = true; go.textContent = 'Adding…'; msg.textContent = '';
+  const input = { summary: title, startTime: isoLocal(start), endTime: isoLocal(end) };
+  if ($('#addMeet')?.checked) input.addGoogleMeetUrl = true;
+  try {
+    await S.mcp.callTool(SERVER, 'create_event', input);
+    S.mcp.invalidate(SERVER, 'list_events').catch(() => {});
+    closeSheet(); toast(`Added ${title} · ${wd(start, 'short')} ${tFmt(start)}`);
+  } catch (err) {
+    go.disabled = false; go.textContent = 'Add to calendar';
+    const c = err?.code;
+    msg.textContent = c === 'approval_required' || c === 'not_in_manifest' ? 'Adding events needs your OK. Choose Allow when Claude asks, then try again.'
+      : c === 'needs_reauth' ? 'Google Calendar needs reconnecting in claude.ai Settings → Connectors.'
+      : c === 'tool_error' ? `Google Calendar said no: ${err.message || 'unknown error'}`
+      : c === 'server_unavailable' || c === 'upstream_error' || c === 'cancelled' ? 'Google Calendar didn’t answer. The stop may have been added, so check your calendar before trying again.'
+      : `Couldn’t add the stop (${c || 'error'}).`;
+  }
+}
+
+let toastTimer = 0;
+function toast(text) {
+  const t = $('#toast'); t.textContent = text; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 3200);
+}
+
+// ---------- platform display ----------
+let wakeLock = null;
+function openPlatform() {
+  $('#platform').hidden = false;
+  renderPlatform(new Date());
+  $('#platform').requestFullscreen?.().catch(() => {});
+  navigator.wakeLock?.request('screen').then(l => { wakeLock = l; }).catch(() => {});
+  $('#pfExit').focus();
+}
+function closePlatform() {
+  $('#platform').hidden = true;
+  if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  wakeLock?.release?.().catch(() => {}); wakeLock = null;
+  $('#platformBtn').focus();
+}
+function renderPlatform(now) {
+  if ($('#platform').hidden) return;
+  $('#pfRows').innerHTML = ledRows(now, 4);
+  $('#pfLed').classList.toggle('flash', Date.now() < S.flashUntil);
+  setTicker($('#pfTicker'), tickerMsgs.join('   ·   '));
+}
+
+// ---------- sound + announcements ----------
+let AC = null;
+function audio() {
+  const C = window.AudioContext || window.webkitAudioContext;
+  if (!C) return null;
+  if (!AC) { try { AC = new C(); } catch { return null; } }
+  if (AC.state === 'suspended') AC.resume().catch(() => {});
+  return AC;
+}
+function chime() {
+  const ac = audio(); if (!ac) return;
+  const t = ac.currentTime + 0.05;
+  // two falling bell tones, a major third apart, with a little overtone shimmer
+  [[659.25, 0], [523.25, 0.48]].forEach(([f, d]) => {
+    [[1, 'sine', 0.2], [2.01, 'sine', 0.045], [3.02, 'triangle', 0.018]].forEach(([h, type, peak]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = type; o.frequency.value = f * h;
+      g.gain.setValueAtTime(0.0001, t + d);
+      g.gain.exponentialRampToValueAtTime(peak, t + d + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d + 1.7);
+      o.connect(g).connect(ac.destination); o.start(t + d); o.stop(t + d + 1.8);
+    });
+  });
+}
+function say(text) {
+  try {
+    if (!prefs.voice || !window.speechSynthesis) return;
+    const u = new SpeechSynthesisUtterance(text);
+    const v = speechSynthesis.getVoices().find(x => /en[-_]US/i.test(x.lang));
+    if (v) u.voice = v;
+    u.rate = 1.0; u.pitch = 0.95;
+    speechSynthesis.cancel(); setTimeout(() => speechSynthesis.speak(u), prefs.sound ? 1300 : 0);
+  } catch {}
+}
+const fired = new Set();
+function checkArrivals(now) {
+  for (const e of S.events) {
+    if (!riding(e)) continue;
+    const m = (e.start - now) / 60000;
+    if (m > 0 && m <= 1 && !fired.has(e.id + 'a')) {
+      fired.add(e.id + 'a');
+      S.flashUntil = Date.now() + 5000;
+      if (prefs.sound) chime();
+      const w = whereOf(e);
+      say(`${e.title} starts in one minute.${w ? ' ' + w + '.' : ''}`);
+      renderLive(now);
+    } else if (m <= 0 && m > -0.5 && !fired.has(e.id + 'b')) {
+      fired.add(e.id + 'b');
+      S.flashUntil = Date.now() + 5000;
+      if (prefs.sound) chime();
+      say(`Now boarding: ${e.title}.`);
+      renderLive(now);
+    }
+  }
+}
+
+// ---------- Google Calendar via the viewer's connector ----------
+const ERR = {
+  needs_reauth: { msg: 'Google Calendar needs reconnecting. Reconnect it in claude.ai Settings → Connectors.', denial: true },
+  server_not_connected: { msg: 'Add the Google Calendar connector in claude.ai Settings → Connectors to see your own day.', denial: true },
+  selection_required: { msg: 'You have more than one Google Calendar connector. Pick one when Claude asks.', denial: true },
+  approval_required: { msg: 'Headway needs your OK to read Google Calendar.', denial: true, action: 'connect', actionLabel: 'Allow' },
+  not_in_manifest: { msg: 'Google Calendar is turned off for this page.', denial: true, action: 'manage', actionLabel: 'Permissions' },
+  blocked_by_policy: { msg: 'Your organization blocks Google Calendar here.', denial: true },
+  not_granted: { msg: 'This view can’t reach your calendar.', denial: true },
+  capability_disabled: { msg: 'This view can’t reach your calendar.', denial: true },
+  capability_removed: { msg: 'This view can’t reach your calendar.', denial: true },
+  server_unavailable: { msg: 'Google Calendar isn’t answering. Showing the last good schedule.' },
+  rate_limited: { msg: 'Google Calendar is busy. Showing the last good schedule.' },
+};
+function errInfo(err) {
+  const c = err?.code;
+  if (ERR[c]) return { code: c, ...ERR[c] };
+  if (c === 'tool_error') return { code: c, msg: `Google Calendar returned an error: ${String(err.message || '').slice(0, 140)}` };
+  return { code: c, msg: `Couldn’t load your calendar${c ? ` (${c})` : ''}. Showing the last good schedule.` };
+}
+function weekRange() {
+  const a = sod(new Date());
+  return { startTime: isoLocal(a), endTime: isoLocal(addDays(a, 7)) };
+}
+function stopWatches() { for (const u of Object.values(S.watches)) { try { u(); } catch {} } S.watches = {}; }
+function startWatches() {
+  stopWatches();
+  const r = weekRange();
+  for (const k of Object.keys(S.raw)) if (!prefs.calendars.includes(k)) delete S.raw[k];
+  for (const cal of prefs.calendars) {
+    const input = { ...r, orderBy: 'startTime', pageSize: 250 };
+    if (cal !== 'primary') input.calendarId = cal;
+    S.watches[cal] = S.mcp.watchTool(SERVER, 'list_events', input, ev => {
+      if (ev.type === 'data') {
+        const pl = ev.result?.payload;
+        const list = Array.isArray(pl?.events) ? pl.events : [];
+        S.raw[cal] = list;
+        if (cal === 'primary') {
+          const mine = (typeof pl?.summary === 'string' && pl.summary.includes('@')) ? pl.summary
+            : list.flatMap(e => e.attendees || []).find(a => a.self)?.email || null;
+          if (mine) { S.me = mine; S.domain = domainOf(mine); }
+        }
+        S.updatedAt = ev.result?.cache?.storedAt || Date.now();
+        S.status = 'live'; S.err = null;
+      } else {
+        const info = errInfo(ev.error);
+        S.err = info;
+        if (info.denial) {
+          delete S.raw[cal];
+          if (cal === 'primary') { S.status = info.code === 'approval_required' ? 'ask' : 'sample'; S.raw = {}; }
+        }
+      }
+      rebuild(); renderAll();
+    }, { refetchInterval: 5 * 60000, cache: { staleTime: 60000, gcTime: 864e5 } });
+  }
+}
+async function connect() {
+  if (!S.mcp) return;
+  S.status = 'connecting'; S.err = null; renderHeader(new Date());
+  try {
+    const r = await S.mcp.callTool(SERVER, 'list_calendars', {}, { cache: { staleTime: 3600000, gcTime: 864e5 } });
+    S.cals = Array.isArray(r?.payload?.calendars) ? r.payload.calendars : [];
+  } catch (err) {
+    const info = errInfo(err);
+    if (info.denial) { S.status = info.code === 'approval_required' || info.code === 'not_in_manifest' ? 'ask' : 'sample'; S.err = info; renderAll(); return; }
+    S.cals = [];
+  }
+  startWatches();
+}
+// ---------- Google Calendar direct (scottvibes.com) ----------
+const G = {
+  token: null, exp: 0,
+  async getToken() {
+    if (this.token && Date.now() < this.exp - 60000) return this.token;
+    let r;
+    try { r = await fetch('/api/headway/token', { credentials: 'same-origin', cache: 'no-store' }); } catch { throw { code: 'network' }; }
+    if (r.status === 401) { this.token = null; throw { code: 'signed_out' }; }
+    if (r.status === 503) throw { code: 'not_configured' };
+    if (!r.ok) throw { code: 'network' };
+    const j = await r.json();
+    this.token = j.access_token; this.exp = Date.now() + (j.expires_in || 3600) * 1000;
+    return this.token;
+  },
+  async api(path, opts = {}, retry = true) {
+    const t = await this.getToken();
+    let r;
+    try { r = await fetch('https://www.googleapis.com/calendar/v3' + path, { ...opts, headers: { Authorization: 'Bearer ' + t, 'Content-Type': 'application/json' } }); }
+    catch { throw { code: 'network' }; }
+    if (r.status === 401 && retry) { this.token = null; return this.api(path, opts, false); }
+    if (!r.ok) {
+      let message = '';
+      try { message = (await r.json()).error?.message || ''; } catch {}
+      throw { code: r.status === 403 ? 'forbidden' : 'api', status: r.status, message: message || 'HTTP ' + r.status };
+    }
+    return r.status === 204 ? null : r.json();
+  },
+};
+const SIGNIN_ERR = {
+  not_configured: 'Google sign-in isn’t set up on this site yet.',
+  access_denied: 'Sign-in was cancelled.',
+  scopes: 'Headway needs calendar access. Sign in again and leave the calendar boxes ticked.',
+  expired: 'Sign-in took too long. Try again.',
+  google_error: 'Google couldn’t finish sign-in. Try again.',
+};
+let gBusy = false, gLast = 0;
+async function gLoad() {
+  if (gBusy) return;
+  gBusy = true;
+  try {
+    if (!S.cals.length) {
+      try {
+        const cl = await G.api('/users/me/calendarList?maxResults=100');
+        S.cals = (cl.items || []).map(c => ({ id: c.primary ? 'primary' : c.id, summary: c.summaryOverride || c.summary || c.id, description: c.description || '' }));
+        const p = (cl.items || []).find(c => c.primary);
+        if (p) { S.me = p.id; S.domain = domainOf(p.id); }
+      } catch (e) { if (e.code !== 'forbidden') throw e; }
+    }
+    const a = sod(new Date()), b = addDays(a, 7);
+    const qs = `timeMin=${encodeURIComponent(a.toISOString())}&timeMax=${encodeURIComponent(b.toISOString())}&singleEvents=true&orderBy=startTime&maxResults=250`;
+    const results = await Promise.all(prefs.calendars.map(cal =>
+      G.api(`/calendars/${encodeURIComponent(cal)}/events?${qs}`).then(r => [cal, r]).catch(e => { if (cal === 'primary') throw e; return [cal, null]; })));
+    S.raw = {};
+    for (const [cal, r] of results) {
+      if (!r) continue;
+      S.raw[cal] = r.items || [];
+      if (cal === 'primary' && !S.me && typeof r.summary === 'string' && r.summary.includes('@')) { S.me = r.summary; S.domain = domainOf(r.summary); }
+    }
+    S.status = 'live'; S.err = null; S.updatedAt = Date.now();
+  } catch (e) {
+    if (e.code === 'signed_out' || e.code === 'not_configured') {
+      S.status = 'signin'; S.raw = {}; S.cals = [];
+      S.err = e.code === 'not_configured' ? { msg: SIGNIN_ERR.not_configured } : null;
+    } else if (e.code === 'forbidden') {
+      S.err = { msg: 'Google Calendar refused access. Sign out, sign in again, and allow calendar access.' };
+    } else {
+      S.err = { msg: `Couldn’t reach Google Calendar${e.message ? ' (' + e.message + ')' : ''}. Showing the last good schedule.` };
+      if (S.status !== 'live') S.status = 'signin';
+    }
+  } finally {
+    gBusy = false; gLast = Date.now();
+  }
+  rebuild(); renderAll();
+}
+function hostedBoot() {
+  const q = new URLSearchParams(location.search);
+  const e = q.get('error');
+  if (e) { S.err = { msg: SIGNIN_ERR[e] || 'Sign-in didn’t finish. Try again.' }; history.replaceState(null, '', location.pathname + location.hash); }
+  S.status = 'connecting'; renderHeader(new Date());
+  gLoad();
+  setInterval(() => { if (S.status === 'live' && document.visibilityState === 'visible') gLoad(); }, 5 * 60000);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && S.status === 'live' && Date.now() - gLast > 60000) gLoad();
+  });
+}
+
+async function boot() {
+  if (HOSTED) return hostedBoot();
+  let mcp = null, perms = null;
+  try { mcp = await window.claude?.use?.('mcp'); } catch {}
+  if (!mcp) { S.status = 'unavailable'; renderAll(); return; }
+  S.mcp = mcp;
+  try { perms = await window.claude.use('permissions'); } catch {}
+  let st = 'prompt';
+  if (perms) st = await perms.state('mcp:' + SERVER).catch(() => 'unavailable');
+  if (st === 'granted') connect();
+  else { S.status = 'ask'; renderAll(); }
+}
+async function managePerms() {
+  try { const perms = await window.claude.use('permissions'); await perms?.manage(); } catch { toast('Open this artifact’s Permissions menu to turn Google Calendar on.'); return; }
+  connect();
+}
+
+// ---------- routing + render loop ----------
+const VIEWS = ['board', 'line', 'week', 'lines'];
+function route() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'board';
+  S.view = v;
+  for (const name of VIEWS) {
+    const el = $('#v-' + name);
+    el.classList.toggle('is-active', name === v);
+    el.classList.toggle('side-default', v === 'board' && name === 'line');
+  }
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.dataset.v === v) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+    t.classList.toggle('desk-current', v === 'board' && t.dataset.v === 'line');
+  });
+}
+function renderLive(now) {
+  renderHeader(now); renderLED(now); renderBoard(now); renderLine(now); renderWeek(now); renderPlatform(now);
+}
+function renderAll() { const now = new Date(); renderLive(now); renderLines(); }
+
+let lastMinute = -1;
+function tick() {
+  const now = new Date();
+  const k = sod(now).getTime();
+  if (k !== S.dayKey) { S.dayKey = k; S.day = 0; if (HOSTED && S.status === 'live') gLoad(); else if (S.mcp && Object.keys(S.watches).length) startWatches(); rebuild(); renderAll(); }
+  const [hm, ap] = tParts(now);
+  const clock = esc(hm).replace(':', '<b>:</b>') + (ap ? ' ' + ap : '');
+  $('#ledClock').innerHTML = clock;
+  if (!$('#platform').hidden) $('#pfClock').innerHTML = clock;
+  if (now.getMinutes() !== lastMinute) { lastMinute = now.getMinutes(); renderLive(now); }
+  checkArrivals(now);
+}
+
+// ---------- events ----------
+document.addEventListener('click', ev => {
+  const t = ev.target;
+  const open = t.closest('[data-open]'); if (open) { openStop(open.dataset.open); return; }
+  const f = t.closest('[data-filter]'); if (f) { S.filter = S.filter === f.dataset.filter ? null : f.dataset.filter; renderLive(new Date()); return; }
+  const dchip = t.closest('.daychip, .wk-row');
+  if (dchip) { S.day = Number(dchip.dataset.day) || 0; if (dchip.classList.contains('wk-row')) location.hash = 'line'; renderLine(new Date()); return; }
+  const act = t.closest('[data-act]');
+  if (act) {
+    const a = act.dataset.act;
+    if (a === 'connect') connect();
+    else if (a === 'manage') managePerms();
+    else if (a === 'refresh' && HOSTED) { gLoad(); toast('Refreshing'); }
+    else if (a === 'refresh' && S.mcp) { S.mcp.invalidate(SERVER, 'list_events').catch(() => {}); toast('Refreshing'); }
+    return;
+  }
+  if (audio && prefs.sound && AC && AC.state === 'suspended') AC.resume().catch(() => {});
+});
+$('#alldayBtn').addEventListener('click', openAllDay);
+$('#addBtn').addEventListener('click', openAdd);
+$('#platformBtn').addEventListener('click', openPlatform);
+$('#pfExit').addEventListener('click', closePlatform);
+$('#earlierBtn').addEventListener('click', () => { S.showEarlier = !S.showEarlier; renderBoard(new Date()); });
+$('#soundBtn').addEventListener('click', () => {
+  prefs.sound = !prefs.sound; save();
+  $('#soundBtn').setAttribute('aria-pressed', prefs.sound);
+  if (prefs.sound) { chime(); toast('Arrival chime on'); } else toast('Arrival chime off');
+  renderLines();
+});
+$('#soundBtn').setAttribute('aria-pressed', prefs.sound);
+window.addEventListener('hashchange', route);
+
+// lines roster: text edits update in place; structural edits re-render
+function editLine(id, patch) {
+  const c = prefs.custom.find(x => x.id === id);
+  if (c) Object.assign(c, patch); else prefs.lineEdits[id] = { ...(prefs.lineEdits[id] || {}), ...patch };
+}
+$('#v-lines').addEventListener('change', ev => {
+  const t = ev.target;
+  const row = t.closest('[data-line]');
+  if (row && t.matches('.ln-name, .ln-letter, .ln-kw')) {
+    const id = row.dataset.line;
+    if (t.matches('.ln-name')) editLine(id, { name: t.value.trim() || 'Untitled line' });
+    if (t.matches('.ln-letter')) { const L = (t.value.trim() || '?').slice(0, 1).toUpperCase(); t.value = L; editLine(id, { letter: L }); }
+    if (t.matches('.ln-kw')) editLine(id, { keywords: t.value.split(',').map(s => s.trim()).filter(Boolean) });
+    save(); rebuild();
+    row.querySelector('.ln-bullet').innerHTML = bullet(lineById(id), { size: 'lg' });
+    renderLive(new Date());
+    return;
+  }
+  if (t.matches('[data-cal]')) {
+    const id = t.dataset.cal;
+    prefs.calendars = t.checked ? [...new Set([...prefs.calendars, id])] : prefs.calendars.filter(x => x !== id);
+    if (!prefs.calendars.length) { prefs.calendars = ['primary']; t.checked = id === 'primary'; }
+    save(); if (HOSTED) gLoad(); else if (S.mcp) startWatches(); return;
+  }
+  if (t.matches('[data-pref]')) {
+    prefs[t.dataset.pref] = t.checked; save();
+    if (t.dataset.pref === 'sound') { $('#soundBtn').setAttribute('aria-pressed', prefs.sound); if (prefs.sound) chime(); }
+    if (t.dataset.pref === 'voice' && prefs.voice) { const was = prefs.voice; prefs.voice = true; say('Headway announcements are on.'); prefs.voice = was; }
+    renderLive(new Date());
+  }
+});
+$('#v-lines').addEventListener('click', ev => {
+  const t = ev.target;
+  const row = t.closest('[data-line]');
+  if (t.closest('#addLine')) {
+    const used = new Set(lines().map(l => l.letter));
+    const letter = ['A', 'C', 'D', 'G', 'J', 'L', 'N', 'R', 'W', 'Z', '2', '3', '5', '6'].find(x => !used.has(x)) || 'A';
+    const id = 'c' + Date.now().toString(36);
+    prefs.custom.push({ id, letter, color: 'lime', name: 'New line', keywords: [], custom: true, rule: '' });
+    save(); renderLines(); document.getElementById('kw-' + id)?.focus();
+    return;
+  }
+  if (!row) return;
+  const id = row.dataset.line;
+  const sw = t.closest('[data-color]');
+  if (sw) editLine(id, { color: sw.dataset.color });
+  else if (t.closest('[data-hide]')) prefs.hidden = prefs.hidden.includes(id) ? prefs.hidden.filter(x => x !== id) : [...prefs.hidden, id];
+  else if (t.closest('[data-del]')) { prefs.custom = prefs.custom.filter(x => x.id !== id); prefs.hidden = prefs.hidden.filter(x => x !== id); }
+  else return;
+  save(); rebuild(); renderAll();
+});
+
+// ---------- go ----------
+rebuild();
+route();
+renderAll();
+tick();
+setInterval(tick, 1000);
+boot();
+})();
+</script>
+</body>
+</html>
