@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>CreatureLab</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <WasmEnableWebcil>true</WasmEnableWebcil>
+    <NoWarn>CS1591</NoWarn>
+    <!-- a clone of github.com/idlerunner00/procedural-pixel-creatures -->
+    <PpcDir Condition="'$(PpcDir)' == ''">/Volumes/Echo Base/dev-tools/procedural-pixel-creatures</PpcDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(PpcDir)/addons/procedural_creatures/Core/**/*.cs" LinkBase="Core" />
+    <Compile Include="$(PpcDir)/addons/procedural_creatures_plantfolk/Core/**/*.cs" LinkBase="Plantfolk" />
+  </ItemGroup>
+</Project>

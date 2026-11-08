@@ -1,0 +1,34 @@
+{
+  "mainAssemblyName": "CreatureLab",
+  "resources": {
+    "hash": "sha256-ZBPEGSdqnL1UO8eEqsFmLMBt8zKd2y72U3spnmdZ0mg=",
+    "jsModuleNative": {
+      "dotnet.native.8.0.33.hml2iw5mn3.js": "sha256-1DK+nm58uZjvv7U2c/UlUp1zFjeBZnqXHFHBX/W1igo="
+    },
+    "jsModuleRuntime": {
+      "dotnet.runtime.8.0.33.jepgucwsqf.js": "sha256-aa75BhVU2iAzc0Nj93nvwfQ2raXDjiW4VBNfRLHRJgM="
+    },
+    "wasmNative": {
+      "dotnet.native.wasm": "sha256-nuafJqZB4VQTUYFCIRJ7Km/BqoRcArOifoPpa1cW/Mk="
+    },
+    "assembly": {
+      "CreatureLab.wasm": "sha256-//gQVOUx03gJa0ByMe2g7ViTOOOhGLE7fQAMW0GHwCY=",
+      "System.Collections.Concurrent.wasm": "sha256-DXQH/IY5ZPOxOREofsjVXy1C8ysFac1WskFoA0EU4OU=",
+      "System.Collections.wasm": "sha256-LH/QlW7N91XPwqcn42XcHfMb8XCN2Z4grTakILpw55o=",
+      "System.IO.Compression.wasm": "sha256-Ypav5zDkdMM72ktsFqDXxHxGzdIvQEC5/xy0rBQ0vD4=",
+      "System.Linq.wasm": "sha256-Gzraoxkl7f20vtIS8AmzASNVq7low9svzIEinrLyqss=",
+      "System.Memory.wasm": "sha256-jJnBQx7QIrnzcrSo4UznpMYqitJ/c9LfO2OszDxxTSM=",
+      "System.Private.CoreLib.wasm": "sha256-827KrD+uliZSmH4a5VH5zkoAyDVM8HSGFpUk2gB1LSg=",
+      "System.Private.Uri.wasm": "sha256-8bl5k5yxHZs1L3+KI7IOF0CEYcfcKCW94CG822mPE+0=",
+      "System.Runtime.InteropServices.JavaScript.wasm": "sha256-JsFfVdhOWbPxZ17ldAyCULcklIVqv9ujvoAwD5MDo5U=",
+      "System.Runtime.wasm": "sha256-yXxZgcDgV+IpkwgBQ70Hw6YFjA15oadRZl0LlIReyEA=",
+      "System.Text.Encodings.Web.wasm": "sha256-J/o7HQXpMzyysX3aCdYw5Rvt15KNnawhancoTbvhsuY=",
+      "System.Text.Json.wasm": "sha256-a5btH3MJgBhx2D4ttzKHDiRb1xFbzZ4Tcdt58h5nph4=",
+      "System.Threading.wasm": "sha256-3P425b8SpSRA92pXHugtIzfn7fGUcKLrk1X1h2u+3PA="
+    }
+  },
+  "cacheBootResources": true,
+  "debugLevel": 0,
+  "linkerEnabled": true,
+  "globalizationMode": "invariant"
+}
