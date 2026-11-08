@@ -143,3 +143,31 @@
 @media (prefers-reduced-motion: reduce) {
   .kz-shine::after { animation: none; }
 }
+
+/* Poké Packs: foil pack with a silhouette window, tears open on tap */
+.kz-pack {
+  filter: drop-shadow(0 18px 22px rgba(50, 59, 82, 0.28));
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.kz-pack:hover { transform: translateY(-4px) rotate(-1.5deg); }
+.kz-pack:active { transform: scale(0.98); }
+.kz-pack-tease {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+@keyframes kz-pack-shake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-3deg); }
+  40% { transform: rotate(3deg); }
+  60% { transform: rotate(-2deg); }
+  80% { transform: rotate(1deg); }
+}
+@keyframes kz-pack-strip {
+  to { transform: translate(40px, -60px) rotate(18deg); opacity: 0; }
+}
+.kz-pack-tearing { animation: kz-pack-shake 0.4s ease-in-out; }
+.kz-pack-tearing .kz-pack-strip { animation: kz-pack-strip 0.45s 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .kz-pack, .kz-pack:hover { transition: none; transform: none; }
+}

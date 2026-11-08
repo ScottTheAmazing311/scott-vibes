@@ -6,7 +6,7 @@ export interface KidGame {
   slug: string;
   title: string;
   /** geometric mark, see components/kidzone/Mark.tsx */
-  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe" | "gem";
+  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe" | "gem" | "ball";
   blurb: string;
   /** token name of the game's toy color */
   accent: "marigold" | "brick" | "leaf" | "cobalt";
@@ -24,6 +24,7 @@ export const kidGames: KidGame[] = [
   { slug: "sunday", title: "Sunday Prep", shape: "book", blurb: "This week's scripture story, with activities to try before church.", accent: "leaf" },
   { slug: "map", title: "World Explorer", shape: "globe", blurb: "Tap a country. Learn hellos, foods, and wild facts. Collect stamps.", accent: "cobalt" },
   { slug: "kards", title: "Knudson Kards", shape: "gem", blurb: "Open a fresh card pack every day. Fill the whole binder.", accent: "marigold" },
+  { slug: "poke", title: "Poké Packs", shape: "ball", blurb: "Three packs a day. Catch all 1,025 Pokémon, and keep an eye out for shinies.", accent: "brick" },
 ];
 
 /* ---------------- Countdown ---------------- */
