@@ -509,3 +509,25 @@
   .cz-splash { animation: none; }
   .cz-bubbles i { animation-duration: 6s; }
 }
+
+/* Color by Letter: print only the page */
+@media print {
+  .kidzone {
+    background: #fff;
+  }
+  .kidzone > header {
+    display: none;
+  }
+  .kidzone main {
+    max-width: none;
+    padding: 0;
+  }
+  .cl-paper {
+    box-shadow: none !important;
+    aspect-ratio: auto !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    break-inside: avoid;
+  }
+}

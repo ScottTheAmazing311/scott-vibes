@@ -6,7 +6,7 @@ export interface KidGame {
   slug: string;
   title: string;
   /** geometric mark, see components/kidzone/Mark.tsx */
-  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe" | "gem" | "ball" | "pot";
+  shape: "circle" | "triangle" | "bars" | "cards" | "ring" | "paw" | "star" | "oval" | "book" | "globe" | "gem" | "ball" | "pot" | "crayon";
   blurb: string;
   /** token name of the game's toy color */
   accent: "marigold" | "brick" | "leaf" | "cobalt";
@@ -26,6 +26,7 @@ export const kidGames: KidGame[] = [
   { slug: "kards", title: "Knudson Kards", shape: "gem", blurb: "Open a fresh card pack every day. Fill the whole binder.", accent: "marigold" },
   { slug: "poke", title: "Poké Packs", shape: "ball", blurb: "Three packs a day. Catch all 1,025 Pokémon, and keep an eye out for shinies.", accent: "brick" },
   { slug: "cauldron", title: "Creature Cauldron", shape: "pot", blurb: "Toss up to five ingredients in the pot, stir, and meet a creature nobody has seen before.", accent: "leaf" },
+  { slug: "color", title: "Color by Letter", shape: "crayon", blurb: "Turn any picture into a page to color by letter. Print it and grab the crayons.", accent: "cobalt" },
 ];
 
 /* ---------------- Countdown ---------------- */
