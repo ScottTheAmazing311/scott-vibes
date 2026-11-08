@@ -51,6 +51,7 @@ export async function googleToken(params: Record<string, string>) {
   const data = (await res.json().catch(() => ({}))) as {
     access_token?: string;
     refresh_token?: string;
+    id_token?: string;
     expires_in?: number;
     scope?: string;
     error?: string;

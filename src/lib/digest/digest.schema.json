@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Curated Daily Digest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "edition_id",
+    "updated_at",
+    "timezone",
+    "title",
+    "categories",
+    "items",
+    "coverage_note"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "edition_id": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 40,
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "timezone": {
+      "const": "America/Denver"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "categories": {
+      "type": "array",
+      "const": [
+        "Pixel Dev",
+        "AI cutting edge",
+        "DGX Spark",
+        "Design and Aesthetic",
+        "Sports Roundup",
+        "Notable trending things"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "category",
+          "title",
+          "source_date",
+          "label",
+          "summary",
+          "why_useful",
+          "caveat",
+          "sources"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+          },
+          "category": {
+            "enum": [
+              "Pixel Dev",
+              "AI cutting edge",
+              "DGX Spark",
+              "Design and Aesthetic",
+              "Sports Roundup",
+              "Notable trending things"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "source_date": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "why_useful": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 800
+          },
+          "caveat": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "sources": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 5,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "url"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "pattern": "^https://[^\\s]+$",
+                  "maxLength": 2048
+                }
+              }
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "coverage_note": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1600
+    }
+  }
+}

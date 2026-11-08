@@ -19,6 +19,11 @@ Scott Knudson's personal site. Next.js 16 (App Router), Tailwind v4, deployed fr
   Google Slides embed (`slidesId`), a self-hosted image deck (`deck: {dir, count}`,
   images at `public/<dir>/slide-NN.jpg`), audio, songs, and links — all optional
   fields on the `sundayLessons` entry.
+- `src/app/(site)/feed/` + `src/app/api/digest/` + `src/lib/digest/` — PRIVATE daily digest,
+  owner-only (`DIGEST_OWNER_EMAIL`). Grok Bot pushes editions to `/api/digest/ingest`; they live in
+  Sanity under dotted IDs a public query can't read. Never commit digest content: this repo is
+  public, and tests use synthetic data. Check with `npm run test:digest` and, after a build,
+  `node scripts/digest-e2e.mjs`.
 - `sites/relay/` — legacy copy of the Relay brand site; canonical home is the
   separate `relay` repo. Don't develop here.
 
