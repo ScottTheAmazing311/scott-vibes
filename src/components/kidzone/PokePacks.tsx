@@ -1,34 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Mark from "./Mark";
-
-// Sprites come straight from the PokeAPI sprites repo; names, types and Pokédex
-// lines are baked into /public/kidzone/pokedex.json from PokeAPI's CSV data.
-const SPRITES = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon";
-const art = (id: number, shiny = false) => `${SPRITES}/other/official-artwork/${shiny ? "shiny/" : ""}${id}.png`;
-const pixel = (id: number) => `${SPRITES}/${id}.png`;
+import PackOpening, { type Drawn } from "./PackOpening";
+import { PokeCard, Tilt } from "./PokeCard";
+import { fromRow, pad, pixel, points, RARITY, REGIONS, TYPES, type DexRow, type Mon, type Pull, type Rarity } from "./pokeData";
 
 const STORE = "kz-poke-v1";
 const PACK_SIZE = 5;
 const PACKS_PER_DAY = 3;
 const SHINY_ODDS = 1 / 50;
-
-type Rarity = "common" | "rare" | "epic" | "legendary";
-
-interface Mon {
-  id: number;
-  name: string;
-  gen: number;
-  types: string[];
-  rarity: Rarity;
-  fact: string;
-}
-
-interface Pull {
-  id: number;
-  shiny: boolean;
-}
 
 interface Store {
   profiles: { id: string; name: string }[];
@@ -50,39 +31,6 @@ const ODDS: { rarity: Rarity; weight: number }[] = [
   { rarity: "epic", weight: 11 },
   { rarity: "legendary", weight: 3 },
 ];
-
-const RARITY: Record<Rarity, { label: string; border: string }> = {
-  common: { label: "Common", border: "var(--kz-line)" },
-  rare: { label: "Rare", border: "var(--kz-cobalt)" },
-  epic: { label: "Epic", border: "var(--kz-marigold)" },
-  legendary: { label: "Legendary", border: "var(--kz-brick)" },
-};
-
-// Each type gets a strong chip color and a soft card tint, pulled toward the Kid Zone palette.
-const TYPES: Record<string, [string, string]> = {
-  normal: ["#9a9682", "#ece9df"],
-  fire: ["#d95b43", "#f6dccf"],
-  water: ["#4467c9", "#dbe2f5"],
-  grass: ["#4f9c63", "#d9e9d6"],
-  electric: ["#d9a21f", "#f6e9bf"],
-  ice: ["#5ba8b5", "#d8edf0"],
-  fighting: ["#b5473a", "#f0d6d1"],
-  poison: ["#8d5aa6", "#eadcf0"],
-  ground: ["#b88a45", "#efe2cc"],
-  flying: ["#7f8fd6", "#e1e5f6"],
-  psychic: ["#d4587e", "#f6d9e2"],
-  bug: ["#8a9a2e", "#e6ead0"],
-  rock: ["#a3904f", "#ebe4cf"],
-  ghost: ["#6a5e9c", "#e0dcef"],
-  dragon: ["#5a54c4", "#dedcf4"],
-  dark: ["#5d5149", "#e3dfdb"],
-  steel: ["#7f8ea0", "#e2e6eb"],
-  fairy: ["#d47fb0", "#f6e0ec"],
-};
-
-const REGIONS = ["Kanto", "Johto", "Hoenn", "Sinnoh", "Unova", "Kalos", "Alola", "Galar", "Paldea"];
-
-const pad = (n: number) => `#${String(n).padStart(3, "0")}`;
 
 function todayStr(): string {
   const d = new Date();
@@ -118,111 +66,23 @@ function rollPack(dex: Mon[]): Pull[] {
     }
     picks.push({ id: pick.id, shiny: Math.random() < SHINY_ODDS });
   }
-  return picks;
+  // save the best for last, like a real pack
+  const order: Rarity[] = ["common", "rare", "epic", "legendary"];
+  const rank = (p: Pull) => order.indexOf(dex.find((m) => m.id === p.id)!.rarity) + (p.shiny ? 4 : 0);
+  return picks.sort((a, b) => rank(a) - rank(b));
+}
+
+interface Pending {
+  cards: Pull[];
+  /** which of today's packs this is, 1-based */
+  no: number;
 }
 
 /** The next pack for this trainer, or null when today's packs are used up. */
-function packFor(dex: Mon[] | null, s: Store, pid: string | null, day: string): Pull[] | null {
+function packFor(dex: Mon[] | null, s: Store, pid: string | null, day: string): Pending | null {
   if (!dex || !pid) return null;
   const opened = s.packs[pid]?.day === day ? s.packs[pid].opened : 0;
-  return opened < PACKS_PER_DAY ? rollPack(dex) : null;
-}
-
-/* ---------- card faces ---------- */
-
-function TypeChip({ type }: { type: string }) {
-  return (
-    <span
-      className="rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide"
-      style={{ background: TYPES[type]?.[0] ?? "var(--kz-ink)", color: "var(--kz-panel)" }}
-    >
-      {type}
-    </span>
-  );
-}
-
-function PokeCard({ mon, shiny = false, full = false }: { mon: Mon; shiny?: boolean; full?: boolean }) {
-  const r = RARITY[mon.rarity];
-  const tint = TYPES[mon.types[0]]?.[1] ?? "var(--kz-ground)";
-  const glow = shiny || mon.rarity === "legendary";
-  return (
-    <div
-      className={`relative flex h-full w-full flex-col overflow-hidden rounded-[16px] border-[2.5px] ${glow ? "kz-shine" : ""}`}
-      style={{ borderColor: shiny ? "var(--kz-marigold)" : r.border, background: "var(--kz-panel)" }}
-    >
-      <div className="relative aspect-[5/4] w-full" style={{ background: tint }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={art(mon.id, shiny)} alt={shiny ? `Shiny ${mon.name}` : mon.name} className="h-full w-full object-contain p-2" />
-        <span className="absolute left-2 top-1.5 text-[11px] font-extrabold" style={{ color: "var(--kz-ink-soft)" }}>
-          {pad(mon.id)}
-        </span>
-        {shiny && (
-          <span
-            className="absolute right-1.5 top-1.5 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold"
-            style={{ background: "var(--kz-marigold)", color: "var(--kz-ink)" }}
-          >
-            <Mark shape="star" size={10} /> SHINY
-          </span>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col px-3 py-2.5 text-left">
-        <p className={`font-extrabold tracking-tight ${mon.name.length > 11 ? "text-sm leading-tight" : "text-lg leading-tight"}`}>{mon.name}</p>
-        <div className="mt-1 flex flex-wrap gap-1">
-          {mon.types.map((t) => (
-            <TypeChip key={t} type={t} />
-          ))}
-        </div>
-        <p className="mt-1.5 text-[11px] font-bold" style={{ color: r.border === "var(--kz-line)" ? "var(--kz-ink-soft)" : r.border }}>
-          {r.label} &middot; {REGIONS[mon.gen - 1]}
-        </p>
-        <p className={`mt-1 ${full ? "" : "line-clamp-2"} text-[12px] font-semibold leading-snug`} style={{ color: "var(--kz-ink-soft)" }}>
-          {mon.fact}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function CardBack() {
-  return (
-    <div
-      className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-[16px] border-[2.5px]"
-      style={{ background: "var(--kz-ink)", borderColor: "var(--kz-ink)" }}
-    >
-      <Mark shape="ball" size={44} style={{ color: "var(--kz-brick)" }} />
-      <p className="text-xs font-extrabold tracking-wide" style={{ color: "var(--kz-panel)" }}>POKÉ PACKS</p>
-      <p className="text-[11px] font-bold" style={{ color: "rgba(255,253,247,0.55)" }}>Tap to reveal</p>
-    </div>
-  );
-}
-
-/** The foil pack. Its window shows a silhouette of the best card inside. */
-function Pack({ tease, tearing, onOpen }: { tease: Mon | null; tearing: boolean; onOpen: () => void }) {
-  return (
-    <button
-      onClick={onOpen}
-      disabled={tearing}
-      aria-label="Open the pack"
-      className={`kz-pack relative h-64 w-44 ${tearing ? "kz-pack-tearing" : ""}`}
-    >
-      <span className="kz-pack-strip absolute inset-x-0 top-0 h-7 rounded-t-[16px]" style={{ background: "var(--kz-brick)" }} />
-      <span
-        className="absolute inset-x-0 bottom-0 top-6 flex flex-col items-center justify-between overflow-hidden rounded-b-[16px] px-3 pb-4 pt-4"
-        style={{ background: "var(--kz-ink)" }}
-      >
-        <span className="flex items-center gap-1.5 text-[11px] font-extrabold tracking-wide" style={{ color: "var(--kz-panel)" }}>
-          <Mark shape="ball" size={14} style={{ color: "var(--kz-brick)" }} /> POKÉ PACKS
-        </span>
-        {tease && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={art(tease.id)} alt="" className="kz-pack-tease h-32 w-32 object-contain" />
-        )}
-        <span className="text-[11px] font-bold" style={{ color: "rgba(255,253,247,0.6)" }}>
-          {PACK_SIZE} cards &middot; Who&apos;s inside?
-        </span>
-      </span>
-    </button>
-  );
+  return opened < PACKS_PER_DAY ? { cards: rollPack(dex), no: opened + 1 } : null;
 }
 
 /* ---------- the game ---------- */
@@ -235,19 +95,20 @@ export default function PokePacks() {
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState("");
   const [today, setToday] = useState("");
-  const [pending, setPending] = useState<Pull[] | null>(null);
-  const [tearing, setTearing] = useState(false);
-  const [reveal, setReveal] = useState<{ cards: Pull[]; newIds: number[]; flipped: boolean[] } | null>(null);
+  // rolled ahead of time so the pack's window can tease the best card inside
+  const [pending, setPending] = useState<Pending | null>(null);
+  const [newIds, setNewIds] = useState<number[] | null>(null);
   const [region, setRegion] = useState(1);
   const [show, setShow] = useState<"all" | "got" | "missing">("all");
   const [query, setQuery] = useState("");
   const [zoom, setZoom] = useState<{ mon: Mon; shiny: boolean } | null>(null);
+  const binderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/kidzone/pokedex.json")
       .then((r) => r.json())
-      .then((rows: [number, string, number, string[], Rarity, string][]) => {
-        const loaded = rows.map(([id, name, gen, types, rarity, fact]) => ({ id, name, gen, types, rarity, fact }));
+      .then((rows: DexRow[]) => {
+        const loaded = rows.map(fromRow);
         let saved = EMPTY;
         try {
           saved = { ...EMPTY, ...JSON.parse(localStorage.getItem(STORE) || "{}") };
@@ -263,7 +124,6 @@ export default function PokePacks() {
         setStore(saved);
         setActive(pid);
         setToday(day);
-        // rolled ahead of time so the pack's window can tease the best card inside
         setPending(packFor(loaded, saved, pid, day));
       })
       .catch(() => setFailed(true));
@@ -293,7 +153,7 @@ export default function PokePacks() {
     setActive(id);
     setName("");
     setNaming(false);
-    setReveal(null);
+    setNewIds(null);
     setPending(packFor(dex, next, id, today));
   };
 
@@ -302,24 +162,25 @@ export default function PokePacks() {
   const owned = Object.keys(collection).length;
   const openedToday = active && store.packs[active]?.day === today ? store.packs[active].opened : 0;
   const packsLeft = today ? PACKS_PER_DAY - openedToday : 0;
-  const ready = !!dex && !!active && packsLeft > 0;
+  const score = dex
+    ? dex.reduce((a, m) => a + (collection[m.id] ?? 0) * points(m, false) + (shinies[m.id] ?? 0) * points(m, false) * 4, 0)
+    : 0;
 
-  const tease = useMemo(() => {
-    if (!pending) return null;
-    const order: Rarity[] = ["legendary", "epic", "rare", "common"];
-    const mons = pending.map((p) => byId.get(p.id)).filter((m): m is Mon => !!m);
-    return mons.sort((a, b) => order.indexOf(a.rarity) - order.indexOf(b.rarity))[0] ?? null;
-  }, [pending, byId]);
+  const drawn = useMemo<Drawn[]>(
+    () => (pending?.cards ?? []).flatMap((p) => (byId.get(p.id) ? [{ mon: byId.get(p.id)!, shiny: p.shiny }] : [])),
+    [pending, byId]
+  );
+  const tease = useMemo(() => drawn[drawn.length - 1]?.mon ?? null, [drawn]);
 
   const openPack = () => {
-    if (!active || !pending || !ready || tearing) return;
-    const cards = pending;
+    if (!active || !pending || newIds) return;
+    const cards = pending.cards;
     const next: Store = structuredClone(store);
     const mine = next.collections[active] ?? {};
     const shine = next.shinies[active] ?? {};
-    const newIds: number[] = [];
+    const fresh: number[] = [];
     for (const c of cards) {
-      if (!mine[c.id]) newIds.push(c.id);
+      if (!mine[c.id]) fresh.push(c.id);
       mine[c.id] = (mine[c.id] ?? 0) + 1;
       if (c.shiny) shine[c.id] = (shine[c.id] ?? 0) + 1;
     }
@@ -328,29 +189,25 @@ export default function PokePacks() {
     next.packs[active] = { day: today, opened: openedToday + 1 };
     next.lastCards[active] = cards;
     persist(next);
-
-    const done = () => {
-      setTearing(false);
-      setPending(null);
-      setReveal({ cards, newIds: [...new Set(newIds)], flipped: cards.map(() => false) });
-    };
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return done();
-    setTearing(true);
-    setTimeout(done, 700);
+    setNewIds([...new Set(fresh)]);
   };
 
-  const flip = (i: number) => {
-    setReveal((r) => (r && !r.flipped[i] ? { ...r, flipped: r.flipped.map((f, j) => f || j === i) } : r));
+  const nextPack = () => {
+    setNewIds(null);
+    setPending(packFor(dex, store, active, today));
+  };
+
+  const toPokedex = () => {
+    nextPack();
+    requestAnimationFrame(() => binderRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   const switchTo = (id: string) => {
     setActive(id);
-    setReveal(null);
+    setNewIds(null);
     setPending(packFor(dex, store, id, today));
   };
 
-  const allFlipped = reveal?.flipped.every(Boolean) ?? false;
-  const shinyPulled = reveal?.cards.some((c) => c.shiny) ?? false;
   const lastPulls = active ? store.lastCards[active] ?? [] : [];
 
   const q = query.trim().toLowerCase();
@@ -404,7 +261,7 @@ export default function PokePacks() {
       </div>
 
       {store.profiles.length === 0 && (
-        <div className="kz-tile mt-6 p-8 text-center" style={{ background: "var(--kz-brick-soft)" }}>
+        <div className="kz-tile mt-6 p-8" style={{ background: "var(--kz-brick-soft)" }}>
           <h2 className="text-2xl font-extrabold tracking-tight">Add a trainer to start</h2>
           <p className="mt-1 text-base font-semibold" style={{ color: "var(--kz-ink-soft)" }}>
             You get {PACKS_PER_DAY} packs every day, {PACK_SIZE} cards in each. There are 1,025 Pokémon to catch.
@@ -412,93 +269,26 @@ export default function PokePacks() {
         </div>
       )}
 
-      {active && !dex && (
-        <div className="kz-tile mt-6 h-[22rem] animate-pulse motion-reduce:animate-none" style={{ background: "var(--kz-brick-soft)" }} />
-      )}
+      {active && !dex && <div className="pk-table mt-6 h-[33rem] animate-pulse motion-reduce:animate-none" />}
 
-      {/* the next pack */}
-      {active && dex && !reveal && pending && (
-        <div className="kz-tile mt-6 flex flex-col items-center gap-6 p-8 text-center md:flex-row md:p-10 md:text-left" style={{ background: "var(--kz-brick-soft)" }}>
-          <Pack tease={tease} tearing={tearing} onOpen={openPack} />
-          <div>
-            <p className="text-sm font-extrabold" style={{ color: "var(--kz-brick)" }}>
-              Pack {openedToday + 1} of {PACKS_PER_DAY} today
-            </p>
-            <h2 className="mt-1 text-3xl font-extrabold tracking-tight">Who&apos;s that in the window?</h2>
-            <p className="mt-1 max-w-sm text-base font-semibold" style={{ color: "var(--kz-ink-soft)" }}>
-              That shadow is the best card in this pack. Guess, then tear it open to find out.
-            </p>
-            <button onClick={openPack} disabled={tearing} className="kz-btn mt-5">Tear it open</button>
-          </div>
-        </div>
-      )}
-
-      {/* reveal */}
-      {active && reveal && (
-        <div className="mt-6">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
-            {reveal.cards.map((c, i) => {
-              const mon = byId.get(c.id);
-              if (!mon) return null;
-              return (
-                <button
-                  key={i}
-                  onClick={() => flip(i)}
-                  className="aspect-[3/5] [perspective:900px]"
-                  aria-label={reveal.flipped[i] ? mon.name : "Face down card, tap to reveal"}
-                >
-                  <div
-                    className="relative h-full w-full transition-transform duration-500 motion-reduce:transition-none"
-                    style={{ transformStyle: "preserve-3d", transform: reveal.flipped[i] ? "rotateY(180deg)" : "none" }}
-                  >
-                    <div className="absolute inset-0" style={{ backfaceVisibility: "hidden" }}>
-                      <CardBack />
-                    </div>
-                    <div className="absolute inset-0" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
-                      <PokeCard mon={mon} shiny={c.shiny} />
-                      {reveal.flipped[i] && reveal.newIds.includes(c.id) && (
-                        <span
-                          className="absolute -left-1.5 -top-1.5 rounded-full px-2.5 py-1 text-[11px] font-extrabold"
-                          style={{ background: "var(--kz-leaf)", color: "var(--kz-panel)" }}
-                        >
-                          NEW
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {allFlipped ? (
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-              <p className="text-base font-bold">
-                {shinyPulled
-                  ? "A SHINY! Those are super hard to find."
-                  : reveal.newIds.length > 0
-                    ? `${reveal.newIds.length} new Pokémon for the binder!`
-                    : "All doubles this time. Your counters go up!"}
-              </p>
-              <button
-                onClick={() => {
-                  setReveal(null);
-                  setPending(packFor(dex, store, active, today));
-                }}
-                className="kz-btn-ghost"
-              >
-                {packsLeft > 0 ? "Next pack" : "To my binder"}
-              </button>
-            </div>
-          ) : (
-            <p className="mt-4 text-center text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
-              Tap each card to flip it over.
-            </p>
-          )}
-        </div>
+      {/* the pack table */}
+      {active && dex && pending && (
+        <PackOpening
+          key={`${active}-${today}-${pending.no}`}
+          cards={drawn}
+          tease={tease}
+          newIds={newIds}
+          label={`${store.profiles.find((p) => p.id === active)?.name ?? ""} · Pack ${pending.no} of ${PACKS_PER_DAY} today`}
+          packsLeft={packsLeft}
+          onOpen={openPack}
+          onNext={nextPack}
+          onDone={toPokedex}
+          onZoom={(d) => setZoom({ mon: d.mon, shiny: d.shiny })}
+        />
       )}
 
       {/* out of packs for today */}
-      {active && dex && !reveal && packsLeft <= 0 && today !== "" && (
+      {active && dex && !pending && packsLeft <= 0 && today !== "" && (
         <div className="kz-tile mt-6 p-6 md:p-8" style={{ background: "var(--kz-cobalt-soft)" }}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -510,14 +300,12 @@ export default function PokePacks() {
             <Mark shape="ball" size={30} style={{ color: "var(--kz-cobalt)" }} />
           </div>
           {lastPulls.length > 0 && (
-            <div className="mt-4 grid grid-cols-3 gap-2.5 sm:grid-cols-5">
+            <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-5">
               {lastPulls.map((c, i) => {
                 const mon = byId.get(c.id);
                 return mon ? (
-                  <button key={i} onClick={() => setZoom({ mon, shiny: c.shiny })} className="kz-tile flex flex-col items-center p-2" style={{ background: "var(--kz-panel)" }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={art(mon.id, c.shiny)} alt={mon.name} className="aspect-square w-full object-contain" />
-                    <span className="truncate text-xs font-extrabold">{c.shiny ? `Shiny ${mon.name}` : mon.name}</span>
+                  <button key={i} onClick={() => setZoom({ mon, shiny: c.shiny })} aria-label={`${c.shiny ? "Shiny " : ""}${mon.name}, see the card`}>
+                    <PokeCard mon={mon} shiny={c.shiny} />
                   </button>
                 ) : null;
               })}
@@ -527,12 +315,12 @@ export default function PokePacks() {
       )}
 
       {/* binder */}
-      {active && dex && !reveal && (
-        <div className="mt-8">
+      {active && dex && (
+        <div ref={binderRef} className="mt-8 scroll-mt-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h2 className="text-2xl font-extrabold tracking-tight">My Pokédex</h2>
             <span className="text-sm font-bold" style={{ color: "var(--kz-ink-soft)" }}>
-              {owned}/{dex.length} caught &middot; {Object.keys(shinies).length} shiny
+              {owned}/{dex.length} caught &middot; {Object.keys(shinies).length} shiny &middot; {score.toLocaleString()} pts
             </span>
           </div>
 
@@ -575,7 +363,7 @@ export default function PokePacks() {
                   key={m.id}
                   onClick={() => setZoom({ mon: m, shiny: false })}
                   className="kz-tile relative flex flex-col items-center px-1.5 pb-2 pt-1"
-                  style={{ background: TYPES[m.types[0]]?.[1] ?? "var(--kz-panel)", borderColor: RARITY[m.rarity].border }}
+                  style={{ background: TYPES[m.types[0]]?.[1] ?? "var(--kz-panel)", borderColor: m.rarity === "common" ? "var(--kz-line)" : RARITY[m.rarity].color }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={pixel(m.id)} alt={m.name} loading="lazy" className="aspect-square w-full object-contain [image-rendering:pixelated]" />
@@ -626,8 +414,10 @@ export default function PokePacks() {
           style={{ background: "rgba(50, 59, 82, 0.55)" }}
           onClick={() => setZoom(null)}
         >
-          <div className="w-full max-w-[18rem]" onClick={(e) => e.stopPropagation()}>
-            <PokeCard mon={zoom.mon} shiny={zoom.shiny} full />
+          <div className="w-full max-w-[20rem]" onClick={(e) => e.stopPropagation()}>
+            <Tilt>
+              <PokeCard mon={zoom.mon} shiny={zoom.shiny} />
+            </Tilt>
             <div className="mt-3 flex justify-center gap-2">
               {shinies[zoom.mon.id] && (
                 <button className="kz-chip" data-on={zoom.shiny} onClick={() => setZoom({ ...zoom, shiny: !zoom.shiny })}>

@@ -3,6 +3,7 @@
 # pokemon_stats, pokemon_species_flavor_text) from
 # https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv into a folder, then run:
 #   python3 scripts/build-pokedex.py <csv-folder> public/kidzone/pokedex.json
+# Each row: [id, name, generation, types, rarity, Pokédex line, [hp, attack, defense, speed]].
 # Rarity: legendary/mythical -> legendary; base stat total 500+ -> epic; 400+ -> rare.
 import csv, json, sys, re, collections
 d = sys.argv[1]
@@ -17,8 +18,10 @@ ptypes = collections.defaultdict(list)
 for r in rows("pokemon_types"):
     ptypes[int(r["pokemon_id"])].append((int(r["slot"]), types[r["type_id"]]))
 bst = collections.Counter()
+stat = collections.defaultdict(dict)
 for r in rows("pokemon_stats"):
     bst[int(r["pokemon_id"])] += int(r["base_stat"])
+    stat[int(r["pokemon_id"])][int(r["stat_id"])] = int(r["base_stat"])
 flav = {}
 for r in rows("pokemon_species_flavor_text"):
     if r["language_id"] == "9":
@@ -33,6 +36,8 @@ for i in sorted(species):
     # first sentence keeps the file small and the card readable
     m = re.match(r"(.+?[.!?])(\s|$)", t)
     t = m.group(1) if m else t
-    out.append([i, names[i], int(s["generation_id"]), [n for _, n in sorted(ptypes[i])], rar, t])
+    out.append([i, names[i], int(s["generation_id"]), [n for _, n in sorted(ptypes[i])], rar, t,
+                # base HP, Attack, Defense, Speed for the card's stat row
+                [stat[i].get(k, 0) for k in (1, 2, 3, 6)]])
 print(collections.Counter(o[4] for o in out), len(out), file=sys.stderr)
 json.dump(out, open(sys.argv[2], "w"), ensure_ascii=False, separators=(",", ":"))

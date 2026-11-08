@@ -144,30 +144,250 @@
   .kz-shine::after { animation: none; }
 }
 
-/* Poké Packs: foil pack with a silhouette window, tears open on tap */
-.kz-pack {
-  filter: drop-shadow(0 18px 22px rgba(50, 59, 82, 0.28));
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
+/* Poké Packs: trading cards and the pack-opening table.
+   Card sizes are in cqw so one card design scales from binder zoom to the fan.
+   cqw measures the nearest container ancestor, so each card sits in a .pk-wrap. */
+.pk-wrap {
+  container-type: inline-size;
+  width: 100%;
 }
-.kz-pack:hover { transform: translateY(-4px) rotate(-1.5deg); }
-.kz-pack:active { transform: scale(0.98); }
-.kz-pack-tease {
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
+.pk-card {
+  --t: #9a9682;
+  position: relative;
+  aspect-ratio: 63 / 88;
+  width: 100%;
+  border-radius: 5cqw;
+  border: 2.2cqw solid #f3cd52;
+  background: linear-gradient(150deg, color-mix(in oklab, var(--t) 62%, white) 0%, var(--t) 48%, color-mix(in oklab, var(--t) 68%, black) 100%);
+  box-shadow: 0 2cqw 6cqw -2cqw rgba(20, 24, 36, 0.55);
+  color: var(--kz-ink);
+  overflow: hidden;
+  text-align: left;
+  user-select: none;
 }
-@keyframes kz-pack-shake {
-  0%, 100% { transform: rotate(0); }
-  20% { transform: rotate(-3deg); }
-  40% { transform: rotate(3deg); }
-  60% { transform: rotate(-2deg); }
-  80% { transform: rotate(1deg); }
+.pk-card[data-rarity="legendary"] {
+  background: linear-gradient(150deg, #fbe7a1 0%, #d9a63a 40%, #f6d77a 62%, #a87a22 100%);
 }
-@keyframes kz-pack-strip {
-  to { transform: translate(40px, -60px) rotate(18deg); opacity: 0; }
+.pk-card[data-shiny="true"] {
+  border-color: #fff6d8;
+  background: linear-gradient(135deg, #f7a8c8, #f9d77e, #9be3c4, #9bc2f7, #c9a6f2);
 }
-.kz-pack-tearing { animation: kz-pack-shake 0.4s ease-in-out; }
-.kz-pack-tearing .kz-pack-strip { animation: kz-pack-strip 0.45s 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-@media (prefers-reduced-motion: reduce) {
-  .kz-pack, .kz-pack:hover { transition: none; transform: none; }
+.pk-inner {
+  position: absolute;
+  inset: 2.6cqw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8cqw;
+}
+.pk-name {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding: 1.4cqw 3cqw;
+  border-radius: 3cqw;
+  background: #fbf6e6;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.pk-name b { font-size: 7.4cqw; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pk-name span { font-size: 4.2cqw; white-space: nowrap; color: var(--kz-brick); }
+.pk-name span em { font-style: normal; font-size: 6.6cqw; }
+.pk-window {
+  position: relative;
+  aspect-ratio: 5 / 3.7;
+  border-radius: 2.4cqw;
+  border: 1.4cqw solid #e9d49a;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(255, 255, 255, 0.85) 0%, transparent 62%),
+    repeating-conic-gradient(from 0deg at 50% 60%, rgba(255, 255, 255, 0.22) 0deg 6deg, transparent 6deg 14deg),
+    color-mix(in oklab, var(--t) 38%, #fbf6e6);
+}
+.pk-window img {
+  position: absolute;
+  inset: 4% 8% 0;
+  width: 84%;
+  height: 96%;
+  object-fit: contain;
+  /* no filter here: a drop-shadow hides the art inside the 3D flip in Chrome */
+}
+.pk-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5cqw;
+  padding: 0 1cqw;
+  font-size: 3.6cqw;
+  font-weight: 800;
+  color: #fbf6e6;
+  text-shadow: 0 0.3cqw 0.8cqw rgba(20, 24, 36, 0.4);
+}
+.pk-card[data-rarity="legendary"] .pk-strip,
+.pk-card[data-shiny="true"] .pk-strip { color: var(--kz-ink); text-shadow: none; }
+.pk-types { display: flex; gap: 1.2cqw; }
+.pk-types i {
+  font-style: normal;
+  padding: 0.6cqw 2.2cqw;
+  border-radius: 99px;
+  font-size: 3.2cqw;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  border: 0.5cqw solid rgba(255, 255, 255, 0.7);
+  text-shadow: none;
+}
+.pk-text {
+  flex: 1;
+  min-height: 0;
+  padding: 2cqw 3cqw;
+  border-radius: 2.4cqw;
+  background: #fbf6e6;
+  font-size: 4.1cqw;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--kz-ink-soft);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+.pk-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4cqw; }
+.pk-stats span {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1.2cqw;
+  padding: 1cqw 0;
+  border-radius: 99px;
+  background: rgba(251, 246, 230, 0.92);
+  font-size: 5cqw;
+  font-weight: 800;
+}
+.pk-stats small { font-size: 2.9cqw; letter-spacing: 0.06em; color: var(--kz-ink-soft); }
+
+/* Holo foil and glare, steered by --mx/--my (0–100%) from the pointer. */
+.pk-foil,
+.pk-glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+.pk-foil {
+  background: linear-gradient(115deg, transparent 18%, rgba(255, 90, 170, 0.5) 32%, rgba(90, 230, 255, 0.5) 46%, rgba(255, 240, 90, 0.5) 60%, rgba(150, 255, 140, 0.45) 72%, transparent 86%);
+  background-size: 260% 260%;
+  background-position: var(--mx, 50%) var(--my, 50%);
+  mix-blend-mode: color-dodge;
+  opacity: 0;
+}
+.pk-card[data-rarity="epic"] .pk-foil { opacity: 0.32; }
+.pk-card[data-rarity="legendary"] .pk-foil { opacity: 0.45; }
+.pk-card[data-shiny="true"] .pk-foil { opacity: 0.6; }
+.pk-glare {
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, 0.45), transparent 55%);
+  mix-blend-mode: soft-light;
+}
+
+/* One diagonal light sweep when a big card lands */
+@keyframes pk-sweep {
+  from { transform: translateX(-130%) rotate(12deg); }
+  to { transform: translateX(130%) rotate(12deg); }
+}
+.pk-sweep::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 255, 255, 0.75) 50%, transparent 60%);
+  animation: pk-sweep 0.9s 0.15s ease-out both;
+}
+
+.pk-back {
+  position: relative;
+  aspect-ratio: 63 / 88;
+  width: 100%;
+  border-radius: 5cqw;
+  border: 2.2cqw solid #f3cd52;
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0 3cqw, transparent 3cqw 6cqw),
+    radial-gradient(circle at 50% 45%, #4a5679 0%, var(--kz-ink) 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqw;
+  box-shadow: 0 2cqw 6cqw -2cqw rgba(20, 24, 36, 0.55);
+}
+.pk-back p { font-size: 6cqw; font-weight: 800; letter-spacing: 0.08em; color: #fbf6e6; }
+
+/* The table the packs are opened on */
+.pk-table {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--kz-radius);
+  background: radial-gradient(ellipse at 50% 38%, #46527a 0%, #2b3249 55%, #1f2436 100%);
+  box-shadow: var(--kz-shadow);
+}
+
+/* The foil pack: crimped top and bottom, tear strip above the cut line */
+.pk-pack {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 7.6;
+  container-type: inline-size;
+}
+.pk-pack-body,
+.pk-pack-top {
+  position: absolute;
+  inset-inline: 0;
+  background:
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.28) 45%, transparent 60%),
+    linear-gradient(160deg, #e26a4f 0%, var(--kz-brick) 45%, #a8392a 100%);
+}
+.pk-pack-top {
+  top: 0;
+  height: 12%;
+  border-radius: 3cqw 3cqw 0 0;
+  background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.14) 0 2px, transparent 2px 7px), linear-gradient(160deg, #e26a4f, var(--kz-brick));
+}
+.pk-pack-body {
+  top: 12%;
+  bottom: 0;
+  border-radius: 0 0 3cqw 3cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9cqw 6cqw 10cqw;
+  box-shadow: inset 0 -6cqw 0 rgba(0, 0, 0, 0.12);
+}
+.pk-pack-body::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 6cqw;
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.14) 0 2px, transparent 2px 7px);
+}
+.pk-pack-title { font-size: 11cqw; font-weight: 800; letter-spacing: -0.02em; color: #fbf6e6; line-height: 1; }
+.pk-pack-window {
+  width: 66cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #3a4466 0%, var(--kz-ink) 72%);
+  border: 2.4cqw solid #f6e8b8;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.pk-pack-window img { width: 80%; height: 80%; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.92; }
+.pk-pack-foot { font-size: 4.6cqw; font-weight: 800; color: rgba(251, 246, 230, 0.8); }
+.pk-cut {
+  position: absolute;
+  top: 12%;
+  inset-inline: 0;
+  height: 0;
+  border-top: 2px dashed rgba(251, 246, 230, 0.9);
+  transform-origin: left;
 }
