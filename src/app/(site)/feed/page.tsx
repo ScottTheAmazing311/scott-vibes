@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import TweetEmbed from "@/components/TweetEmbed";
 import { CATEGORIES, TIME_ZONE, loadEditions, type DigestItem, type Edition } from "@/lib/digest";
 
 /** The daily digest. Unlisted, not linked from the site. Filters are plain links back to this page. */
@@ -9,6 +10,8 @@ export const metadata: Metadata = { title: "Daily Digest", robots: { index: fals
 
 const dayLabel = (date: string, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options }).format(new Date(`${date}T12:00:00Z`));
 const updatedLabel = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(iso));
+
+const tweetId = (url: string) => url.match(/^https:\/\/(?:www\.)?(?:x|twitter)\.com\/[^/]+\/status\/(\d+)/)?.[1];
 
 const denverToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(Date.now());
 
@@ -29,6 +32,7 @@ function FilterLink({ href, on, children }: { href: string; on: boolean; childre
 }
 
 function Item({ item }: { item: DigestItem }) {
+  const tweets = [...new Set(item.sources.map((source) => tweetId(source.url)).filter((id) => id !== undefined))];
   return (
     <article className="grid gap-x-10 gap-y-3 border-t border-[var(--rule)] py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,3fr)]">
       <p className="text-sm leading-snug text-ink-3">
@@ -46,6 +50,13 @@ function Item({ item }: { item: DigestItem }) {
           <span className="font-semibold text-ink-2">Caveat. </span>
           {item.caveat}
         </p>
+        {tweets.length > 0 && (
+          <div className="mt-5 space-y-4">
+            {tweets.map((id) => (
+              <TweetEmbed key={id} id={id} />
+            ))}
+          </div>
+        )}
         <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
           {item.sources.map((source) => (
             <li key={source.url}>
