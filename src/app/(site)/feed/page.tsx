@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { accessFrom, SESSION_COOKIE, type Access } from "@/lib/digest/session";
-import { digestStore } from "@/lib/digest/store";
-import { CATEGORIES, TIME_ZONE, denverDate, type DigestItem, type Edition } from "@/lib/digest/validate";
+import { CATEGORIES, TIME_ZONE, loadEditions, type DigestItem, type Edition } from "@/lib/digest";
 
-/** The private daily digest. Rendered entirely on the server, per request, and only for the owner:
- *  no client component ever receives digest data, and filters are plain links back to this page. */
+/** The daily digest. Unlisted, not linked from the site. Filters are plain links back to this page. */
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Daily Digest", robots: { index: false, follow: false } };
@@ -14,45 +10,12 @@ export const metadata: Metadata = { title: "Daily Digest", robots: { index: fals
 const dayLabel = (date: string, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options }).format(new Date(`${date}T12:00:00Z`));
 const updatedLabel = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: TIME_ZONE, hour: "numeric", minute: "2-digit", timeZoneName: "short" }).format(new Date(iso));
 
-const denverToday = () => denverDate(Date.now());
-
-const AUTH_NOTES: Record<string, string> = {
-  denied: "That Google account doesn't have access.",
-  failed: "Sign-in didn't finish. Try again.",
-  unconfigured: "Sign-in isn't set up yet.",
-};
-
-function Gate({ access, note }: { access: Access; note?: string }) {
-  const message = access === "forbidden" ? AUTH_NOTES.denied : access === "unconfigured" ? AUTH_NOTES.unconfigured : note;
-  return (
-    <main className="wrap flex min-h-[70dvh] flex-col justify-center pb-24 pt-32">
-      <h1 className="display display-lg">Private</h1>
-      {message && <p className="body mt-6">{message}</p>}
-      {access !== "unconfigured" && (
-        <div className="mt-10">
-          <a href="/api/digest/auth/login" className="pill">
-            <span>Sign in with Google</span>
-            <span className="dot">
-              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </a>
-        </div>
-      )}
-    </main>
-  );
-}
+const denverToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(Date.now());
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="wrap pb-24 pt-28 md:pb-32 md:pt-36">
       {children}
-      <form action="/api/digest/auth/logout" method="post" className="mt-20">
-        <button type="submit" className="ulink cursor-pointer text-sm text-ink-3">
-          Sign out
-        </button>
-      </form>
     </main>
   );
 }
@@ -163,29 +126,15 @@ function Digest({ editions, selected, category, today }: { editions: Edition[]; 
 
 export default async function FeedPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
-  const access = accessFrom((await cookies()).get(SESSION_COOKIE)?.value);
-  if (access !== "owner") return <Gate access={access} note={typeof params.auth === "string" ? AUTH_NOTES[params.auth] : undefined} />;
-
-  const store = digestStore();
   let editions: Edition[] | null = null;
-  if (store) {
-    try {
-      editions = await store.history();
-    } catch {}
-  }
-  if (!editions) {
+  try {
+    editions = await loadEditions();
+  } catch {}
+  if (!editions?.length) {
     return (
       <Shell>
         <h1 className="display display-md">Daily Digest</h1>
-        <p className="body mt-6">The digest couldn&rsquo;t be loaded right now. Stored editions aren&rsquo;t affected.</p>
-      </Shell>
-    );
-  }
-  if (editions.length === 0) {
-    return (
-      <Shell>
-        <h1 className="display display-md">Daily Digest</h1>
-        <p className="body mt-6">No editions have arrived yet.</p>
+        <p className="body mt-6">{editions ? "No editions have arrived yet." : "The digest couldn\u2019t be loaded right now."}</p>
       </Shell>
     );
   }

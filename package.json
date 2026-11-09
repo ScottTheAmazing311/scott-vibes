@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "test:digest": "tsx --test tests/digest.test.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -35,7 +34,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "tsx": "4.23.15",
     "typescript": "^5"
   }
 }
